@@ -1,0 +1,73 @@
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { supabase } from "../supabase"; // file config kết nối Supabase
+
+const patients = ref<any[]>([]);
+const loading = ref(true);
+const error = ref<string | null>(null);
+
+// Hàm load danh sách tái khám hôm nay
+const loadPatients = async () => {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+    const { data, error: supabaseError } = await supabase
+      .from("khambenh")
+      .select(`
+        benhnhan_id,
+        benhnhan ( ho_ten, ngay_sinh ),
+        ngay_kham,
+        chan_doan,
+        so_ngay_toa
+      `)
+      .eq("ngay_hen_tai_kham", today);
+
+    if (supabaseError) throw supabaseError;
+    patients.value = data || [];
+  } catch (err: any) {
+    error.value = err.message || "Lỗi khi tải dữ liệu";
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(loadPatients);
+</script>
+
+<template>
+  <div class="p-4">
+    <h2 class="text-lg font-bold mb-3">📋 Danh sách tái khám hôm nay</h2>
+
+    <div v-if="loading">⏳ Đang tải dữ liệu...</div>
+    <div v-else-if="error" class="text-red-500">⚠️ {{ error }}</div>
+    <table v-else class="table-auto border-collapse border border-gray-400 w-full">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="border border-gray-400 px-2 py-1">Mã BN</th>
+          <th class="border border-gray-400 px-2 py-1">Họ tên</th>
+          <th class="border border-gray-400 px-2 py-1">Ngày sinh</th>
+          <th class="border border-gray-400 px-2 py-1">Ngày khám</th>
+          <th class="border border-gray-400 px-2 py-1">Chẩn đoán</th>
+          <th class="border border-gray-400 px-2 py-1">Số ngày toa</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(p, i) in patients" :key="i">
+          <td class="border border-gray-400 px-2 py-1">{{ p.benhnhan_id }}</td>
+          <td class="border border-gray-400 px-2 py-1">{{ p.benhnhan.ho_ten }}</td>
+          <td class="border border-gray-400 px-2 py-1">{{ p.benhnhan.ngay_sinh }}</td>
+          <td class="border border-gray-400 px-2 py-1">{{ p.ngay_kham }}</td>
+          <td class="border border-gray-400 px-2 py-1">{{ p.chan_doan }}</td>
+          <td class="border border-gray-400 px-2 py-1">{{ p.so_ngay_toa }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div v-if="!loading && patients.length === 0" class="mt-2 text-gray-500">
+      Không có bệnh nhân nào hẹn tái khám hôm nay.
+    </div>
+  </div>
+</template>
