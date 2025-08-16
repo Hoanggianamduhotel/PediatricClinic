@@ -7,9 +7,14 @@ console.log('🏥 Starting Clinic BS Khang Production Server...');
 process.env.NODE_ENV = 'production';
 
 try {
-  // Start the production server
-  require('./server/production-server.js');
+  // Start the Supabase-enabled production server
+  require('./server/supabase-server.js');
 } catch (error) {
-  console.error('❌ Express server failed, falling back to simple HTTP server');
-  require('./deploy-test.js');
+  console.error('❌ Supabase server failed, trying basic production server');
+  try {
+    require('./server/production-server.js');
+  } catch (error2) {
+    console.error('❌ All Express servers failed, falling back to simple HTTP server');
+    require('./deploy-test.js');
+  }
 }

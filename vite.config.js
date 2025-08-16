@@ -16,5 +16,17 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'pinia', 'axios'],
+          vuetify: ['vuetify']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 600,
   },
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+  }
 })

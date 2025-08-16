@@ -29,6 +29,10 @@ args = "SimpleServer"
 task = "workflow.run"
 args = "Frontend"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "SupabaseServer"
+
 [[workflows.workflow]]
 name = "Backend"
 author = "agent"
@@ -76,6 +80,15 @@ waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow]]
+name = "SupabaseServer"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node server/supabase-server.js"
+waitForPort = 10000
 
 [[ports]]
 localPort = 3000
