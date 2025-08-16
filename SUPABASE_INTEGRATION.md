@@ -19,24 +19,12 @@ VITE_SUPABASE_ANON_KEY=your_anon_key_here
 
 ## 🗄️ Database Setup
 1. Vào Supabase Dashboard → SQL Editor
-2. Chạy migration SQL tạo table `benhnhan`:
+2. Chạy migration SQL tạo table `benhnhan` (file: `server/db/migrate-benhnhan.sql`)
+3. Chạy migration SQL tạo table `danhsachcho` (file: `server/db/migrate-danhsachcho.sql`)
 
-```sql
-CREATE TABLE IF NOT EXISTS benhnhan (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    ho_ten TEXT NOT NULL,
-    ngay_sinh DATE,
-    gioi_tinh TEXT,
-    dia_chi TEXT,
-    so_dien_thoai TEXT,
-    can_nang DECIMAL(5,1),
-    thang_tuoi INTEGER,
-    created_at DATE DEFAULT CURRENT_DATE
-);
-
-CREATE INDEX IF NOT EXISTS idx_benhnhan_ho_ten ON benhnhan(ho_ten);
-CREATE INDEX IF NOT EXISTS idx_benhnhan_created_at ON benhnhan(created_at);
-```
+### Migration Files:
+- **benhnhan table**: Patient records với UUID primary key
+- **danhsachcho table**: Waiting list với foreign key constraint
 
 ## 🎯 Client-Side Features
 - **Direct Supabase Connection**: Frontend gọi Supabase trực tiếp, không qua backend API

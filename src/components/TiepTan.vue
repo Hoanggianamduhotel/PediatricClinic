@@ -278,6 +278,16 @@
             </v-row>
           </v-card-text>
           <v-card-actions class="pa-6 pt-0">
+            <v-btn 
+              @click="addToWaitingList(selectedPatient)"
+              :loading="isAddingToWaitingList"
+              color="warning"
+              variant="elevated"
+              prepend-icon="mdi-clock-plus"
+            >
+              Thêm vào danh sách chờ
+            </v-btn>
+            <v-spacer />
             <v-btn @click="selectedPatient = null" variant="outlined">
               Đóng
             </v-btn>
@@ -303,17 +313,19 @@
 
 <script>
 import { ref, onMounted } from 'vue'
-import { patientService } from '../lib/supabase.js'
+import { patientService, waitingListService } from '../lib/supabase.js'
 
 export default {
   name: 'TiepTan',
-  setup() {
+  emits: ['patient-added-to-waiting'],
+  setup(props, { emit }) {
     const showAddPatientDialog = ref(false)
     const searchQuery = ref('')
     const searchResults = ref([])
     const selectedPatient = ref(null)
     const isSearching = ref(false)
     const isSubmitting = ref(false)
+    const isAddingToWaitingList = ref(false)
     const message = ref(null)
     const showMessage = ref(false)
     
@@ -395,6 +407,26 @@ export default {
       searchResults.value = []
     }
 
+    const addToWaitingList = async (patient) => {
+      try {
+        isAddingToWaitingList.value = true
+        const result = await waitingListService.addToWaitingList(patient)
+        
+        if (result.success) {
+          displayMessage(result.message || 'Đã thêm vào danh sách chờ thành công!')
+          selectedPatient.value = null // Close patient details
+          emit('patient-added-to-waiting') // Notify parent to update count
+        } else {
+          displayMessage(result.error || 'Không thể thêm vào danh sách chờ', 'error')
+        }
+      } catch (error) {
+        console.error('Add to waiting list error:', error)
+        displayMessage('Không thể thêm vào danh sách chờ', 'error')
+      } finally {
+        isAddingToWaitingList.value = false
+      }
+    }
+
     const formatDate = (dateString) => {
       if (!dateString) return ''
       const date = new Date(dateString)
@@ -412,6 +444,7 @@ export default {
       selectedPatient,
       isSearching,
       isSubmitting,
+      isAddingToWaitingList,
       message,
       newPatient,
       showMessage,
@@ -420,6 +453,7 @@ export default {
       addPatient,
       searchPatients,
       selectPatient,
+      addToWaitingList,
       formatDate
     }
   }

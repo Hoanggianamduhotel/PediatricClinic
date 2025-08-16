@@ -21,10 +21,38 @@
       </template>
     </v-app-bar>
 
+    <!-- Navigation Tabs -->
+    <v-toolbar color="white" elevation="1">
+      <v-tabs v-model="currentTab" color="primary" align-tabs="start">
+        <v-tab value="tieptan" prepend-icon="mdi-account-plus">
+          Tiếp Tân
+        </v-tab>
+        <v-tab value="danhsachcho" prepend-icon="mdi-clock-outline">
+          Danh Sách Chờ
+          <v-chip 
+            v-if="waitingCount > 0" 
+            color="warning" 
+            size="x-small" 
+            class="ml-2"
+          >
+            {{ waitingCount }}
+          </v-chip>
+        </v-tab>
+      </v-tabs>
+    </v-toolbar>
+
     <!-- Main Content -->
     <v-main>
       <v-container fluid class="pa-6">
-        <TiepTan />
+        <v-window v-model="currentTab">
+          <v-window-item value="tieptan">
+            <TiepTan @patient-added-to-waiting="updateWaitingCount" />
+          </v-window-item>
+          
+          <v-window-item value="danhsachcho">
+            <DanhSachCho @waiting-list-changed="updateWaitingCount" />
+          </v-window-item>
+        </v-window>
       </v-container>
     </v-main>
   </v-app>
@@ -33,14 +61,19 @@
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
 import TiepTan from './components/TiepTan.vue'
+import DanhSachCho from './components/DanhSachCho.vue'
+import { waitingListService } from './lib/supabase.js'
 
 export default {
   name: 'App',
   components: {
-    TiepTan
+    TiepTan,
+    DanhSachCho
   },
   setup() {
     const currentDateTime = ref('')
+    const currentTab = ref('tieptan')
+    const waitingCount = ref(0)
     let timeInterval = null
 
     const updateDateTime = () => {
@@ -54,8 +87,20 @@ export default {
       })
     }
 
+    const updateWaitingCount = async () => {
+      try {
+        const result = await waitingListService.getWaitingList()
+        if (result.success) {
+          waitingCount.value = result.data?.length || 0
+        }
+      } catch (error) {
+        console.error('Failed to update waiting count:', error)
+      }
+    }
+
     onMounted(() => {
       updateDateTime()
+      updateWaitingCount()
       timeInterval = setInterval(updateDateTime, 60000) // Update every minute
     })
 
@@ -66,7 +111,10 @@ export default {
     })
 
     return {
-      currentDateTime
+      currentDateTime,
+      currentTab,
+      waitingCount,
+      updateWaitingCount
     }
   }
 }

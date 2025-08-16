@@ -119,3 +119,107 @@ export const patientService = {
     }
   }
 }
+
+// Waiting list service
+export const waitingListService = {
+  // Add patient to waiting list
+  async addToWaitingList(patient) {
+    try {
+      // Check if patient already in waiting list
+      const { data: existing } = await supabase
+        .from('danhsachcho')
+        .select('id')
+        .eq('benhnhan_id', patient.id)
+        .single()
+      
+      if (existing) {
+        return {
+          success: false,
+          error: 'Bệnh nhân đã có trong danh sách chờ'
+        }
+      }
+      
+      const waitingListEntry = {
+        benhnhan_id: patient.id,
+        ho_ten: patient.ho_ten,
+        ngay_sinh: patient.ngay_sinh,
+        gioi_tinh: patient.gioi_tinh,
+        dia_chi: patient.dia_chi,
+        thang_tuoi: patient.thang_tuoi,
+        can_nang: patient.can_nang,
+        so_dien_thoai: patient.so_dien_thoai,
+        ngay_tao: new Date().toISOString().split('T')[0]
+      }
+      
+      const { data, error } = await supabase
+        .from('danhsachcho')
+        .insert(waitingListEntry)
+        .select()
+        .single()
+      
+      if (error) {
+        throw error
+      }
+      
+      return {
+        success: true,
+        data,
+        message: 'Đã thêm vào danh sách chờ thành công'
+      }
+    } catch (error) {
+      console.error('Lỗi thêm vào danh sách chờ:', error)
+      return {
+        success: false,
+        error: error.message || 'Không thể thêm vào danh sách chờ'
+      }
+    }
+  },
+
+  // Get waiting list
+  async getWaitingList() {
+    try {
+      const { data, error } = await supabase
+        .from('danhsachcho')
+        .select('*')
+        .order('ngay_tao', { ascending: true })
+        .order('id', { ascending: true })
+      
+      if (error) {
+        throw error
+      }
+      
+      return { success: true, data: data || [] }
+    } catch (error) {
+      console.error('Lỗi tải danh sách chờ:', error)
+      return {
+        success: false,
+        error: error.message || 'Không thể tải danh sách chờ'
+      }
+    }
+  },
+
+  // Remove from waiting list
+  async removeFromWaitingList(waitingListId) {
+    try {
+      const { error } = await supabase
+        .from('danhsachcho')
+        .delete()
+        .eq('id', waitingListId)
+      
+      if (error) {
+        throw error
+      }
+      
+      return {
+        success: true,
+        message: 'Đã xóa khỏi danh sách chờ'
+      }
+    } catch (error) {
+      console.error('Lỗi xóa khỏi danh sách chờ:', error)
+      return {
+        success: false,
+        error: error.message || 'Không thể xóa khỏi danh sách chờ'
+      }
+    }
+  }
+}
