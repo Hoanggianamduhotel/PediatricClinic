@@ -306,6 +306,7 @@ export default {
   components: {
     TiepTan,
     DanhSachCho,
+    ThongKe,
     CharacterWidget
   },
   setup() {
