@@ -223,3 +223,55 @@ export const waitingListService = {
     }
   }
 }
+
+// Follow-up appointment service
+export const followUpService = {
+  async getFollowUpStats() {
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      
+      // Get follow-up appointments for today
+      const { data: todayFollowUps, error: todayError } = await supabase
+        .from('khambenh')
+        .select('id')
+        .eq('ngay_hen_tai_kham', today)
+      
+      if (todayError) throw todayError
+
+      // Get all upcoming follow-up appointments (future dates)
+      const { data: upcomingFollowUps, error: upcomingError } = await supabase
+        .from('khambenh')
+        .select('id')
+        .gt('ngay_hen_tai_kham', today)
+      
+      if (upcomingError) throw upcomingError
+
+      // Get overdue follow-up appointments (past dates)
+      const { data: overdueFollowUps, error: overdueError } = await supabase
+        .from('khambenh')
+        .select('id')
+        .lt('ngay_hen_tai_kham', today)
+        .not('ngay_hen_tai_kham', 'is', null)
+      
+      if (overdueError) throw overdueError
+
+      return {
+        success: true,
+        data: {
+          today: todayFollowUps?.length || 0,
+          upcoming: upcomingFollowUps?.length || 0,
+          overdue: overdueFollowUps?.length || 0
+        }
+      }
+    } catch (error) {
+      console.error('Get follow-up stats error:', error)
+      return {
+        success: false,
+        error: error.message || 'Không thể lấy thống kê hẹn tái khám'
+      }
+    }
+  }
+}
+
+// Export services
+export { patientService, waitingListService, followUpService }

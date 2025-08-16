@@ -85,13 +85,18 @@
       </v-col>
     </v-row>
 
-    <!-- Add Patient Dialog -->
-    <v-dialog v-model="showAddPatientDialog" max-width="600px" persistent>
-      <v-card>
-        <v-card-title class="bg-success text-white d-flex align-center justify-space-between">
+    <!-- Add Patient Dialog - Mobile Optimized -->
+    <v-dialog 
+      v-model="showAddPatientDialog" 
+      :max-width="$vuetify.display.mobile ? '95vw' : '500px'"
+      :fullscreen="$vuetify.display.mobile"
+      persistent
+    >
+      <v-card class="mobile-form">
+        <v-card-title class="bg-success text-white d-flex align-center justify-space-between px-4 py-3">
           <div class="d-flex align-center">
-            <v-icon start>mdi-account-plus</v-icon>
-            Thêm Bệnh Nhân Mới
+            <v-icon start size="20">mdi-account-plus</v-icon>
+            <span class="text-body-1 font-weight-medium">Thêm Bệnh Nhân</span>
           </div>
           <v-btn 
             @click="closeAddPatientDialog" 
@@ -103,95 +108,106 @@
         </v-card-title>
         
         <v-form @submit.prevent="addPatient" ref="patientForm">
-          <v-card-text class="pa-6">
-            <v-row>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="newPatient.ho_ten"
-                  label="Họ Tên *"
-                  placeholder="Nhập họ tên đầy đủ"
-                  variant="outlined"
-                  required
-                  :rules="[v => !!v || 'Họ tên là bắt buộc']"
-                  prepend-inner-icon="mdi-account"
-                  ref="hoTenField"
-                  @keydown.enter="focusNext('ngaySinhField')"
-                />
-              </v-col>
+          <v-card-text class="pa-4">
+            <!-- Compact Grid Layout -->
+            <div class="form-grid">
+              <v-text-field
+                v-model="newPatient.ho_ten"
+                label="Họ Tên *"
+                placeholder="VD: Nguyễn Văn An"
+                variant="outlined"
+                density="compact"
+                required
+                :rules="[v => !!v || 'Họ tên là bắt buộc']"
+                prepend-inner-icon="mdi-account"
+                ref="hoTenField"
+                @keydown.enter="focusNext('ngaySinhField')"
+                hide-details="auto"
+                class="mb-3"
+              />
               
-              <v-col cols="12" sm="6">
+              <div class="d-flex gap-2 mb-3">
                 <v-text-field
                   v-model="newPatient.ngay_sinh"
                   label="Ngày Sinh"
                   type="date"
                   variant="outlined"
+                  density="compact"
                   prepend-inner-icon="mdi-calendar"
                   ref="ngaySinhField"
                   @keydown.enter="focusNext('gioiTinhField')"
+                  hide-details="auto"
+                  class="flex-1"
                 />
-              </v-col>
-              
-              <v-col cols="12" sm="6">
+                
                 <v-select
                   v-model="newPatient.gioi_tinh"
                   label="Giới Tính"
                   :items="['Nam', 'Nữ']"
                   variant="outlined"
+                  density="compact"
                   prepend-inner-icon="mdi-gender-male-female"
-                  clearable
                   ref="gioiTinhField"
                   @keydown.enter="focusNext('canNangField')"
+                  hide-details="auto"
+                  class="flex-1"
                 />
-              </v-col>
+              </div>
               
-              <v-col cols="12" sm="6">
+              <div class="d-flex gap-2 mb-3">
                 <v-text-field
                   v-model="newPatient.can_nang"
                   label="Cân Nặng (kg)"
                   type="number"
                   step="0.1"
                   variant="outlined"
-                  placeholder="VD: 15.5"
+                  density="compact"
+                  placeholder="15.5"
                   prepend-inner-icon="mdi-scale"
                   ref="canNangField"
                   @keydown.enter="focusNext('soDienThoaiField')"
+                  hide-details="auto"
+                  class="flex-1"
                 />
-              </v-col>
-              
-              <v-col cols="12" sm="6">
+                
                 <v-text-field
                   v-model="newPatient.so_dien_thoai"
-                  label="Số Điện Thoại"
+                  label="Số ĐT"
                   type="tel"
                   variant="outlined"
+                  density="compact"
                   placeholder="0123456789"
                   prepend-inner-icon="mdi-phone"
                   ref="soDienThoaiField"
                   @keydown.enter="focusNext('diaChiField')"
+                  hide-details="auto"
+                  class="flex-1"
                 />
-              </v-col>
+              </div>
               
-              <v-col cols="12">
-                <v-textarea
-                  v-model="newPatient.dia_chi"
-                  label="Địa Chỉ"
-                  variant="outlined"
-                  placeholder="Nhập địa chỉ đầy đủ"
-                  prepend-inner-icon="mdi-map-marker"
-                  rows="2"
-                  ref="diaChiField"
-                  @keydown.enter="addPatient"
-                />
-              </v-col>
-            </v-row>
+              <v-textarea
+                v-model="newPatient.dia_chi"
+                label="Địa Chỉ"
+                variant="outlined"
+                density="compact"
+                placeholder="Nhập địa chỉ"
+                prepend-inner-icon="mdi-map-marker"
+                rows="2"
+                ref="diaChiField"
+                @keydown.enter="addPatient"
+                hide-details="auto"
+                class="mb-3"
+              />
+            </div>
           </v-card-text>
           
-          <v-card-actions class="pa-6 pt-0">
-            <v-spacer />
+          <v-card-actions class="pa-4 pt-0 d-flex gap-2">
             <v-btn 
               @click="closeAddPatientDialog" 
               variant="outlined"
               color="grey"
+              size="large"
+              class="flex-1"
             >
               Hủy
             </v-btn>
@@ -200,6 +216,8 @@
               :loading="isSubmitting"
               color="success"
               variant="elevated"
+              size="large"
+              class="flex-1"
             >
               Lưu Bệnh Nhân
             </v-btn>
@@ -324,6 +342,36 @@
     </v-snackbar>
   </div>
 </template>
+
+<style scoped>
+.mobile-form {
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 600px) {
+  .mobile-form .v-card-text {
+    padding: 16px 12px !important;
+  }
+  
+  .d-flex.gap-2 {
+    gap: 8px !important;
+  }
+  
+  .flex-1 {
+    flex: 1;
+  }
+}
+
+.gap-2 {
+  gap: 8px;
+}
+</style>
 
 <script>
 import { ref, onMounted, nextTick, getCurrentInstance } from 'vue'

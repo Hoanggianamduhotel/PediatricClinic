@@ -76,8 +76,24 @@
           <v-col cols="6">
             <v-card color="info" variant="flat">
               <v-card-text class="text-center text-white pa-3">
-                <div class="text-h6 font-weight-bold">0</div>
-                <div class="text-caption">Đã khám</div>
+                <div class="text-h6 font-weight-bold">{{ followUpStats.today }}</div>
+                <div class="text-caption">Hẹn hôm nay</div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col cols="6">
+            <v-card color="warning" variant="flat">
+              <v-card-text class="text-center text-white pa-3">
+                <div class="text-h6 font-weight-bold">{{ followUpStats.upcoming }}</div>
+                <div class="text-caption">Hẹn sắp tới</div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col cols="6">
+            <v-card color="error" variant="flat">
+              <v-card-text class="text-center text-white pa-3">
+                <div class="text-h6 font-weight-bold">{{ followUpStats.overdue }}</div>
+                <div class="text-caption">Hẹn quá hạn</div>
               </v-card-text>
             </v-card>
           </v-col>
@@ -115,6 +131,7 @@
         <v-list-item 
           prepend-icon="mdi-calendar-check" 
           title="Hẹn Tái Khám"
+          :subtitle="`${followUpStats.today} hôm nay, ${followUpStats.upcoming} sắp tới`"
         />
         
         <v-list-item 
@@ -291,7 +308,7 @@ import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance } from 'vue'
 import TiepTan from './components/TiepTan.vue'
 import DanhSachCho from './components/DanhSachCho.vue'
 import CharacterWidget from './components/CharacterWidget.vue'
-import { waitingListService } from './lib/supabase.js'
+import { waitingListService, followUpService } from './lib/supabase.js'
 
 export default {
   name: 'App',
@@ -312,6 +329,11 @@ export default {
     const currentRole = ref('doctor') // 'doctor' or 'pharmacist'
     const showMascot = ref(true)
     const waitingListKey = ref(0)
+    const followUpStats = ref({
+      today: 0,
+      upcoming: 0,
+      overdue: 0
+    })
     let timeInterval = null
 
     const updateDateTime = () => {
@@ -369,9 +391,21 @@ export default {
       }
     }
 
+    const updateFollowUpStats = async () => {
+      try {
+        const result = await followUpService.getFollowUpStats()
+        if (result.success) {
+          followUpStats.value = result.data
+        }
+      } catch (error) {
+        console.error('Failed to update follow-up stats:', error)
+      }
+    }
+
     onMounted(() => {
       updateDateTime()
       updateWaitingCount()
+      updateFollowUpStats()
       timeInterval = setInterval(updateDateTime, 60000) // Update every minute
     })
 
@@ -393,8 +427,10 @@ export default {
       currentRole,
       showMascot,
       waitingListKey,
+      followUpStats,
       danhSachChoRef,
       updateWaitingCount,
+      updateFollowUpStats,
       toggleTheme,
       handleMascotClick,
       handleMascotClose,
