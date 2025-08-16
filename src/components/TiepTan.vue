@@ -1,19 +1,19 @@
 <template>
   <div class="tiep-tan">
-    <!-- Main Actions -->
-    <v-row class="mb-6">
+    <!-- Main Actions - Mobile Optimized -->
+    <v-row class="mb-4">
       <!-- New Patient Card -->
       <v-col cols="12" md="6">
-        <v-card elevation="2" height="100%" class="rounded-xl">
+        <v-card elevation="2" :height="$vuetify.display.mobile ? 'auto' : '100%'" class="rounded-xl">
           <v-card-title class="text-white d-flex align-center" style="background-color: #4caf50;">
             <v-icon start>mdi-account-plus</v-icon>
             Thêm Bệnh Nhân Mới
           </v-card-title>
-          <v-card-text class="pa-6">
-            <p class="text-body-1 mb-4">Đăng ký thông tin bệnh nhân mới vào hệ thống</p>
+          <v-card-text :class="$vuetify.display.mobile ? 'pa-4' : 'pa-6'">
+            <p :class="$vuetify.display.mobile ? 'text-body-2 mb-3' : 'text-body-1 mb-4'">Đăng ký thông tin bệnh nhân mới vào hệ thống</p>
             <v-btn 
               @click="showAddPatientDialog = true" 
-              size="large" 
+              :size="$vuetify.display.mobile ? 'default' : 'large'"
               block
               prepend-icon="mdi-account-plus"
               class="rounded-lg"
@@ -27,12 +27,12 @@
 
       <!-- Search Patient Card -->
       <v-col cols="12" md="6">
-        <v-card elevation="2" height="100%" class="rounded-xl">
+        <v-card elevation="2" :height="$vuetify.display.mobile ? 'auto' : '100%'" class="rounded-xl">
           <v-card-title class="text-white d-flex align-center" style="background-color: #2196F3;">
             <v-icon start>mdi-magnify</v-icon>
             Tìm Bệnh Cũ
           </v-card-title>
-          <v-card-text class="pa-6">
+          <v-card-text :class="$vuetify.display.mobile ? 'pa-4' : 'pa-6'">
             <v-text-field
               v-model="searchQuery"
               @input="searchPatients"
@@ -46,7 +46,7 @@
             />
             
             <!-- Search Results -->
-            <v-list v-if="searchResults.length > 0" class="mt-4" max-height="300" style="overflow-y: auto;">
+            <v-list v-if="searchResults.length > 0" class="mt-4" :max-height="$vuetify.display.mobile ? '200' : '300'" style="overflow-y: auto;">
               <v-list-item
                 v-for="patient in searchResults" 
                 :key="patient.id"

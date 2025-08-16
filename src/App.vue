@@ -157,13 +157,13 @@
       </v-list>
     </v-navigation-drawer>
 
-    <!-- Main Content -->
+    <!-- Main Content - Mobile Optimized -->
     <v-main class="bg-grey-lighten-4">
-      <v-container fluid class="pa-6">
+      <v-container fluid :class="$vuetify.display.mobile ? 'pa-2' : 'pa-6'">
         <!-- Tab Content -->
         <div v-if="currentTab === 'tieptan'">
-          <!-- Title and Action Button -->
-          <div class="d-flex justify-space-between align-center mb-6">
+          <!-- Title and Action Button - Mobile Optimized -->
+          <div v-if="!$vuetify.display.mobile" class="d-flex justify-space-between align-center mb-6">
             <div>
               <h2 class="text-h4 font-weight-bold text-primary mb-2">Danh Sách Chờ Khám</h2>
               <p class="text-grey-600">Quản lý bệnh nhân đang chờ khám</p>
@@ -178,6 +178,21 @@
             </v-btn>
           </div>
           
+          <!-- Mobile Title -->
+          <div v-else class="mb-4">
+            <h2 class="text-h6 font-weight-bold text-primary mb-1">Danh Sách Chờ Khám</h2>
+            <p class="text-caption text-grey-600 mb-3">Quản lý bệnh nhân đang chờ khám</p>
+            <v-btn 
+              color="primary" 
+              size="small"
+              prepend-icon="mdi-plus"
+              block
+              @click="showAddPatientDialog = true"
+            >
+              Tiếp Nhận Bệnh Nhân
+            </v-btn>
+          </div>
+          
           <!-- Reception Interface -->
           <TiepTan 
             @patient-added-to-waiting="handlePatientAdded" 
@@ -186,8 +201,8 @@
           />
           
           <!-- Waiting List Below -->
-          <div class="mt-8">
-            <v-divider class="mb-6" />
+          <div :class="$vuetify.display.mobile ? 'mt-4' : 'mt-8'">
+            <v-divider :class="$vuetify.display.mobile ? 'mb-4' : 'mb-6'" />
             <DanhSachCho 
               @waiting-list-changed="updateWaitingCount" 
               :show-header="false"
@@ -207,8 +222,9 @@
       </v-container>
     </v-main>
 
-    <!-- Right Sidebar (Purple) -->
+    <!-- Right Sidebar (Purple) - Hidden on mobile -->
     <v-navigation-drawer
+      v-if="!$vuetify.display.mobile"
       app
       permanent
       location="right"
@@ -256,9 +272,9 @@
       </div>
     </v-navigation-drawer>
 
-    <!-- Character Widget (Mascot) -->
+    <!-- Character Widget (Mascot) - Mobile Optimized -->
     <CharacterWidget 
-      v-if="showMascot"
+      v-if="showMascot && !$vuetify.display.mobile"
       @character-click="handleMascotClick"
       @close="handleMascotClose"
     />
@@ -274,6 +290,13 @@
   left: 0;
   right: 0;
   z-index: 1001;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 960px) {
+  .purple-separator {
+    top: 56px; /* Adjusted for mobile app bar height */
+  }
 }
 
 .clinic-name-vertical {

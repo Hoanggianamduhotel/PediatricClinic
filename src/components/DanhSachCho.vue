@@ -25,8 +25,8 @@
       
       <v-divider />
 
-      <!-- Table Content -->
-      <v-table class="clean-table">
+      <!-- Desktop Table -->
+      <v-table v-if="!$vuetify.display.mobile" class="clean-table">
         <thead>
           <tr class="table-header">
             <th class="text-center">STT</th>
@@ -80,6 +80,57 @@
           </tr>
         </tbody>
       </v-table>
+
+      <!-- Mobile Cards List -->
+      <div v-else class="mobile-waiting-list pa-3">
+        <v-card
+          v-for="(patient, index) in waitingList"
+          :key="patient.id"
+          class="mb-3"
+          elevation="1"
+          variant="outlined"
+        >
+          <v-card-text class="pa-3">
+            <div class="d-flex align-center mb-2">
+              <v-chip color="primary" size="small" class="mr-2">{{ index + 1 }}</v-chip>
+              <div class="text-subtitle-1 font-weight-medium flex-grow-1">{{ patient.ho_ten }}</div>
+              <v-btn
+                @click="removeFromList(patient)"
+                :loading="removing === patient.id"
+                icon="mdi-delete"
+                size="small"
+                color="error"
+                variant="text"
+              />
+            </div>
+            
+            <v-row dense class="text-caption">
+              <v-col cols="6">
+                <div class="text-grey-600">Ngày sinh:</div>
+                <div>{{ formatDateShort(patient.ngay_sinh) }}</div>
+              </v-col>
+              <v-col cols="6">
+                <div class="text-grey-600">Tuổi:</div>
+                <div v-if="patient.thang_tuoi">{{ patient.thang_tuoi }} tháng</div>
+                <div v-else class="text-grey-500">Chưa rõ</div>
+              </v-col>
+            </v-row>
+            
+            <v-row dense class="text-caption mt-1">
+              <v-col cols="6">
+                <div class="text-grey-600">Cân nặng:</div>
+                <div v-if="patient.can_nang">{{ patient.can_nang }} kg</div>
+                <div v-else class="text-grey-500">-</div>
+              </v-col>
+              <v-col cols="6">
+                <div class="text-grey-600">Điện thoại:</div>
+                <div v-if="patient.so_dien_thoai">{{ patient.so_dien_thoai }}</div>
+                <div v-else class="text-grey-500">-</div>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </div>
     </v-card>
 
     <!-- Empty State -->
@@ -228,6 +279,14 @@ export default {
   margin: 0 auto;
 }
 
+/* Mobile optimizations */
+@media (max-width: 960px) {
+  .danh-sach-cho {
+    max-width: 100%;
+    padding: 0;
+  }
+}
+
 .clean-table {
   background: white;
 }
@@ -257,5 +316,44 @@ export default {
 .patient-name {
   font-weight: 500;
   color: #1976d2;
+}
+
+/* Mobile waiting list styles */
+.mobile-waiting-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-waiting-list .v-card {
+  border-radius: 12px !important;
+  transition: all 0.2s ease;
+}
+
+.mobile-waiting-list .v-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Touch-friendly elements */
+@media (max-width: 960px) {
+  .v-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+}
+
+/* Improved scroll behavior */
+.mobile-waiting-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-waiting-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mobile-waiting-list::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 2px;
 }
 </style>
