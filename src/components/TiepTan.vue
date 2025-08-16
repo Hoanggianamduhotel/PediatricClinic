@@ -114,6 +114,8 @@
                   required
                   :rules="[v => !!v || 'Họ tên là bắt buộc']"
                   prepend-inner-icon="mdi-account"
+                  ref="hoTenField"
+                  @keydown.enter="focusNext('ngaySinhField')"
                 />
               </v-col>
               
@@ -124,6 +126,8 @@
                   type="date"
                   variant="outlined"
                   prepend-inner-icon="mdi-calendar"
+                  ref="ngaySinhField"
+                  @keydown.enter="focusNext('gioiTinhField')"
                 />
               </v-col>
               
@@ -135,6 +139,8 @@
                   variant="outlined"
                   prepend-inner-icon="mdi-gender-male-female"
                   clearable
+                  ref="gioiTinhField"
+                  @keydown.enter="focusNext('canNangField')"
                 />
               </v-col>
               
@@ -147,6 +153,8 @@
                   variant="outlined"
                   placeholder="VD: 15.5"
                   prepend-inner-icon="mdi-scale"
+                  ref="canNangField"
+                  @keydown.enter="focusNext('soDienThoaiField')"
                 />
               </v-col>
               
@@ -158,6 +166,8 @@
                   variant="outlined"
                   placeholder="0123456789"
                   prepend-inner-icon="mdi-phone"
+                  ref="soDienThoaiField"
+                  @keydown.enter="focusNext('diaChiField')"
                 />
               </v-col>
               
@@ -169,6 +179,8 @@
                   placeholder="Nhập địa chỉ đầy đủ"
                   prepend-inner-icon="mdi-map-marker"
                   rows="2"
+                  ref="diaChiField"
+                  @keydown.enter="addPatient"
                 />
               </v-col>
             </v-row>
@@ -314,7 +326,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick, getCurrentInstance } from 'vue'
 import { patientService, waitingListService } from '../lib/supabase.js'
 
 export default {
@@ -364,6 +376,18 @@ export default {
         dia_chi: '',
         so_dien_thoai: ''
       }
+    }
+
+    const focusNext = (fieldRef) => {
+      nextTick(() => {
+        const instance = getCurrentInstance()
+        if (instance && instance.refs[fieldRef]) {
+          const field = instance.refs[fieldRef]
+          if (field && field.focus) {
+            field.focus()
+          }
+        }
+      })
     }
 
     const addPatient = async () => {
@@ -465,7 +489,8 @@ export default {
       searchPatients,
       selectPatient,
       addToWaitingList,
-      formatDate
+      formatDate,
+      focusNext
     }
   }
 }

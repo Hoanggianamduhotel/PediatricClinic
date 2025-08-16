@@ -12,81 +12,75 @@
       </v-card-title>
     </v-card>
 
-    <!-- Waiting List - Modern Data Table -->
-    <div v-if="waitingList.length > 0">
-      <v-data-table
-        :headers="headers"
-        :items="waitingList"
-        :items-per-page="10"
-        class="elevation-3 rounded-lg"
-        item-value="id"
-        no-data-text="Chưa có bệnh nhân nào trong danh sách chờ"
-        items-per-page-text="Số dòng mỗi trang:"
-        page-text="{0}-{1} của {2}"
-        hover
-      >
-        <template v-slot:item.stt="{ index }">
-          <v-avatar color="warning" size="32">
-            <span class="text-caption font-weight-bold">{{ index + 1 }}</span>
-          </v-avatar>
-        </template>
+    <!-- Modern List View -->
+    <v-card v-if="waitingList.length > 0" elevation="2" class="rounded-lg">
+      <!-- Table Header -->
+      <v-card-title class="pa-4 d-flex align-center">
+        <h3 class="text-h6">Danh Sách Chờ Khám</h3>
+        <v-spacer />
+        <v-chip color="primary" variant="tonal" size="small">
+          Tổng số: {{ waitingList.length }}
+        </v-chip>
+      </v-card-title>
+      
+      <v-divider />
 
-        <template v-slot:item.ho_ten="{ item }">
-          <div class="d-flex align-center">
-            <v-avatar :color="item.gioi_tinh === 'Nam' ? 'blue' : 'pink'" size="32" class="mr-3">
-              <v-icon color="white" size="20">{{ item.gioi_tinh === 'Nam' ? 'mdi-face-man' : 'mdi-face-woman' }}</v-icon>
-            </v-avatar>
-            <div>
-              <div class="font-weight-bold">{{ item.ho_ten }}</div>
-              <div class="text-caption text-grey-600">{{ item.gioi_tinh }}</div>
-            </div>
-          </div>
-        </template>
-
-        <template v-slot:item.ngay_sinh="{ item }">
-          <div>
-            <div>{{ formatDate(item.ngay_sinh) }}</div>
-            <div v-if="item.thang_tuoi" class="text-caption text-grey-600">{{ item.thang_tuoi }} tháng tuổi</div>
-          </div>
-        </template>
-
-        <template v-slot:item.thong_tin="{ item }">
-          <div class="d-flex flex-column ga-1">
-            <div v-if="item.so_dien_thoai" class="d-flex align-center">
-              <v-icon size="14" color="grey" class="mr-1">mdi-phone</v-icon>
-              <span class="text-caption">{{ item.so_dien_thoai }}</span>
-            </div>
-            <div v-if="item.can_nang" class="d-flex align-center">
-              <v-icon size="14" color="grey" class="mr-1">mdi-weight-kilogram</v-icon>
-              <span class="text-caption">{{ item.can_nang }} kg</span>
-            </div>
-          </div>
-        </template>
-
-        <template v-slot:item.thoi_gian_cho="{ item }">
-          <v-chip 
-            color="warning" 
-            variant="tonal" 
-            size="small"
+      <!-- Table Content -->
+      <v-table class="clean-table">
+        <thead>
+          <tr class="table-header">
+            <th class="text-center">STT</th>
+            <th>Họ tên</th>
+            <th>Ngày sinh</th>
+            <th class="text-center">Tuổi</th>
+            <th class="text-center">Cân nặng</th>
+            <th>Số điện thoại</th>
+            <th class="text-center">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr 
+            v-for="(patient, index) in waitingList" 
+            :key="patient.id"
+            class="table-row"
           >
-            {{ formatTime(item.ngay_tao) }}
-          </v-chip>
-        </template>
-
-        <template v-slot:item.actions="{ item }">
-          <v-btn 
-            @click="removeFromList(item)"
-            :loading="removing === item.id"
-            color="error" 
-            variant="outlined"
-            size="small"
-            prepend-icon="mdi-close"
-          >
-            Xóa
-          </v-btn>
-        </template>
-      </v-data-table>
-    </div>
+            <td class="text-center">
+              <v-chip color="primary" size="small" class="font-weight-bold">
+                {{ index + 1 }}
+              </v-chip>
+            </td>
+            <td>
+              <div class="patient-name">{{ patient.ho_ten }}</div>
+            </td>
+            <td>{{ formatDateShort(patient.ngay_sinh) }}</td>
+            <td class="text-center">
+              <span v-if="patient.thang_tuoi">{{ patient.thang_tuoi }} tháng</span>
+              <span v-else class="text-grey-500">null tháng</span>
+            </td>
+            <td class="text-center">
+              <span v-if="patient.can_nang">{{ patient.can_nang }} kg</span>
+              <span v-else class="text-grey-500">-</span>
+            </td>
+            <td>
+              <span v-if="patient.so_dien_thoai">{{ patient.so_dien_thoai }}</span>
+              <span v-else class="text-grey-500">-</span>
+            </td>
+            <td class="text-center">
+              <v-btn
+                @click="removeFromList(patient)"
+                :loading="removing === patient.id"
+                icon
+                size="small"
+                color="error"
+                variant="text"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+    </v-card>
 
     <!-- Empty State -->
     <v-card v-else elevation="1" class="text-center pa-8">
@@ -131,14 +125,15 @@ export default {
     const message = ref(null)
     const showMessage = ref(false)
 
-    const headers = [
-      { title: 'STT', key: 'stt', sortable: false, width: '80px' },
-      { title: 'Bệnh nhân', key: 'ho_ten', sortable: true, width: '200px' },
-      { title: 'Ngày sinh', key: 'ngay_sinh', sortable: true, width: '150px' },
-      { title: 'Thông tin', key: 'thong_tin', sortable: false, width: '180px' },
-      { title: 'Thời gian chờ', key: 'thoi_gian_cho', sortable: true, width: '150px' },
-      { title: 'Thao tác', key: 'actions', sortable: false, width: '120px', align: 'center' }
-    ]
+    const formatDateShort = (dateString) => {
+      if (!dateString) return ''
+      const date = new Date(dateString)
+      return date.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
+    }
 
     const displayMessage = (text, type = 'success') => {
       message.value = { text, type }
@@ -211,11 +206,11 @@ export default {
       removing,
       message,
       showMessage,
-      headers,
       displayMessage,
       loadWaitingList,
       removeFromList,
       formatDate,
+      formatDateShort,
       formatTime
     }
   }
@@ -226,5 +221,36 @@ export default {
 .danh-sach-cho {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.clean-table {
+  background: white;
+}
+
+.table-header th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #424242;
+  padding: 16px 12px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.table-row {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.table-row:hover {
+  background-color: #fafafa;
+}
+
+.table-row td {
+  padding: 12px;
+  vertical-align: middle;
+}
+
+.patient-name {
+  font-weight: 500;
+  color: #1976d2;
 }
 </style>
