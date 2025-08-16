@@ -1,0 +1,37 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "main": "drizzle.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.11.0",
+    "bcrypt": "^6.0.0",
+    "compression": "^1.8.1",
+    "concurrently": "^9.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "drizzle-kit": "^0.31.4",
+    "drizzle-orm": "^0.44.4",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pinia": "^3.0.3",
+    "postcss": "^8.5.6",
+    "postgres": "^3.4.7",
+    "tailwindcss": "^4.1.12",
+    "vite": "^7.1.2",
+    "vue": "^3.5.18",
+    "vue-router": "^4.5.1"
+  }
+}
