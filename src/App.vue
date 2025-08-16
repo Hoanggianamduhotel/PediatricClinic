@@ -1,60 +1,175 @@
 <template>
   <v-app>
-    <!-- Header -->
-    <v-app-bar color="primary" elevation="1" density="comfortable">
-      <template #prepend>
-        <v-icon color="white" size="large">mdi-hospital-building</v-icon>
-      </template>
+    <!-- Top App Bar -->
+    <v-app-bar app color="white" elevation="0" height="64">
+      <v-app-bar-nav-icon @click="drawer = !drawer" />
       
-      <v-app-bar-title class="text-white">
-        <div>
-          <div class="text-h6 font-weight-bold">Clinic BS Khang</div>
-          <div class="text-caption">Hệ thống tiếp tân</div>
+      <v-app-bar-title>
+        <div class="d-flex align-center">
+          <v-icon color="primary" size="32" class="mr-3">mdi-hospital-building</v-icon>
+          <div>
+            <div class="text-h6 font-weight-bold text-primary">Clinic BS Khang</div>
+            <div class="text-caption text-grey-600">Tiếp Nhận Bệnh Nhân</div>
+          </div>
         </div>
       </v-app-bar-title>
 
-      <template #append>
-        <v-chip color="white" variant="outlined" size="small">
-          <v-icon start>mdi-clock-outline</v-icon>
-          {{ currentDateTime }}
-        </v-chip>
-      </template>
+      <v-spacer />
+      
+      <!-- Date and Time -->
+      <v-chip color="grey-lighten-2" variant="flat" size="small" class="mr-4">
+        <v-icon start size="16">mdi-calendar</v-icon>
+        Hôm nay, {{ currentDate }}
+      </v-chip>
+      
+      <!-- Theme Toggle -->
+      <v-btn 
+        @click="toggleTheme" 
+        :icon="isDark ? 'mdi-white-balance-sunny' : 'mdi-weather-night'"
+        variant="text"
+        class="mr-2"
+      />
+      
+      <!-- Logout -->
+      <v-btn 
+        prepend-icon="mdi-logout" 
+        color="primary" 
+        variant="outlined"
+        size="small"
+      >
+        Đăng xuất
+      </v-btn>
     </v-app-bar>
+    
+    <!-- Purple separator line -->
+    <div class="purple-separator"></div>
 
-    <!-- Navigation Tabs -->
-    <v-toolbar color="white" elevation="1">
-      <v-tabs v-model="currentTab" color="primary" align-tabs="start">
-        <v-tab value="tieptan" prepend-icon="mdi-account-plus">
-          Tiếp Tân
-        </v-tab>
-        <v-tab value="danhsachcho" prepend-icon="mdi-clock-outline">
-          Danh Sách Chờ
-          <v-chip 
-            v-if="waitingCount > 0" 
-            color="warning" 
-            size="x-small" 
-            class="ml-2"
-          >
-            {{ waitingCount }}
-          </v-chip>
-        </v-tab>
-      </v-tabs>
-    </v-toolbar>
+    <!-- Left Sidebar (Statistics) -->
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      temporary
+      width="280"
+      color="grey-lighten-5"
+    >
+      <v-list density="compact" nav>
+        <v-list-item 
+          prepend-icon="mdi-view-dashboard" 
+          title="Bệnh Nhi" 
+          subtitle="Quản lý bệnh nhân"
+          active
+        />
+        
+        <v-divider class="my-2" />
+        
+        <v-list-item 
+          prepend-icon="mdi-account-plus" 
+          title="Tiếp Nhận BN"
+          @click="currentTab = 'tieptan'"
+        />
+        
+        <v-list-item 
+          prepend-icon="mdi-format-list-bulleted" 
+          title="Danh Sách Chờ"
+          @click="currentTab = 'danhsachcho'"
+        />
+        
+        <v-list-item 
+          prepend-icon="mdi-chart-line" 
+          title="Thống Kê DT"
+        />
+        
+        <v-list-item 
+          prepend-icon="mdi-calendar-check" 
+          title="Hẹn Tái Khám"
+        />
+        
+        <v-list-item 
+          prepend-icon="mdi-file-document" 
+          title="Danh Sách Khám..."
+        />
+        
+        <v-list-item 
+          prepend-icon="mdi-clipboard-list" 
+          title="Lịch Nhắc Tiêm Chủng"
+        />
+        
+        <v-list-item 
+          prepend-icon="mdi-clipboard-check" 
+          title="Danh Sách Kê Đơn"
+        />
+      </v-list>
+    </v-navigation-drawer>
 
     <!-- Main Content -->
-    <v-main>
+    <v-main class="bg-grey-lighten-4">
       <v-container fluid class="pa-6">
-        <v-window v-model="currentTab">
-          <v-window-item value="tieptan">
-            <TiepTan @patient-added-to-waiting="updateWaitingCount" />
-          </v-window-item>
+        <!-- Tab Content -->
+        <div v-if="currentTab === 'tieptan'">
+          <!-- Title and Action Button -->
+          <div class="d-flex justify-space-between align-center mb-6">
+            <div>
+              <h2 class="text-h4 font-weight-bold text-primary mb-2">Danh Sách Chờ Khám</h2>
+              <p class="text-grey-600">Quản lý bệnh nhân đang chờ khám</p>
+            </div>
+            <v-btn 
+              color="primary" 
+              size="large"
+              prepend-icon="mdi-plus"
+              @click="showAddPatientDialog = true"
+            >
+              Tiếp Nhận Bệnh Nhân
+            </v-btn>
+          </div>
           
-          <v-window-item value="danhsachcho">
-            <DanhSachCho @waiting-list-changed="updateWaitingCount" />
-          </v-window-item>
-        </v-window>
+          <!-- Reception Interface -->
+          <TiepTan 
+            @patient-added-to-waiting="updateWaitingCount" 
+            @show-add-dialog="showAddPatientDialog = $event"
+            :show-add-dialog="showAddPatientDialog"
+          />
+          
+          <!-- Waiting List Below -->
+          <div class="mt-8">
+            <v-divider class="mb-6" />
+            <DanhSachCho 
+              @waiting-list-changed="updateWaitingCount" 
+              :show-header="false"
+            />
+          </div>
+        </div>
+        
+        <div v-else-if="currentTab === 'danhsachcho'">
+          <DanhSachCho @waiting-list-changed="updateWaitingCount" />
+        </div>
       </v-container>
     </v-main>
+
+    <!-- Right Sidebar (Purple) -->
+    <v-navigation-drawer
+      app
+      permanent
+      location="right"
+      width="80"
+      class="purple-sidebar d-flex flex-column align-center"
+      color="purple darken-2"
+    >
+      <div class="flex-grow-1 d-flex align-center">
+        <div class="text-center text-white">
+          <div class="clinic-name-vertical">
+            C<br/>L<br/>I<br/>N<br/>I<br/>C<br/><br/>
+            B<br/>S<br/><br/>
+            K<br/>H<br/>A<br/>N<br/>G
+          </div>
+        </div>
+      </div>
+      
+      <!-- Copyright Footer -->
+      <div class="text-center text-white pa-2" style="font-size: 8px; line-height: 1.2;">
+        <div>2025. All Rights Reserved by</div>
+        <div class="font-weight-bold">Dr. Lee Min Khang</div>
+      </div>
+    </v-navigation-drawer>
   </v-app>
 </template>
 
