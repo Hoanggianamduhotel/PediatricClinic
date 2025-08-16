@@ -339,20 +339,15 @@ const examinationService = {
       const { data, error } = await supabase
         .from('khambenh')
         .select(`
-          id,
+          benhnhan_id,
+          benhnhan ( ho_ten, ngay_sinh, so_dien_thoai ),
           ngay_kham,
           chan_doan,
           so_ngay_toa,
-          ngay_hen_tai_kham,
-          benhnhan:benhnhan_id (
-            id,
-            ho_ten,
-            ngay_sinh,
-            so_dien_thoai
-          )
+          ngay_hen_tai_kham
         `)
         .eq('ngay_kham', examDate)
-        .order('id', { ascending: false })
+        .order('benhnhan_id', { ascending: true })
 
       if (error) throw error
 

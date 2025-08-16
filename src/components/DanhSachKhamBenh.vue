@@ -87,6 +87,7 @@
             </td>
             <td>
               <div class="patient-name">{{ exam.benhnhan?.ho_ten || 'N/A' }}</div>
+              <div class="text-caption text-grey-600">ID: {{ exam.benhnhan_id }}</div>
             </td>
             <td>{{ formatDateShort(exam.benhnhan?.ngay_sinh) }}</td>
             <td class="text-center">
