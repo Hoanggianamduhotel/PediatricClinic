@@ -1,23 +1,32 @@
 <template>
   <v-app>
-    <!-- Top App Bar -->
-    <v-app-bar app color="white" elevation="0" height="64">
+    <!-- Top App Bar - Mobile Optimized -->
+    <v-app-bar app color="white" elevation="0" :height="$vuetify.display.mobile ? 56 : 64">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       
       <v-app-bar-title>
         <div class="d-flex align-center">
-          <v-icon color="primary" size="32" class="mr-3">mdi-hospital-building</v-icon>
-          <div>
+          <v-icon color="primary" :size="$vuetify.display.mobile ? 24 : 32" class="mr-2">mdi-hospital-building</v-icon>
+          <div v-if="!$vuetify.display.mobile">
             <div class="text-h6 font-weight-bold text-primary">Clinic BS Khang</div>
             <div class="text-caption text-grey-600">Tiếp Nhận Bệnh Nhân</div>
+          </div>
+          <div v-else>
+            <div class="text-subtitle-1 font-weight-bold text-primary">Clinic BS Khang</div>
           </div>
         </div>
       </v-app-bar-title>
 
       <v-spacer />
       
-      <!-- Date and Time -->
-      <v-chip color="grey-lighten-2" variant="flat" size="small" class="mr-4">
+      <!-- Date and Time - Hidden on mobile -->
+      <v-chip 
+        v-if="!$vuetify.display.mobile"
+        color="grey-lighten-2" 
+        variant="flat" 
+        size="small" 
+        class="mr-4"
+      >
         <v-icon start size="16">mdi-calendar</v-icon>
         Hôm nay, {{ currentDate }}
       </v-chip>
@@ -27,11 +36,13 @@
         @click="toggleTheme" 
         :icon="isDark ? 'mdi-white-balance-sunny' : 'mdi-weather-night'"
         variant="text"
+        :size="$vuetify.display.mobile ? 'small' : 'default'"
         class="mr-2"
       />
       
-      <!-- Logout -->
+      <!-- Logout - Icon only on mobile -->
       <v-btn 
+        v-if="!$vuetify.display.mobile"
         prepend-icon="mdi-logout" 
         color="primary" 
         variant="outlined"
@@ -39,18 +50,27 @@
       >
         Đăng xuất
       </v-btn>
+      <v-btn 
+        v-else
+        icon="mdi-logout"
+        color="primary" 
+        variant="text"
+        size="small"
+      />
     </v-app-bar>
     
     <!-- Purple separator line -->
     <div class="purple-separator"></div>
 
-    <!-- Left Sidebar (Statistics) -->
+    <!-- Left Sidebar (Statistics) - Mobile Optimized -->
     <v-navigation-drawer
       v-model="drawer"
       app
       temporary
-      width="280"
+      :width="$vuetify.display.mobile ? '100%' : 280"
       color="grey-lighten-5"
+      :location="$vuetify.display.mobile ? 'bottom' : 'start'"
+      :height="$vuetify.display.mobile ? '50%' : undefined"
     >
       <!-- Sidebar Header -->
       <div class="pa-4 bg-primary">

@@ -40,44 +40,44 @@
       </v-card-text>
     </v-card>
 
-    <!-- Statistics Cards -->
+    <!-- Statistics Cards - Mobile Optimized -->
     <v-row v-if="selectedDate" class="mb-4">
-      <v-col cols="12" sm="6" md="3">
-        <v-card color="info" elevation="2">
-          <v-card-text class="text-center text-white">
-            <v-icon size="40" class="mb-2">mdi-account-group</v-icon>
-            <div class="text-h4 font-weight-bold">{{ statistics.totalPatients }}</div>
-            <div class="text-subtitle-1">Tổng bệnh nhân</div>
+      <v-col cols="6" sm="6" md="3">
+        <v-card color="info" elevation="2" :height="$vuetify.display.mobile ? 120 : 140">
+          <v-card-text class="text-center text-white pa-3">
+            <v-icon :size="$vuetify.display.mobile ? 24 : 40" class="mb-1">mdi-account-group</v-icon>
+            <div :class="$vuetify.display.mobile ? 'text-h6' : 'text-h4'" class="font-weight-bold">{{ statistics.totalPatients }}</div>
+            <div :class="$vuetify.display.mobile ? 'text-caption' : 'text-subtitle-1'">Tổng bệnh nhân</div>
           </v-card-text>
         </v-card>
       </v-col>
       
-      <v-col cols="12" sm="6" md="3">
-        <v-card color="success" elevation="2">
-          <v-card-text class="text-center text-white">
-            <v-icon size="40" class="mb-2">mdi-check-circle</v-icon>
-            <div class="text-h4 font-weight-bold">{{ statistics.completedExams }}</div>
-            <div class="text-subtitle-1">Đã khám xong</div>
+      <v-col cols="6" sm="6" md="3">
+        <v-card color="success" elevation="2" :height="$vuetify.display.mobile ? 120 : 140">
+          <v-card-text class="text-center text-white pa-3">
+            <v-icon :size="$vuetify.display.mobile ? 24 : 40" class="mb-1">mdi-check-circle</v-icon>
+            <div :class="$vuetify.display.mobile ? 'text-h6' : 'text-h4'" class="font-weight-bold">{{ statistics.completedExams }}</div>
+            <div :class="$vuetify.display.mobile ? 'text-caption' : 'text-subtitle-1'">Đã khám xong</div>
           </v-card-text>
         </v-card>
       </v-col>
       
-      <v-col cols="12" sm="6" md="3">
-        <v-card color="warning" elevation="2">
-          <v-card-text class="text-center text-white">
-            <v-icon size="40" class="mb-2">mdi-calendar-clock</v-icon>
-            <div class="text-h4 font-weight-bold">{{ statistics.followUpAppointments }}</div>
-            <div class="text-subtitle-1">Hẹn tái khám</div>
+      <v-col cols="6" sm="6" md="3">
+        <v-card color="warning" elevation="2" :height="$vuetify.display.mobile ? 120 : 140">
+          <v-card-text class="text-center text-white pa-3">
+            <v-icon :size="$vuetify.display.mobile ? 24 : 40" class="mb-1">mdi-calendar-clock</v-icon>
+            <div :class="$vuetify.display.mobile ? 'text-h6' : 'text-h4'" class="font-weight-bold">{{ statistics.followUpAppointments }}</div>
+            <div :class="$vuetify.display.mobile ? 'text-caption' : 'text-subtitle-1'">Hẹn tái khám</div>
           </v-card-text>
         </v-card>
       </v-col>
       
-      <v-col cols="12" sm="6" md="3">
-        <v-card color="error" elevation="2">
-          <v-card-text class="text-center text-white">
-            <v-icon size="40" class="mb-2">mdi-clock-outline</v-icon>
-            <div class="text-h4 font-weight-bold">{{ statistics.waitingPatients }}</div>
-            <div class="text-subtitle-1">Đang chờ</div>
+      <v-col cols="6" sm="6" md="3">
+        <v-card color="error" elevation="2" :height="$vuetify.display.mobile ? 120 : 140">
+          <v-card-text class="text-center text-white pa-3">
+            <v-icon :size="$vuetify.display.mobile ? 24 : 40" class="mb-1">mdi-clock-outline</v-icon>
+            <div :class="$vuetify.display.mobile ? 'text-h6' : 'text-h4'" class="font-weight-bold">{{ statistics.waitingPatients }}</div>
+            <div :class="$vuetify.display.mobile ? 'text-caption' : 'text-subtitle-1'">Đang chờ</div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -95,7 +95,8 @@
       
       <v-divider />
 
-      <v-table class="clean-table">
+      <!-- Desktop Table -->
+      <v-table v-if="!$vuetify.display.mobile" class="clean-table">
         <thead>
           <tr class="table-header">
             <th class="text-center">STT</th>
@@ -145,6 +146,56 @@
           </tr>
         </tbody>
       </v-table>
+
+      <!-- Mobile Cards List -->
+      <div v-else class="mobile-list pa-0">
+        <v-card
+          v-for="(exam, index) in examinations"
+          :key="exam.id"
+          class="mb-3"
+          elevation="1"
+          variant="outlined"
+        >
+          <v-card-text class="pa-3">
+            <div class="d-flex align-center mb-2">
+              <v-chip color="primary" size="small" class="mr-2">{{ index + 1 }}</v-chip>
+              <div class="text-subtitle-1 font-weight-medium">{{ exam.patient_name }}</div>
+              <v-spacer />
+              <v-chip 
+                :color="getStatusColor(exam.status)" 
+                size="x-small"
+                variant="tonal"
+              >
+                {{ getStatusText(exam.status) }}
+              </v-chip>
+            </div>
+            
+            <v-row dense class="text-caption">
+              <v-col cols="6">
+                <div class="text-grey-600">Tuổi:</div>
+                <div>{{ calculateAge(exam.patient_birth_date) }}</div>
+              </v-col>
+              <v-col cols="6">
+                <div class="text-grey-600">Bác sĩ:</div>
+                <div>{{ exam.doctor_name || 'Chưa xác định' }}</div>
+              </v-col>
+            </v-row>
+            
+            <div class="mt-2">
+              <div class="text-grey-600 text-caption">Chẩn đoán:</div>
+              <div class="text-body-2">
+                <span v-if="exam.diagnosis">{{ exam.diagnosis }}</span>
+                <span v-else class="text-grey-500">Chưa chẩn đoán</span>
+              </div>
+            </div>
+            
+            <div v-if="exam.follow_up_date" class="mt-2">
+              <div class="text-grey-600 text-caption">Hẹn tái khám:</div>
+              <div class="text-body-2">{{ formatDateShort(exam.follow_up_date) }}</div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </div>
     </v-card>
 
     <!-- Empty State -->
@@ -346,6 +397,14 @@ export default {
   padding: 16px;
 }
 
+/* Mobile optimizations */
+@media (max-width: 960px) {
+  .thong-ke-container {
+    padding: 8px;
+    max-width: 100%;
+  }
+}
+
 .clean-table {
   background: white;
 }
@@ -375,5 +434,52 @@ export default {
 .patient-name {
   font-weight: 500;
   color: #1976d2;
+}
+
+/* Mobile card list styles */
+.mobile-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-list .v-card {
+  border-radius: 12px !important;
+  transition: all 0.2s ease;
+}
+
+.mobile-list .v-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Touch-friendly spacing */
+@media (max-width: 960px) {
+  .v-chip {
+    min-height: 32px !important;
+  }
+  
+  .v-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  .v-text-field input {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+}
+
+/* Improved scroll behavior */
+.mobile-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mobile-list::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 2px;
 }
 </style>
