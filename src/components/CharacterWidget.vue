@@ -169,10 +169,10 @@ export default {
 }
 
 .mascot-image {
-  width: 20vw;
-  height: 20vw;
-  min-width: 180px;
-  min-height: 150px;
+  width: 10vw;
+  height: 10vw;
+  min-width: 90px;
+  min-height: 75px;
   border-radius: 80%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   object-fit: cover;
@@ -189,10 +189,10 @@ export default {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .mascot-image {
-    width: 25vw;
-    height: 25vw;
-    min-width: 120px;
-    min-height: 100px;
+    width: 12vw;
+    height: 12vw;
+    min-width: 60px;
+    min-height: 50px;
   }
   
   .character-widget {
@@ -204,10 +204,10 @@ export default {
 
 @media (max-width: 480px) {
   .mascot-image {
-    width: 30vw;
-    height: 30vw;
-    min-width: 100px;
-    min-height: 80px;
+    width: 15vw;
+    height: 15vw;
+    min-width: 50px;
+    min-height: 40px;
   }
 }
 </style>

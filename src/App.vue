@@ -159,6 +159,7 @@
           <TiepTan 
             @patient-added-to-waiting="updateWaitingCount" 
             @show-add-dialog="showAddPatientDialog = $event"
+            @patient-added="loadWaitingListInTiepTan"
             :show-add-dialog="showAddPatientDialog"
           />
           
@@ -168,6 +169,7 @@
             <DanhSachCho 
               @waiting-list-changed="updateWaitingCount" 
               :show-header="false"
+              :key="waitingListKey"
             />
           </div>
         </div>
@@ -309,6 +311,7 @@ export default {
     const showAddPatientDialog = ref(false)
     const currentRole = ref('doctor') // 'doctor' or 'pharmacist'
     const showMascot = ref(true)
+    const waitingListKey = ref(0)
     let timeInterval = null
 
     const updateDateTime = () => {
@@ -339,6 +342,10 @@ export default {
 
     const handleMascotClose = () => {
       showMascot.value = false
+    }
+
+    const loadWaitingListInTiepTan = () => {
+      waitingListKey.value++
     }
 
     const updateWaitingCount = async () => {
@@ -375,10 +382,12 @@ export default {
       showAddPatientDialog,
       currentRole,
       showMascot,
+      waitingListKey,
       updateWaitingCount,
       toggleTheme,
       handleMascotClick,
-      handleMascotClose
+      handleMascotClose,
+      loadWaitingListInTiepTan
     }
   }
 }

@@ -12,80 +12,81 @@
       </v-card-title>
     </v-card>
 
-    <!-- Waiting List -->
-    <v-row v-if="waitingList.length > 0">
-      <v-col 
-        v-for="(patient, index) in waitingList" 
-        :key="patient.id"
-        cols="12" 
-        md="6" 
-        lg="4"
+    <!-- Waiting List - Modern Data Table -->
+    <div v-if="waitingList.length > 0">
+      <v-data-table
+        :headers="headers"
+        :items="waitingList"
+        :items-per-page="10"
+        class="elevation-3 rounded-lg"
+        item-value="id"
+        no-data-text="Chưa có bệnh nhân nào trong danh sách chờ"
+        items-per-page-text="Số dòng mỗi trang:"
+        page-text="{0}-{1} của {2}"
+        hover
       >
-        <v-card elevation="3" class="h-100">
-          <v-card-title class="d-flex align-center pa-4">
-            <v-avatar color="warning" size="40" class="mr-3">
-              <span class="text-h6 font-weight-bold">{{ index + 1 }}</span>
+        <template v-slot:item.stt="{ index }">
+          <v-avatar color="warning" size="32">
+            <span class="text-caption font-weight-bold">{{ index + 1 }}</span>
+          </v-avatar>
+        </template>
+
+        <template v-slot:item.ho_ten="{ item }">
+          <div class="d-flex align-center">
+            <v-avatar :color="item.gioi_tinh === 'Nam' ? 'blue' : 'pink'" size="32" class="mr-3">
+              <v-icon color="white" size="20">{{ item.gioi_tinh === 'Nam' ? 'mdi-face-man' : 'mdi-face-woman' }}</v-icon>
             </v-avatar>
             <div>
-              <div class="text-h6">{{ patient.ho_ten }}</div>
-              <div class="text-caption text-grey-600">
-                Chờ từ {{ formatTime(patient.ngay_tao) }}
-              </div>
+              <div class="font-weight-bold">{{ item.ho_ten }}</div>
+              <div class="text-caption text-grey-600">{{ item.gioi_tinh }}</div>
             </div>
-          </v-card-title>
-          
-          <v-card-text class="pa-4 pt-0">
-            <v-list density="compact" class="pa-0">
-              <v-list-item v-if="patient.ngay_sinh" class="pa-0 mb-1">
-                <template #prepend>
-                  <v-icon size="16" color="primary">mdi-calendar</v-icon>
-                </template>
-                <v-list-item-title class="text-body-2">
-                  {{ formatDate(patient.ngay_sinh) }}
-                  <span v-if="patient.thang_tuoi" class="text-grey-600">
-                    ({{ patient.thang_tuoi }} tháng tuổi)
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-              
-              <v-list-item v-if="patient.gioi_tinh" class="pa-0 mb-1">
-                <template #prepend>
-                  <v-icon size="16" color="primary">mdi-gender-male-female</v-icon>
-                </template>
-                <v-list-item-title class="text-body-2">{{ patient.gioi_tinh }}</v-list-item-title>
-              </v-list-item>
-              
-              <v-list-item v-if="patient.can_nang" class="pa-0 mb-1">
-                <template #prepend>
-                  <v-icon size="16" color="primary">mdi-scale</v-icon>
-                </template>
-                <v-list-item-title class="text-body-2">{{ patient.can_nang }} kg</v-list-item-title>
-              </v-list-item>
-              
-              <v-list-item v-if="patient.so_dien_thoai" class="pa-0 mb-1">
-                <template #prepend>
-                  <v-icon size="16" color="primary">mdi-phone</v-icon>
-                </template>
-                <v-list-item-title class="text-body-2">{{ patient.so_dien_thoai }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-card-text>
-          
-          <v-card-actions class="pa-4 pt-0">
-            <v-btn 
-              @click="removeFromList(patient)"
-              :loading="removing === patient.id"
-              color="error" 
-              variant="outlined" 
-              size="small"
-              prepend-icon="mdi-close"
-            >
-              Xóa khỏi danh sách
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
+          </div>
+        </template>
+
+        <template v-slot:item.ngay_sinh="{ item }">
+          <div>
+            <div>{{ formatDate(item.ngay_sinh) }}</div>
+            <div v-if="item.thang_tuoi" class="text-caption text-grey-600">{{ item.thang_tuoi }} tháng tuổi</div>
+          </div>
+        </template>
+
+        <template v-slot:item.thong_tin="{ item }">
+          <div class="d-flex flex-column ga-1">
+            <div v-if="item.so_dien_thoai" class="d-flex align-center">
+              <v-icon size="14" color="grey" class="mr-1">mdi-phone</v-icon>
+              <span class="text-caption">{{ item.so_dien_thoai }}</span>
+            </div>
+            <div v-if="item.can_nang" class="d-flex align-center">
+              <v-icon size="14" color="grey" class="mr-1">mdi-weight-kilogram</v-icon>
+              <span class="text-caption">{{ item.can_nang }} kg</span>
+            </div>
+          </div>
+        </template>
+
+        <template v-slot:item.thoi_gian_cho="{ item }">
+          <v-chip 
+            color="warning" 
+            variant="tonal" 
+            size="small"
+          >
+            {{ formatTime(item.ngay_tao) }}
+          </v-chip>
+        </template>
+
+        <template v-slot:item.actions="{ item }">
+          <v-btn 
+            @click="removeFromList(item)"
+            :loading="removing === item.id"
+            color="error" 
+            variant="outlined"
+            size="small"
+            prepend-icon="mdi-close"
+          >
+            Xóa
+          </v-btn>
+        </template>
+      </v-data-table>
+    </div>
 
     <!-- Empty State -->
     <v-card v-else elevation="1" class="text-center pa-8">
@@ -129,6 +130,15 @@ export default {
     const removing = ref(null)
     const message = ref(null)
     const showMessage = ref(false)
+
+    const headers = [
+      { title: 'STT', key: 'stt', sortable: false, width: '80px' },
+      { title: 'Bệnh nhân', key: 'ho_ten', sortable: true, width: '200px' },
+      { title: 'Ngày sinh', key: 'ngay_sinh', sortable: true, width: '150px' },
+      { title: 'Thông tin', key: 'thong_tin', sortable: false, width: '180px' },
+      { title: 'Thời gian chờ', key: 'thoi_gian_cho', sortable: true, width: '150px' },
+      { title: 'Thao tác', key: 'actions', sortable: false, width: '120px', align: 'center' }
+    ]
 
     const displayMessage = (text, type = 'success') => {
       message.value = { text, type }
@@ -201,6 +211,7 @@ export default {
       removing,
       message,
       showMessage,
+      headers,
       displayMessage,
       loadWaitingList,
       removeFromList,
