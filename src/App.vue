@@ -226,6 +226,13 @@
         </div>
       </div>
     </v-navigation-drawer>
+
+    <!-- Character Widget (Mascot) -->
+    <CharacterWidget 
+      v-if="showMascot"
+      @character-click="handleMascotClick"
+      @close="handleMascotClose"
+    />
   </v-app>
 </template>
 
@@ -281,13 +288,15 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import TiepTan from './components/TiepTan.vue'
 import DanhSachCho from './components/DanhSachCho.vue'
+import CharacterWidget from './components/CharacterWidget.vue'
 import { waitingListService } from './lib/supabase.js'
 
 export default {
   name: 'App',
   components: {
     TiepTan,
-    DanhSachCho
+    DanhSachCho,
+    CharacterWidget
   },
   setup() {
     const currentDateTime = ref('')
@@ -299,6 +308,7 @@ export default {
     const isDark = ref(false)
     const showAddPatientDialog = ref(false)
     const currentRole = ref('doctor') // 'doctor' or 'pharmacist'
+    const showMascot = ref(true)
     let timeInterval = null
 
     const updateDateTime = () => {
@@ -320,6 +330,15 @@ export default {
     const toggleTheme = () => {
       isDark.value = !isDark.value
       // You can implement theme switching logic here
+    }
+
+    const handleMascotClick = () => {
+      console.log('Mascot clicked!')
+      // You can add mascot interaction logic here
+    }
+
+    const handleMascotClose = () => {
+      showMascot.value = false
     }
 
     const updateWaitingCount = async () => {
@@ -355,8 +374,11 @@ export default {
       isDark,
       showAddPatientDialog,
       currentRole,
+      showMascot,
       updateWaitingCount,
-      toggleTheme
+      toggleTheme,
+      handleMascotClick,
+      handleMascotClose
     }
   }
 }

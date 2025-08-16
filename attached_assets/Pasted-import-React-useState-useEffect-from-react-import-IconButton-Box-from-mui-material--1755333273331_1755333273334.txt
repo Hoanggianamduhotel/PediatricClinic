@@ -1,0 +1,93 @@
+import React, { useState, useEffect } from "react";
+import { IconButton, Box } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import Draggable from "react-draggable";
+
+interface CharacterWidgetProps {
+  onCharacterClick: () => void; // Hàm gọi khi click vào linh vật
+  onClose: () => void; // Hàm đóng linh vật
+}
+
+const images = [
+  "https://luimiikovmsaeqmocjhu.supabase.co/storage/v1/object/public/gif/cau_be_nam_3.jpg",
+  "https://luimiikovmsaeqmocjhu.supabase.co/storage/v1/object/public/gif/mascot.gif",
+  "https://luimiikovmsaeqmocjhu.supabase.co/storage/v1/object/public/gif/ga_con_kute.gif",
+];
+
+const CharacterWidget: React.FC<CharacterWidgetProps> = ({
+  onCharacterClick,
+  onClose,
+}) => {
+  const [visible, setVisible] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <Draggable>
+      <Box
+        sx={{
+          position: "fixed",
+          top: 16,
+          right: 16,
+          zIndex: 1300,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          backgroundColor: "white",
+          padding: 1,
+          borderRadius: "999px",
+          boxShadow: 3,
+          cursor: "pointer",
+          userSelect: "none",
+        }}
+        onClick={() => {
+          onCharacterClick(); // Gọi hàm onCharacterClick khi linh vật được click
+        }}
+        role="button"
+        tabIndex={0}
+        onKeyPress={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onCharacterClick();
+          }
+        }}
+        aria-label="Linh vật"
+      >
+        <Box
+          component="img"
+          src={images[currentIndex]}
+          alt="Linh vật"
+          sx={{
+            width: "20vw",
+            height: "20vw",
+            minWidth: "180px",
+            minHeight: "150px",
+            borderRadius: "80%",
+            boxShadow: 4,
+          }}
+        />
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            setVisible(false);
+            onClose(); // Đóng linh vật khi click vào nút Close
+          }}
+          aria-label="Đóng linh vật"
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </Box>
+    </Draggable>
+  );
+};
+
+export default CharacterWidget;
