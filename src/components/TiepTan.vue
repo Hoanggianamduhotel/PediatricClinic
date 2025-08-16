@@ -303,7 +303,7 @@
 
 <script>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { patientService } from '../lib/supabase.js'
 
 export default {
   name: 'TiepTan',
@@ -326,10 +326,7 @@ export default {
       so_dien_thoai: ''
     })
 
-    // Setup axios defaults
-    const api = axios.create({
-      baseURL: '/api'
-    })
+    // No need for axios setup - using Supabase client directly
 
     const displayMessage = (text, type = 'success') => {
       message.value = { text, type }
@@ -351,17 +348,17 @@ export default {
     const addPatient = async () => {
       try {
         isSubmitting.value = true
-        const response = await api.post('/benhnhan', newPatient.value)
+        const result = await patientService.createPatient(newPatient.value)
         
-        if (response.data.success) {
-          displayMessage('Thêm bệnh nhân thành công!')
+        if (result.success) {
+          displayMessage(result.message || 'Thêm bệnh nhân thành công!')
           closeAddPatientDialog()
         } else {
-          displayMessage(response.data.message || 'Có lỗi xảy ra', 'error')
+          displayMessage(result.error || 'Có lỗi xảy ra', 'error')
         }
       } catch (error) {
         console.error('Add patient error:', error)
-        displayMessage(error.response?.data?.message || 'Không thể thêm bệnh nhân', 'error')
+        displayMessage('Không thể thêm bệnh nhân', 'error')
       } finally {
         isSubmitting.value = false
       }
@@ -375,12 +372,13 @@ export default {
 
       try {
         isSearching.value = true
-        const response = await api.get(`/benhnhan?search=${encodeURIComponent(searchQuery.value)}`)
+        const result = await patientService.getPatients(searchQuery.value)
         
-        if (response.data.success) {
-          searchResults.value = response.data.data
+        if (result.success) {
+          searchResults.value = result.data || []
         } else {
           searchResults.value = []
+          displayMessage(result.error || 'Không thể tìm kiếm bệnh nhân', 'error')
         }
       } catch (error) {
         console.error('Search patients error:', error)

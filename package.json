@@ -9,7 +9,14 @@
     "dev": "vite",
     "preview": "vite preview"
   },
-  "keywords": ["clinic", "pediatric", "vue", "vuetify", "nodejs", "express"],
+  "keywords": [
+    "clinic",
+    "pediatric",
+    "vue",
+    "vuetify",
+    "nodejs",
+    "express"
+  ],
   "author": "Clinic BS Khang",
   "license": "MIT",
   "engines": {
@@ -22,6 +29,7 @@
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
     "@paralleldrive/cuid2": "^2.2.2",
+    "@supabase/supabase-js": "^2.55.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
