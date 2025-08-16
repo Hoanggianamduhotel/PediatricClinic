@@ -4,6 +4,13 @@
 
 Clinic BS Khang is a comprehensive pediatric clinic management system built for Vietnamese healthcare providers. The application provides a complete solution for managing patients, appointments, medical records, staff, and billing operations specifically tailored for pediatric care. The system includes multilingual support (Vietnamese) and is designed to streamline clinic operations while maintaining detailed patient records and ensuring efficient appointment scheduling.
 
+## Recent Changes (August 16, 2025)
+
+- ✅ **Statistics Feature Completed**: Added comprehensive statistics dashboard with patient examination tracking by date
+- ✅ **API Integration**: Implemented backend API endpoints for examination statistics with fallback sample data
+- ✅ **Deployment Fix**: Resolved "Not Found" error after deployment by adding proper SPA routing configuration
+- ✅ **Component Integration**: Fixed ThongKe component registration in App.vue to enable statistics tab functionality
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
