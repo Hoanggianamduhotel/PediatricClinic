@@ -132,6 +132,7 @@
           prepend-icon="mdi-calendar-check" 
           title="Hẹn Tái Khám"
           :subtitle="`${followUpStats.today} hôm nay, ${followUpStats.upcoming} sắp tới`"
+          @click="currentTab = 'hentaikham'; drawer = false"
         />
         
         <v-list-item 
@@ -193,6 +194,10 @@
         
         <div v-else-if="currentTab === 'danhsachcho'">
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
+        </div>
+        
+        <div v-else-if="currentTab === 'hentaikham'">
+          <HenTaiKham />
         </div>
       </v-container>
     </v-main>
@@ -307,6 +312,7 @@
 import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance } from 'vue'
 import TiepTan from './components/TiepTan.vue'
 import DanhSachCho from './components/DanhSachCho.vue'
+import HenTaiKham from './components/HenTaiKham.vue'
 import CharacterWidget from './components/CharacterWidget.vue'
 import { waitingListService, followUpService } from './lib/supabase.js'
 
@@ -315,6 +321,7 @@ export default {
   components: {
     TiepTan,
     DanhSachCho,
+    HenTaiKham,
     CharacterWidget
   },
   setup() {

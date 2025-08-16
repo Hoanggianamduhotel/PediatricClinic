@@ -230,10 +230,20 @@ export const followUpService = {
     try {
       const today = new Date().toISOString().split('T')[0]
       
-      // Get follow-up appointments for today
+      // Get follow-up appointments for today with join
       const { data: todayFollowUps, error: todayError } = await supabase
         .from('khambenh')
-        .select('id')
+        .select(`
+          id,
+          benhnhan:benhnhan_id (
+            id,
+            ho_ten,
+            ngay_sinh
+          ),
+          ngay_kham,
+          chan_doan,
+          so_ngay_toa
+        `)
         .eq('ngay_hen_tai_kham', today)
       
       if (todayError) throw todayError
@@ -268,6 +278,55 @@ export const followUpService = {
       return {
         success: false,
         error: error.message || 'Không thể lấy thống kê hẹn tái khám'
+      }
+    }
+  },
+
+  async getFollowUpAppointments(type = 'today') {
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      let query = supabase
+        .from('khambenh')
+        .select(`
+          id,
+          ngay_hen_tai_kham,
+          ngay_kham,
+          chan_doan,
+          so_ngay_toa,
+          benhnhan:benhnhan_id (
+            id,
+            ho_ten,
+            ngay_sinh,
+            so_dien_thoai
+          )
+        `)
+        .not('ngay_hen_tai_kham', 'is', null)
+
+      switch (type) {
+        case 'today':
+          query = query.eq('ngay_hen_tai_kham', today)
+          break
+        case 'upcoming':
+          query = query.gt('ngay_hen_tai_kham', today)
+          break
+        case 'overdue':
+          query = query.lt('ngay_hen_tai_kham', today)
+          break
+      }
+
+      const { data, error } = await query.order('ngay_hen_tai_kham', { ascending: true })
+      
+      if (error) throw error
+
+      return {
+        success: true,
+        data: data || []
+      }
+    } catch (error) {
+      console.error('Get follow-up appointments error:', error)
+      return {
+        success: false,
+        error: error.message || 'Không thể lấy danh sách hẹn tái khám'
       }
     }
   }
