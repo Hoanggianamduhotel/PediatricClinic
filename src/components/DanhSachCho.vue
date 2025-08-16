@@ -119,7 +119,7 @@ export default {
     }
   },
   emits: ['waiting-list-changed'],
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     const waitingList = ref([])
     const removing = ref(null)
     const message = ref(null)
@@ -196,6 +196,11 @@ export default {
       
       return date.toLocaleDateString('vi-VN')
     }
+
+    // Expose loadWaitingList method to parent component
+    expose({
+      loadWaitingList
+    })
 
     onMounted(() => {
       loadWaitingList()

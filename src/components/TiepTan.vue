@@ -337,7 +337,7 @@ export default {
       default: false
     }
   },
-  emits: ['patient-added-to-waiting', 'show-add-dialog', 'patient-added'],
+  emits: ['patient-added-to-waiting', 'show-add-dialog'],
   setup(props, { emit }) {
     const showAddPatientDialog = ref(props.showAddDialog)
     const searchQuery = ref('')
@@ -398,8 +398,7 @@ export default {
         if (result.success) {
           displayMessage(result.message || 'Thêm bệnh nhân thành công!')
           closeAddPatientDialog()
-          emit('patient-added-to-waiting') // Update waiting count
-          emit('patient-added') // Refresh waiting list display
+          emit('patient-added-to-waiting') // This will trigger handlePatientAdded in App.vue
         } else {
           displayMessage(result.error || 'Có lỗi xảy ra', 'error')
         }

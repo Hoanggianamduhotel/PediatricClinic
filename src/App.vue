@@ -157,9 +157,8 @@
           
           <!-- Reception Interface -->
           <TiepTan 
-            @patient-added-to-waiting="updateWaitingCount" 
+            @patient-added-to-waiting="handlePatientAdded" 
             @show-add-dialog="showAddPatientDialog = $event"
-            @patient-added="loadWaitingListInTiepTan"
             :show-add-dialog="showAddPatientDialog"
           />
           
@@ -170,6 +169,7 @@
               @waiting-list-changed="updateWaitingCount" 
               :show-header="false"
               :key="waitingListKey"
+              ref="danhSachChoRef"
             />
           </div>
         </div>
@@ -287,7 +287,7 @@
 </style>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance } from 'vue'
 import TiepTan from './components/TiepTan.vue'
 import DanhSachCho from './components/DanhSachCho.vue'
 import CharacterWidget from './components/CharacterWidget.vue'
@@ -344,8 +344,18 @@ export default {
       showMascot.value = false
     }
 
-    const loadWaitingListInTiepTan = () => {
+    const danhSachChoRef = ref(null)
+    
+    const handlePatientAdded = async () => {
+      // Update waiting count
+      updateWaitingCount()
+      // Force refresh waiting list component by changing key
       waitingListKey.value++
+      // Also directly reload the waiting list data
+      await nextTick()
+      if (danhSachChoRef.value && danhSachChoRef.value.loadWaitingList) {
+        await danhSachChoRef.value.loadWaitingList()
+      }
     }
 
     const updateWaitingCount = async () => {
@@ -383,11 +393,12 @@ export default {
       currentRole,
       showMascot,
       waitingListKey,
+      danhSachChoRef,
       updateWaitingCount,
       toggleTheme,
       handleMascotClick,
       handleMascotClose,
-      loadWaitingListInTiepTan
+      handlePatientAdded
     }
   }
 }
