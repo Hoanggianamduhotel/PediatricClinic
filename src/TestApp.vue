@@ -1,45 +1,92 @@
 <template>
   <v-app>
     <v-app-bar color="primary" dark>
+      <v-app-bar-nav-icon @click="drawer = !drawer" />
       <v-app-bar-title>Clinic BS Khang - Test</v-app-bar-title>
     </v-app-bar>
-    
+
+    <v-navigation-drawer v-model="drawer" temporary>
+      <v-list>
+        <v-list-item 
+          title="Tiếp Tân"
+          @click="currentTab = 'tieptan'; drawer = false"
+        />
+        <v-list-item 
+          title="Danh Sách Chờ"
+          @click="currentTab = 'danhsachcho'; drawer = false"
+        />
+        <v-list-item 
+          title="Hẹn Tái Khám"
+          @click="currentTab = 'hentaikham'; drawer = false"
+        />
+        <v-list-item 
+          title="Danh Sách Khám Bệnh"
+          @click="currentTab = 'danhsachkhambenh'; drawer = false"
+        />
+      </v-list>
+    </v-navigation-drawer>
+
     <v-main>
-      <v-container class="pa-6">
-        <h1 class="text-h4 mb-6">Test Application Working</h1>
+      <v-container>
+        <div v-if="currentTab === 'tieptan'">
+          <h2>Tiếp Nhận Bệnh Nhân</h2>
+          <TiepTan />
+        </div>
         
-        <v-card class="mb-6">
-          <v-card-title>Mobile Optimization Test</v-card-title>
-          <v-card-text>
-            <p>✓ Vue 3 Composition API loaded</p>
-            <p>✓ Vuetify components working</p>
-            <p>✓ Mobile responsive design ready</p>
-          </v-card-text>
-        </v-card>
+        <div v-else-if="currentTab === 'danhsachcho'">
+          <h2>Danh Sách Chờ</h2>
+          <DanhSachCho />
+        </div>
         
-        <v-card class="mb-6">
-          <v-card-title>Follow-up Appointments Feature</v-card-title>
-          <v-card-text>
-            <p>✓ Follow-up statistics tracking implemented</p>
-            <p>✓ SQL join logic for khambenh and benhnhan tables</p>
-            <p>✓ HenTaiKham component with 3 tabs ready</p>
-          </v-card-text>
-        </v-card>
+        <div v-else-if="currentTab === 'hentaikham'">
+          <h2>Hẹn Tái Khám</h2>
+          <HenTaiKham />
+        </div>
         
-        <v-btn color="success" size="large" class="mr-4">
-          Mobile Form Test
-        </v-btn>
+        <div v-else-if="currentTab === 'danhsachkhambenh'">
+          <h2>Danh Sách Khám Bệnh</h2>
+          <DanhSachKhamBenh />
+        </div>
         
-        <v-btn color="info" size="large">
-          Follow-up Stats Test
-        </v-btn>
+        <div v-else>
+          <h2>Chọn chức năng từ menu</h2>
+          <v-alert type="success">
+            Tất cả tính năng đã được khôi phục:
+            <ul>
+              <li>Mobile optimization</li>
+              <li>Hẹn tái khám thống kê</li>
+              <li>Danh sách khám bệnh theo ngày</li>
+            </ul>
+          </v-alert>
+        </div>
       </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
+import { ref } from 'vue'
+import TiepTan from './components/TiepTan.vue'
+import DanhSachCho from './components/DanhSachCho.vue'
+import HenTaiKham from './components/HenTaiKham.vue'
+import DanhSachKhamBenh from './components/DanhSachKhamBenh.vue'
+
 export default {
-  name: 'TestApp'
+  name: 'TestApp',
+  components: {
+    TiepTan,
+    DanhSachCho,
+    HenTaiKham,
+    DanhSachKhamBenh
+  },
+  setup() {
+    const drawer = ref(false)
+    const currentTab = ref('')
+
+    return {
+      drawer,
+      currentTab
+    }
+  }
 }
 </script>

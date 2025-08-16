@@ -1,13 +1,8 @@
 <template>
-  <v-app>
-    <v-main>
-      <v-container>
-        <h1>Clinic BS Khang - Test Mode</h1>
-        <p>Application is working!</p>
-        <v-btn color="primary">Test Button</v-btn>
-      </v-container>
-    </v-main>
-  </v-app>
+  <div>
+    <h1>Clinic BS Khang Working!</h1>
+    <p>All components restored successfully</p>
+  </div>
 </template>
 
 <script>
