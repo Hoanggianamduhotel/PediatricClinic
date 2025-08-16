@@ -5,7 +5,7 @@
       <!-- New Patient Card -->
       <v-col cols="12" md="6">
         <v-card elevation="2" height="100%" class="rounded-xl">
-          <v-card-title class="bg-success text-white d-flex align-center">
+          <v-card-title class="text-white d-flex align-center" style="background-color: #4caf50;">
             <v-icon start>mdi-account-plus</v-icon>
             Thêm Bệnh Nhân Mới
           </v-card-title>
@@ -13,11 +13,11 @@
             <p class="text-body-1 mb-4">Đăng ký thông tin bệnh nhân mới vào hệ thống</p>
             <v-btn 
               @click="showAddPatientDialog = true" 
-              color="success" 
               size="large" 
               block
               prepend-icon="mdi-account-plus"
               class="rounded-lg"
+              style="background-color: #4caf50; color: white;"
             >
               Thêm Bệnh Nhân
             </v-btn>
