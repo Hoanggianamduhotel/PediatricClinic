@@ -4,7 +4,7 @@
     <v-row class="mb-6">
       <!-- New Patient Card -->
       <v-col cols="12" md="6">
-        <v-card elevation="2" height="100%">
+        <v-card elevation="2" height="100%" class="rounded-xl">
           <v-card-title class="bg-success text-white d-flex align-center">
             <v-icon start>mdi-account-plus</v-icon>
             Thêm Bệnh Nhân Mới
@@ -17,6 +17,7 @@
               size="large" 
               block
               prepend-icon="mdi-account-plus"
+              class="rounded-lg"
             >
               Thêm Bệnh Nhân
             </v-btn>
@@ -26,8 +27,8 @@
 
       <!-- Search Patient Card -->
       <v-col cols="12" md="6">
-        <v-card elevation="2" height="100%">
-          <v-card-title class="bg-primary text-white d-flex align-center">
+        <v-card elevation="2" height="100%" class="rounded-xl">
+          <v-card-title class="text-white d-flex align-center" style="background-color: #2196F3;">
             <v-icon start>mdi-magnify</v-icon>
             Tìm Bệnh Cũ
           </v-card-title>
@@ -41,6 +42,7 @@
               variant="outlined"
               clearable
               hide-details="auto"
+              class="rounded-lg"
             />
             
             <!-- Search Results -->

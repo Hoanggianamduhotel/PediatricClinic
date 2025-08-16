@@ -223,8 +223,50 @@
   text-orientation: mixed;
 }
 
-.purple-sidebar {
-  background: linear-gradient(180deg, #9c27b0, #673ab7) !important;
+/* Right Sidebar Styles */
+.right-sidebar-background {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 20%;
+  height: 100vh;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 1200;
+}
+
+.copyright-text {
+  text-align: center;
+  color: #666;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.right-sidebar-purple {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 80px;
+  height: 100vh;
+  background: purple;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1201;
+}
+
+.role-text-vertical {
+  color: white;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 2px;
 }
 
 /* Custom scrollbar for drawers */
@@ -263,6 +305,7 @@ export default {
     const rightSidebarExpanded = ref(true)
     const isDark = ref(false)
     const showAddPatientDialog = ref(false)
+    const currentRole = ref('doctor') // 'doctor' or 'pharmacist'
     let timeInterval = null
 
     const updateDateTime = () => {
@@ -318,6 +361,7 @@ export default {
       rightSidebarExpanded,
       isDark,
       showAddPatientDialog,
+      currentRole,
       updateWaitingCount,
       toggleTheme
     }
