@@ -317,9 +317,15 @@ import { patientService, waitingListService } from '../lib/supabase.js'
 
 export default {
   name: 'TiepTan',
-  emits: ['patient-added-to-waiting'],
+  props: {
+    showAddDialog: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['patient-added-to-waiting', 'show-add-dialog'],
   setup(props, { emit }) {
-    const showAddPatientDialog = ref(false)
+    const showAddPatientDialog = ref(props.showAddDialog)
     const searchQuery = ref('')
     const searchResults = ref([])
     const selectedPatient = ref(null)
@@ -347,6 +353,7 @@ export default {
 
     const closeAddPatientDialog = () => {
       showAddPatientDialog.value = false
+      emit('show-add-dialog', false)
       newPatient.value = {
         ho_ten: '',
         ngay_sinh: '',
@@ -365,6 +372,7 @@ export default {
         if (result.success) {
           displayMessage(result.message || 'Thêm bệnh nhân thành công!')
           closeAddPatientDialog()
+          emit('patient-added-to-waiting') // Update waiting count
         } else {
           displayMessage(result.error || 'Có lỗi xảy ra', 'error')
         }

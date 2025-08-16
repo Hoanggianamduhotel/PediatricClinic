@@ -52,12 +52,45 @@
       width="280"
       color="grey-lighten-5"
     >
+      <!-- Sidebar Header -->
+      <div class="pa-4 bg-primary">
+        <div class="d-flex align-center text-white">
+          <v-icon size="32" class="mr-3">mdi-view-dashboard</v-icon>
+          <div>
+            <div class="text-h6 font-weight-bold">Dashboard</div>
+            <div class="text-caption">Bảng điều khiển</div>
+          </div>
+        </div>
+      </div>
+      <!-- Statistics Cards -->
+      <div class="pa-4">
+        <v-row dense>
+          <v-col cols="6">
+            <v-card color="success" variant="flat">
+              <v-card-text class="text-center text-white pa-3">
+                <div class="text-h6 font-weight-bold">{{ waitingCount }}</div>
+                <div class="text-caption">Chờ khám</div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col cols="6">
+            <v-card color="info" variant="flat">
+              <v-card-text class="text-center text-white pa-3">
+                <div class="text-h6 font-weight-bold">0</div>
+                <div class="text-caption">Đã khám</div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </div>
+
       <v-list density="compact" nav>
         <v-list-item 
           prepend-icon="mdi-view-dashboard" 
           title="Bệnh Nhi" 
           subtitle="Quản lý bệnh nhân"
-          active
+          :active="currentTab === 'tieptan'"
+          @click="currentTab = 'tieptan'; drawer = false"
         />
         
         <v-divider class="my-2" />
@@ -65,13 +98,13 @@
         <v-list-item 
           prepend-icon="mdi-account-plus" 
           title="Tiếp Nhận BN"
-          @click="currentTab = 'tieptan'"
+          @click="currentTab = 'tieptan'; drawer = false"
         />
         
         <v-list-item 
           prepend-icon="mdi-format-list-bulleted" 
           title="Danh Sách Chờ"
-          @click="currentTab = 'danhsachcho'"
+          @click="currentTab = 'danhsachcho'; drawer = false"
         />
         
         <v-list-item 
@@ -150,13 +183,31 @@
       app
       permanent
       location="right"
-      width="80"
-      class="purple-sidebar d-flex flex-column align-center"
+      :width="rightSidebarExpanded ? 200 : 60"
+      class="purple-sidebar d-flex flex-column"
       color="purple darken-2"
     >
-      <div class="flex-grow-1 d-flex align-center">
+      <!-- Toggle Button -->
+      <div class="text-center pt-2">
+        <v-btn
+          @click="rightSidebarExpanded = !rightSidebarExpanded"
+          :icon="rightSidebarExpanded ? 'mdi-chevron-right' : 'mdi-chevron-left'"
+          color="white"
+          variant="text"
+          size="small"
+        />
+      </div>
+      
+      <div class="flex-grow-1 d-flex align-center justify-center">
         <div class="text-center text-white">
-          <div class="clinic-name-vertical">
+          <div v-if="rightSidebarExpanded" class="clinic-name-horizontal">
+            <div class="text-h6 font-weight-bold mb-2">CLINIC</div>
+            <div class="text-h5 font-weight-bold mb-2">BS KHANG</div>
+            <v-divider class="my-4 border-opacity-25" color="white" />
+            <div class="text-caption">Pediatric Care</div>
+            <div class="text-caption">Management System</div>
+          </div>
+          <div v-else class="clinic-name-vertical">
             C<br/>L<br/>I<br/>N<br/>I<br/>C<br/><br/>
             B<br/>S<br/><br/>
             K<br/>H<br/>A<br/>N<br/>G
@@ -165,13 +216,66 @@
       </div>
       
       <!-- Copyright Footer -->
-      <div class="text-center text-white pa-2" style="font-size: 8px; line-height: 1.2;">
-        <div>2025. All Rights Reserved by</div>
-        <div class="font-weight-bold">Dr. Lee Min Khang</div>
+      <div class="text-center text-white pa-2" :style="rightSidebarExpanded ? 'font-size: 10px; line-height: 1.3;' : 'font-size: 8px; line-height: 1.2;'">
+        <div v-if="rightSidebarExpanded">
+          <div>2025. All Rights Reserved by</div>
+          <div class="font-weight-bold">Dr. Lee Min Khang</div>
+        </div>
+        <div v-else class="copyright-vertical">
+          ©<br/>2<br/>0<br/>2<br/>5
+        </div>
       </div>
     </v-navigation-drawer>
   </v-app>
 </template>
+
+<style scoped>
+.purple-separator {
+  height: 3px;
+  background: linear-gradient(90deg, #9c27b0, #673ab7);
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+}
+
+.clinic-name-vertical {
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  line-height: 1.2;
+}
+
+.clinic-name-horizontal {
+  padding: 16px;
+}
+
+.copyright-vertical {
+  font-size: 8px;
+  line-height: 1.1;
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+}
+
+.purple-sidebar {
+  background: linear-gradient(180deg, #9c27b0, #673ab7) !important;
+}
+
+/* Custom scrollbar for drawers */
+.v-navigation-drawer__content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.v-navigation-drawer__content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.v-navigation-drawer__content::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 2px;
+}
+</style>
 
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
@@ -187,8 +291,13 @@ export default {
   },
   setup() {
     const currentDateTime = ref('')
+    const currentDate = ref('')
     const currentTab = ref('tieptan')
     const waitingCount = ref(0)
+    const drawer = ref(false)
+    const rightSidebarExpanded = ref(true)
+    const isDark = ref(false)
+    const showAddPatientDialog = ref(false)
     let timeInterval = null
 
     const updateDateTime = () => {
@@ -200,6 +309,16 @@ export default {
         hour: '2-digit',
         minute: '2-digit'
       })
+      currentDate.value = now.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
+    }
+
+    const toggleTheme = () => {
+      isDark.value = !isDark.value
+      // You can implement theme switching logic here
     }
 
     const updateWaitingCount = async () => {
@@ -227,9 +346,15 @@ export default {
 
     return {
       currentDateTime,
+      currentDate,
       currentTab,
       waitingCount,
-      updateWaitingCount
+      drawer,
+      rightSidebarExpanded,
+      isDark,
+      showAddPatientDialog,
+      updateWaitingCount,
+      toggleTheme
     }
   }
 }

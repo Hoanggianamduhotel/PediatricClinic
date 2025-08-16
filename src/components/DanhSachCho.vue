@@ -1,7 +1,7 @@
 <template>
   <div class="danh-sach-cho">
     <!-- Header -->
-    <v-card elevation="2" class="mb-6">
+    <v-card v-if="showHeader" elevation="2" class="mb-6">
       <v-card-title class="bg-warning text-white d-flex align-center">
         <v-icon start>mdi-clock-outline</v-icon>
         Danh Sách Chờ Khám
@@ -117,6 +117,12 @@ import { waitingListService } from '../lib/supabase.js'
 
 export default {
   name: 'DanhSachCho',
+  props: {
+    showHeader: {
+      type: Boolean,
+      default: true
+    }
+  },
   emits: ['waiting-list-changed'],
   setup(props, { emit }) {
     const waitingList = ref([])
