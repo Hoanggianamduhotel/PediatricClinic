@@ -178,19 +178,54 @@
       </v-container>
     </v-main>
 
-    <!-- Right Sidebar Background (Copyright) -->
-    <div class="right-sidebar-background">
-      <div class="copyright-text">
-        2025. All Rights Reserved by Dr. Lee Min Khang
+    <!-- Right Sidebar (Purple) -->
+    <v-navigation-drawer
+      app
+      permanent
+      location="right"
+      :width="rightSidebarExpanded ? 200 : 60"
+      class="purple-sidebar d-flex flex-column"
+      color="purple darken-2"
+    >
+      <!-- Toggle Button -->
+      <div class="text-center pt-2">
+        <v-btn
+          @click="rightSidebarExpanded = !rightSidebarExpanded"
+          :icon="rightSidebarExpanded ? 'mdi-chevron-right' : 'mdi-chevron-left'"
+          color="white"
+          variant="text"
+          size="small"
+        />
       </div>
-    </div>
-
-    <!-- Right Sidebar Purple Strip (Role Interface) -->
-    <div class="right-sidebar-purple">
-      <div class="role-text-vertical">
-        {{ currentRole === 'doctor' ? 'Giao Diện Bác Sĩ' : 'Giao Diện Dược Sĩ' }}
+      
+      <div class="flex-grow-1 d-flex align-center justify-center">
+        <div class="text-center text-white">
+          <div v-if="rightSidebarExpanded" class="clinic-name-horizontal">
+            <div class="text-h6 font-weight-bold mb-2">CLINIC</div>
+            <div class="text-h5 font-weight-bold mb-2">BS KHANG</div>
+            <v-divider class="my-4 border-opacity-25" color="white" />
+            <div class="text-caption">Pediatric Care</div>
+            <div class="text-caption">Management System</div>
+          </div>
+          <div v-else class="clinic-name-vertical">
+            C<br/>L<br/>I<br/>N<br/>I<br/>C<br/><br/>
+            B<br/>S<br/><br/>
+            K<br/>H<br/>A<br/>N<br/>G
+          </div>
+        </div>
       </div>
-    </div>
+      
+      <!-- Copyright Footer -->
+      <div class="text-center text-white pa-2" :style="rightSidebarExpanded ? 'font-size: 10px; line-height: 1.3;' : 'font-size: 8px; line-height: 1.2;'">
+        <div v-if="rightSidebarExpanded">
+          <div>2025. All Rights Reserved by</div>
+          <div class="font-weight-bold">Dr. Lee Min Khang</div>
+        </div>
+        <div v-else class="copyright-vertical">
+          ©<br/>2<br/>0<br/>2<br/>5
+        </div>
+      </div>
+    </v-navigation-drawer>
   </v-app>
 </template>
 
@@ -223,50 +258,8 @@
   text-orientation: mixed;
 }
 
-/* Right Sidebar Styles */
-.right-sidebar-background {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 20%;
-  height: 100vh;
-  background: white;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  z-index: 1200;
-}
-
-.copyright-text {
-  text-align: center;
-  color: #666;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.right-sidebar-purple {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 80px;
-  height: 100vh;
-  background: purple;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1201;
-}
-
-.role-text-vertical {
-  color: white;
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 2px;
+.purple-sidebar {
+  background: linear-gradient(180deg, #9c27b0, #673ab7) !important;
 }
 
 /* Custom scrollbar for drawers */
