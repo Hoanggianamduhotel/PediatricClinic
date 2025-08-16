@@ -178,54 +178,19 @@
       </v-container>
     </v-main>
 
-    <!-- Right Sidebar (Purple) -->
-    <v-navigation-drawer
-      app
-      permanent
-      location="right"
-      :width="rightSidebarExpanded ? 200 : 60"
-      class="purple-sidebar d-flex flex-column"
-      color="purple darken-2"
-    >
-      <!-- Toggle Button -->
-      <div class="text-center pt-2">
-        <v-btn
-          @click="rightSidebarExpanded = !rightSidebarExpanded"
-          :icon="rightSidebarExpanded ? 'mdi-chevron-right' : 'mdi-chevron-left'"
-          color="white"
-          variant="text"
-          size="small"
-        />
+    <!-- Right Sidebar Background (Copyright) -->
+    <div class="right-sidebar-background">
+      <div class="copyright-text">
+        2025. All Rights Reserved by Dr. Lee Min Khang
       </div>
-      
-      <div class="flex-grow-1 d-flex align-center justify-center">
-        <div class="text-center text-white">
-          <div v-if="rightSidebarExpanded" class="clinic-name-horizontal">
-            <div class="text-h6 font-weight-bold mb-2">CLINIC</div>
-            <div class="text-h5 font-weight-bold mb-2">BS KHANG</div>
-            <v-divider class="my-4 border-opacity-25" color="white" />
-            <div class="text-caption">Pediatric Care</div>
-            <div class="text-caption">Management System</div>
-          </div>
-          <div v-else class="clinic-name-vertical">
-            C<br/>L<br/>I<br/>N<br/>I<br/>C<br/><br/>
-            B<br/>S<br/><br/>
-            K<br/>H<br/>A<br/>N<br/>G
-          </div>
-        </div>
+    </div>
+
+    <!-- Right Sidebar Purple Strip (Role Interface) -->
+    <div class="right-sidebar-purple">
+      <div class="role-text-vertical">
+        {{ currentRole === 'doctor' ? 'Giao Diện Bác Sĩ' : 'Giao Diện Dược Sĩ' }}
       </div>
-      
-      <!-- Copyright Footer -->
-      <div class="text-center text-white pa-2" :style="rightSidebarExpanded ? 'font-size: 10px; line-height: 1.3;' : 'font-size: 8px; line-height: 1.2;'">
-        <div v-if="rightSidebarExpanded">
-          <div>2025. All Rights Reserved by</div>
-          <div class="font-weight-bold">Dr. Lee Min Khang</div>
-        </div>
-        <div v-else class="copyright-vertical">
-          ©<br/>2<br/>0<br/>2<br/>5
-        </div>
-      </div>
-    </v-navigation-drawer>
+    </div>
   </v-app>
 </template>
 
