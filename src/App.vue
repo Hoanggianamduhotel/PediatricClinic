@@ -136,8 +136,10 @@
         />
         
         <v-list-item 
-          prepend-icon="mdi-file-document" 
-          title="Danh Sách Khám..."
+          prepend-icon="mdi-file-document-outline" 
+          title="Danh Sách Khám Bệnh"
+          subtitle="Theo ngày khám"
+          @click="currentTab = 'danhsachkhambenh'; drawer = false"
         />
         
         <v-list-item 
@@ -198,6 +200,10 @@
         
         <div v-else-if="currentTab === 'hentaikham'">
           <HenTaiKham />
+        </div>
+        
+        <div v-else-if="currentTab === 'danhsachkhambenh'">
+          <DanhSachKhamBenh />
         </div>
       </v-container>
     </v-main>
@@ -313,8 +319,9 @@ import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance } from 'vue'
 import TiepTan from './components/TiepTan.vue'
 import DanhSachCho from './components/DanhSachCho.vue'
 import HenTaiKham from './components/HenTaiKham.vue'
+import DanhSachKhamBenh from './components/DanhSachKhamBenh.vue'
 import CharacterWidget from './components/CharacterWidget.vue'
-import { waitingListService, followUpService } from './lib/supabase.js'
+import { waitingListService, followUpService, examinationService } from './lib/supabase.js'
 
 export default {
   name: 'App',
@@ -322,6 +329,7 @@ export default {
     TiepTan,
     DanhSachCho,
     HenTaiKham,
+    DanhSachKhamBenh,
     CharacterWidget
   },
   setup() {

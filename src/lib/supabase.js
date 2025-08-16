@@ -332,5 +332,82 @@ export const followUpService = {
   }
 }
 
+// Examination service for daily statistics
+const examinationService = {
+  async getExaminationsByDate(examDate) {
+    try {
+      const { data, error } = await supabase
+        .from('khambenh')
+        .select(`
+          id,
+          ngay_kham,
+          chan_doan,
+          so_ngay_toa,
+          ngay_hen_tai_kham,
+          benhnhan:benhnhan_id (
+            id,
+            ho_ten,
+            ngay_sinh,
+            so_dien_thoai
+          )
+        `)
+        .eq('ngay_kham', examDate)
+        .order('id', { ascending: false })
+
+      if (error) throw error
+
+      return {
+        success: true,
+        data: data || []
+      }
+    } catch (error) {
+      console.error('Get examinations by date error:', error)
+      return {
+        success: false,
+        error: error.message || 'Không thể lấy danh sách khám bệnh'
+      }
+    }
+  },
+
+  async getExaminationStats(startDate, endDate) {
+    try {
+      let query = supabase
+        .from('khambenh')
+        .select('id, ngay_kham')
+
+      if (startDate && endDate) {
+        query = query.gte('ngay_kham', startDate).lte('ngay_kham', endDate)
+      } else if (startDate) {
+        query = query.eq('ngay_kham', startDate)
+      }
+
+      const { data, error } = await query
+
+      if (error) throw error
+
+      // Group by date
+      const statsByDate = {}
+      data?.forEach(exam => {
+        const date = exam.ngay_kham
+        if (!statsByDate[date]) {
+          statsByDate[date] = 0
+        }
+        statsByDate[date]++
+      })
+
+      return {
+        success: true,
+        data: statsByDate
+      }
+    } catch (error) {
+      console.error('Get examination stats error:', error)
+      return {
+        success: false,
+        error: error.message || 'Không thể lấy thống kê khám bệnh'
+      }
+    }
+  }
+}
+
 // Export services
-export { patientService, waitingListService, followUpService }
+export { patientService, waitingListService, followUpService, examinationService }
