@@ -223,3 +223,90 @@ export const waitingListService = {
     }
   }
 }
+
+// Statistics and examination service
+export const statisticsService = {
+  // Get examinations by date from Supabase
+  async getExaminationsByDate(date) {
+    try {
+      const { data, error } = await supabase
+        .from('medical_records')
+        .select(`
+          id,
+          visit_date,
+          symptoms,
+          diagnosis,
+          treatment,
+          prescription,
+          follow_up_date,
+          status,
+          notes,
+          created_at,
+          patients!inner(
+            id,
+            name,
+            date_of_birth,
+            gender
+          ),
+          staff!inner(
+            id,
+            name,
+            role
+          )
+        `)
+        .eq('visit_date', date)
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
+      
+      // Transform data to match expected format
+      const examinations = (data || []).map(record => ({
+        id: record.id,
+        examination_date: record.visit_date,
+        patient_name: record.patients?.name || 'Chưa xác định',
+        patient_birth_date: record.patients?.date_of_birth,
+        doctor_name: record.staff?.name || 'Chưa xác định',
+        diagnosis: record.diagnosis,
+        symptoms: record.symptoms,
+        treatment: record.treatment,
+        prescription: record.prescription,
+        follow_up_date: record.follow_up_date,
+        status: record.status || 'draft',
+        notes: record.notes,
+        created_at: record.created_at
+      }))
+      
+      // Calculate statistics
+      const totalPatients = examinations.length
+      const completedExams = examinations.filter(exam => exam.status === 'completed').length
+      const followUpAppointments = examinations.filter(exam => exam.follow_up_date).length
+      const waitingPatients = examinations.filter(exam => 
+        exam.status === 'waiting' || exam.status === 'in_progress' || exam.status === 'draft'
+      ).length
+      
+      return {
+        success: true,
+        data: {
+          examinations,
+          statistics: {
+            totalPatients,
+            completedExams,
+            followUpAppointments,
+            waitingPatients
+          }
+        },
+        count: totalPatients,
+        date: date
+      }
+    } catch (error) {
+      console.error('Error fetching examinations:', error)
+      return {
+        success: false,
+        error: error.message || 'Không thể tải dữ liệu thống kê khám bệnh'
+      }
+    }
+  }
+}

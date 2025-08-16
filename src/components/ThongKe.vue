@@ -184,6 +184,7 @@
 
 <script>
 import { ref, onMounted } from 'vue'
+import { statisticsService } from '../lib/supabase.js'
 
 export default {
   name: 'ThongKe',
@@ -277,102 +278,31 @@ export default {
       try {
         loading.value = true
         
-        // Try to call API to get examination statistics
-        try {
-          const response = await fetch(`http://localhost:10000/api/examinations/${selectedDate.value}`)
+        // Get examination statistics from Supabase
+        const result = await statisticsService.getExaminationsByDate(selectedDate.value)
+        
+        if (result.success) {
+          // Update examinations data from Supabase
+          examinations.value = result.data?.examinations || []
+          statistics.value = result.data?.statistics || {
+            totalPatients: 0,
+            completedExams: 0,
+            followUpAppointments: 0,
+            waitingPatients: 0
+          }
           
-          if (response.ok) {
-            const data = await response.json()
-            
-            if (data.success) {
-              // Update examinations data from API
-              examinations.value = data.data?.examinations || []
-              statistics.value = data.data?.statistics || {
-                totalPatients: 0,
-                completedExams: 0,
-                followUpAppointments: 0,
-                waitingPatients: 0
-              }
-              
-              if (examinations.value.length === 0) {
-                displayMessage('Không có dữ liệu khám bệnh cho ngày đã chọn', 'info')
-              }
-              return
-            }
+          if (examinations.value.length === 0) {
+            displayMessage('Không có dữ liệu khám bệnh cho ngày đã chọn', 'info')
+          } else {
+            displayMessage(`Đã tải ${examinations.value.length} hồ sơ khám bệnh`, 'success')
           }
-        } catch (apiError) {
-          console.log('API not available, using sample data:', apiError.message)
+        } else {
+          throw new Error(result.error || 'Không thể tải dữ liệu từ Supabase')
         }
-        
-        // Fallback to sample data for demonstration
-        const sampleExaminations = [
-          {
-            id: '1',
-            examination_date: selectedDate.value,
-            patient_name: 'Nguyễn Minh An',
-            patient_birth_date: '2020-03-15',
-            doctor_name: 'BS. Lê Minh Khang',
-            diagnosis: 'Viêm họng cấp',
-            symptoms: 'Sốt, ho, đau họng',
-            treatment: 'Thuốc kháng sinh, thuốc hạ sốt',
-            prescription: 'Amoxicillin 250mg x 3 lần/ngày',
-            follow_up_date: '2025-08-20',
-            status: 'completed',
-            notes: 'Bệnh nhân phục hồi tốt'
-          },
-          {
-            id: '2',
-            examination_date: selectedDate.value,
-            patient_name: 'Trần Thị Bích',
-            patient_birth_date: '2019-07-22',
-            doctor_name: 'BS. Lê Minh Khang',
-            diagnosis: 'Tiêu chảy cấp',
-            symptoms: 'Tiêu chảy, buồn nôn',
-            treatment: 'Oresol, thuốc cầm tiêu chảy',
-            prescription: 'Oresol 1 gói x 4 lần/ngày',
-            follow_up_date: null,
-            status: 'completed',
-            notes: 'Theo dõi thêm'
-          },
-          {
-            id: '3',
-            examination_date: selectedDate.value,
-            patient_name: 'Phạm Văn Cường',
-            patient_birth_date: '2021-11-08',
-            doctor_name: 'BS. Lê Minh Khang',
-            diagnosis: 'Chưa xác định',
-            symptoms: 'Sốt nhẹ',
-            treatment: 'Đang thăm khám',
-            prescription: null,
-            follow_up_date: null,
-            status: 'in_progress',
-            notes: 'Đang chờ kết quả xét nghiệm'
-          }
-        ]
-        
-        // Update with sample data
-        examinations.value = sampleExaminations
-        
-        // Calculate statistics
-        const totalPatients = examinations.value.length
-        const completedExams = examinations.value.filter(exam => exam.status === 'completed').length
-        const followUpAppointments = examinations.value.filter(exam => exam.follow_up_date).length
-        const waitingPatients = examinations.value.filter(exam => 
-          exam.status === 'waiting' || exam.status === 'in_progress'
-        ).length
-
-        statistics.value = {
-          totalPatients,
-          completedExams,
-          followUpAppointments,
-          waitingPatients
-        }
-
-        displayMessage('Đang hiển thị dữ liệu mẫu cho demo', 'info')
 
       } catch (error) {
         console.error('Load statistics error:', error)
-        displayMessage('Không thể tải dữ liệu thống kê: ' + error.message, 'error')
+        displayMessage('Lỗi tải dữ liệu: ' + error.message, 'error')
         examinations.value = []
         statistics.value = {
           totalPatients: 0,
