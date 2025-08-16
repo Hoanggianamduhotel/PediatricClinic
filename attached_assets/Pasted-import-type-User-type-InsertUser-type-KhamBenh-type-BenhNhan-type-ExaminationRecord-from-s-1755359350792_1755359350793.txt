@@ -1,0 +1,476 @@
+import { type User, type InsertUser, type KhamBenh, type BenhNhan, type ExaminationRecord } from "@shared/schema";
+import { randomUUID } from "crypto";
+import { createClient } from '@supabase/supabase-js';
+
+export interface IStorage {
+  getUser(id: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  getExaminationsByDate(date: string): Promise<ExaminationRecord[]>;
+  getExaminationStats(date?: string): Promise<{
+    totalPatients: number;
+    completedExams: number;
+    followUpAppointments: number;
+  }>;
+  getFollowUpAppointmentsByDate(date: string): Promise<ExaminationRecord[]>;
+  getFollowUpAppointmentStats(date: string): Promise<{
+    totalAppointments: number;
+    todayAppointments: number;
+    pendingAppointments: number;
+  }>;
+  initializeDatabase(): Promise<void>;
+}
+
+export class SupabaseStorage implements IStorage {
+  private supabase: any;
+  private isUsingMemory: boolean = false;
+  private memoryData: {
+    patients: Map<string, BenhNhan>;
+    examinations: Map<string, KhamBenh>;
+  } = {
+    patients: new Map(),
+    examinations: new Map()
+  };
+
+  constructor() {
+    const supabaseUrl = 'https://luimiikovmsaeqmocjhu.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1aW1paWtvdm1zYWVxbW9jamh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MTY5MDIsImV4cCI6MjA2MDM5MjkwMn0.JI9k2KMRPyu6OJBanKZNmkIfwKc7Hiib8gTHiFsFNgs';
+    
+    try {
+      this.supabase = createClient(supabaseUrl, supabaseKey);
+      console.log('Successfully connected to Supabase with client');
+    } catch (error) {
+      console.error('Failed to connect to Supabase, falling back to memory storage:', error);
+      this.isUsingMemory = true;
+    }
+  }
+
+  async initializeDatabase(): Promise<void> {
+    if (this.isUsingMemory) {
+      console.log('Using in-memory storage - initializing sample data');
+      await this.initMemoryData();
+      return;
+    }
+
+    try {
+      // Check if tables exist and data is available
+      const { data: existingPatients, error } = await this.supabase
+        .from('benhnhan')
+        .select('id', { count: 'exact' })
+        .limit(1);
+
+      if (error && error.code === '42P01') {
+        // Tables don't exist, this is expected for first time setup
+        console.log('Tables do not exist yet. Please create them in Supabase dashboard.');
+        await this.initMemoryData();
+        this.isUsingMemory = true;
+        return;
+      }
+
+      if (!existingPatients || existingPatients.length === 0) {
+        await this.initSupabaseData();
+      }
+      
+      console.log('Supabase database initialized successfully');
+    } catch (error) {
+      console.error('Error connecting to Supabase, using memory storage:', error);
+      this.isUsingMemory = true;
+      await this.initMemoryData();
+    }
+  }
+
+  private async initMemoryData() {
+    // Sample patients
+    const patients = [
+      { id: "patient-1", ho_ten: "Nguyễn Thị Lan", ngay_sinh: "1985-03-15", can_nang: "65", created_at: new Date() },
+      { id: "patient-2", ho_ten: "Trần Văn Minh", ngay_sinh: "1992-07-20", can_nang: "70", created_at: new Date() },
+      { id: "patient-3", ho_ten: "Lê Thị Hương", ngay_sinh: "1978-11-10", can_nang: "58", created_at: new Date() },
+      { id: "patient-4", ho_ten: "Phạm Văn Đức", ngay_sinh: "1990-12-05", can_nang: "75", created_at: new Date() },
+      { id: "patient-5", ho_ten: "Hoàng Thị Mai", ngay_sinh: "1987-08-22", can_nang: "62", created_at: new Date() },
+      { id: "patient-6", ho_ten: "Vũ Văn Nam", ngay_sinh: "1995-01-18", can_nang: "68", created_at: new Date() },
+      { id: "patient-7", ho_ten: "Đỗ Thị Hà", ngay_sinh: "1983-06-30", can_nang: "55", created_at: new Date() },
+      { id: "patient-8", ho_ten: "Bùi Văn Tùng", ngay_sinh: "1988-09-14", can_nang: "72", created_at: new Date() }
+    ];
+
+    patients.forEach(patient => this.memoryData.patients.set(patient.id, patient));
+
+    // Get dates for sample data
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    // Sample examinations
+    const examinations = [
+      // Today's examinations
+      { id: "exam-1", benhnhan_id: "patient-1", bacsi_id: "doctor-1", ngay_kham: today, trieu_chung: "Đau họng, ho khan, sốt nhẹ", chan_doan: "Viêm họng cấp", so_ngay_toa: "7", created_at: new Date(), ten_bacsi: "Bác sĩ Nguyễn Văn A", status: "completed", ngay_hen_tai_kham: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+      { id: "exam-2", benhnhan_id: "patient-2", bacsi_id: "doctor-1", ngay_kham: today, trieu_chung: "Đau đầu, chóng mặt, mệt mỏi", chan_doan: "Đau đầu mãn tính", so_ngay_toa: "14", created_at: new Date(), ten_bacsi: "Bác sĩ Nguyễn Văn A", status: "completed", ngay_hen_tai_kham: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+      { id: "exam-3", benhnhan_id: "patient-3", bacsi_id: "doctor-2", ngay_kham: today, trieu_chung: "Huyết áp cao, đau ngực", chan_doan: "Tăng huyết áp", so_ngay_toa: "30", created_at: new Date(), ten_bacsi: "Bác sĩ Trần Thị B", status: "completed", ngay_hen_tai_kham: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+      { id: "exam-4", benhnhan_id: "patient-4", bacsi_id: "doctor-1", ngay_kham: today, trieu_chung: "Ho lâu ngày, khó thở", chan_doan: "Viêm phế quản", so_ngay_toa: "10", created_at: new Date(), ten_bacsi: "Bác sĩ Nguyễn Văn A", status: "completed", ngay_hen_tai_kham: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+      
+      // Yesterday's examinations
+      { id: "exam-5", benhnhan_id: "patient-5", bacsi_id: "doctor-3", ngay_kham: yesterday, trieu_chung: "Đau bụng, buồn nôn", chan_doan: "Viêm dạ dày", so_ngay_toa: "5", created_at: new Date(), ten_bacsi: "Bác sĩ Lê Văn C", status: "completed", ngay_hen_tai_kham: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+      { id: "exam-6", benhnhan_id: "patient-6", bacsi_id: "doctor-1", ngay_kham: yesterday, trieu_chung: "Sốt cao, ớn lạnh", chan_doan: "Cúm mùa", so_ngay_toa: "7", created_at: new Date(), ten_bacsi: "Bác sĩ Nguyễn Văn A", status: "completed", ngay_hen_tai_kham: null },
+      { id: "exam-7", benhnhan_id: "patient-7", bacsi_id: "doctor-4", ngay_kham: yesterday, trieu_chung: "Đau lưng, tê chân", chan_doan: "Thoát vị đĩa đệm", so_ngay_toa: "21", created_at: new Date(), ten_bacsi: "Bác sĩ Phạm Thị D", status: "completed", ngay_hen_tai_kham: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+      
+      // Two days ago
+      { id: "exam-8", benhnhan_id: "patient-8", bacsi_id: "doctor-3", ngay_kham: twoDaysAgo, trieu_chung: "Khó tiêu, ợ chua", chan_doan: "Trào ngược dạ dày", so_ngay_toa: "14", created_at: new Date(), ten_bacsi: "Bác sĩ Lê Văn C", status: "completed", ngay_hen_tai_kham: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }
+    ];
+
+    examinations.forEach(exam => this.memoryData.examinations.set(exam.id, exam));
+    console.log('Memory data initialized successfully');
+  }
+
+  private async initSupabaseData() {
+    try {
+      // Insert sample patients
+      const patientsData = [
+        { ho_ten: 'Nguyễn Thị Lan', ngay_sinh: '1985-03-15', can_nang: 65 },
+        { ho_ten: 'Trần Văn Minh', ngay_sinh: '1992-07-20', can_nang: 70 },
+        { ho_ten: 'Lê Thị Hương', ngay_sinh: '1978-11-10', can_nang: 58 },
+        { ho_ten: 'Phạm Văn Đức', ngay_sinh: '1990-12-05', can_nang: 75 },
+        { ho_ten: 'Hoàng Thị Mai', ngay_sinh: '1987-08-22', can_nang: 62 },
+        { ho_ten: 'Vũ Văn Nam', ngay_sinh: '1995-01-18', can_nang: 68 },
+        { ho_ten: 'Đỗ Thị Hà', ngay_sinh: '1983-06-30', can_nang: 55 },
+        { ho_ten: 'Bùi Văn Tùng', ngay_sinh: '1988-09-14', can_nang: 72 }
+      ];
+
+      const { data: patients, error: patientsError } = await this.supabase
+        .from('benhnhan')
+        .insert(patientsData)
+        .select('id');
+
+      if (patientsError) {
+        console.error('Error inserting patients:', patientsError);
+        return;
+      }
+
+      // Get dates for sample data
+      const today = new Date().toISOString().split('T')[0];
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      // Insert sample examinations
+      const examinationsData = [
+        // Today's examinations
+        { benhnhan_id: patients[0].id, ngay_kham: today, trieu_chung: 'Đau họng, ho khan, sốt nhẹ', chan_doan: 'Viêm họng cấp', so_ngay_toa: 7, ten_bacsi: 'Bác sĩ Nguyễn Văn A', status: 'completed', ngay_hen_tai_kham: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+        { benhnhan_id: patients[1].id, ngay_kham: today, trieu_chung: 'Đau đầu, chóng mặt, mệt mỏi', chan_doan: 'Đau đầu mãn tính', so_ngay_toa: 14, ten_bacsi: 'Bác sĩ Nguyễn Văn A', status: 'completed', ngay_hen_tai_kham: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+        { benhnhan_id: patients[2].id, ngay_kham: today, trieu_chung: 'Huyết áp cao, đau ngực', chan_doan: 'Tăng huyết áp', so_ngay_toa: 30, ten_bacsi: 'Bác sĩ Trần Thị B', status: 'completed', ngay_hen_tai_kham: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+        { benhnhan_id: patients[3].id, ngay_kham: today, trieu_chung: 'Ho lâu ngày, khó thở', chan_doan: 'Viêm phế quản', so_ngay_toa: 10, ten_bacsi: 'Bác sĩ Nguyễn Văn A', status: 'completed', ngay_hen_tai_kham: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+        
+        // Yesterday's examinations
+        { benhnhan_id: patients[4].id, ngay_kham: yesterday, trieu_chung: 'Đau bụng, buồn nôn', chan_doan: 'Viêm dạ dày', so_ngay_toa: 5, ten_bacsi: 'Bác sĩ Lê Văn C', status: 'completed', ngay_hen_tai_kham: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+        { benhnhan_id: patients[5].id, ngay_kham: yesterday, trieu_chung: 'Sốt cao, ớn lạnh', chan_doan: 'Cúm mùa', so_ngay_toa: 7, ten_bacsi: 'Bác sĩ Nguyễn Văn A', status: 'completed', ngay_hen_tai_kham: null },
+        { benhnhan_id: patients[6].id, ngay_kham: yesterday, trieu_chung: 'Đau lưng, tê chân', chan_doan: 'Thoát vị đĩa đệm', so_ngay_toa: 21, ten_bacsi: 'Bác sĩ Phạm Thị D', status: 'completed', ngay_hen_tai_kham: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] },
+        
+        // Two days ago
+        { benhnhan_id: patients[7].id, ngay_kham: twoDaysAgo, trieu_chung: 'Khó tiêu, ợ chua', chan_doan: 'Trào ngược dạ dày', so_ngay_toa: 14, ten_bacsi: 'Bác sĩ Lê Văn C', status: 'completed', ngay_hen_tai_kham: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }
+      ];
+
+      const { error: examinationsError } = await this.supabase
+        .from('khambenh')
+        .insert(examinationsData);
+
+      if (examinationsError) {
+        console.error('Error inserting examinations:', examinationsError);
+        return;
+      }
+
+      console.log('Supabase sample data inserted successfully');
+    } catch (error) {
+      console.error('Error inserting Supabase sample data:', error);
+      throw error;
+    }
+  }
+
+  private calculateAge(birthDate: string): number {
+    const birth = new Date(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    
+    return age;
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    // Not implemented for medical statistics app
+    return undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    // Not implemented for medical statistics app
+    return undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    // Not implemented for medical statistics app
+    throw new Error('User management not implemented');
+  }
+
+  async getExaminationsByDate(date: string): Promise<ExaminationRecord[]> {
+    if (this.isUsingMemory) {
+      const examinations = Array.from(this.memoryData.examinations.values()).filter(
+        exam => exam.ngay_kham === date
+      );
+
+      const records: ExaminationRecord[] = [];
+      for (const exam of examinations) {
+        const patient = this.memoryData.patients.get(exam.benhnhan_id!);
+        if (patient) {
+          records.push({
+            id: exam.id,
+            ho_ten: patient.ho_ten,
+            ngay_sinh: patient.ngay_sinh,
+            tuoi: this.calculateAge(patient.ngay_sinh),
+            can_nang: patient.can_nang,
+            chan_doan: exam.chan_doan,
+            ngay_hen_tai_kham: exam.ngay_hen_tai_kham,
+            ngay_kham: exam.ngay_kham!,
+            trieu_chung: exam.trieu_chung,
+            ten_bacsi: exam.ten_bacsi,
+            status: exam.status,
+          });
+        }
+      }
+      return records;
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('khambenh')
+        .select(`
+          id,
+          chan_doan,
+          ngay_hen_tai_kham,
+          ngay_kham,
+          trieu_chung,
+          ten_bacsi,
+          status,
+          benhnhan:benhnhan_id (
+            ho_ten,
+            ngay_sinh,
+            can_nang
+          )
+        `)
+        .eq('ngay_kham', date)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error getting examinations by date:', error);
+        return [];
+      }
+
+      return data.map((record: any) => ({
+        id: record.id,
+        ho_ten: record.benhnhan.ho_ten,
+        ngay_sinh: record.benhnhan.ngay_sinh,
+        tuoi: this.calculateAge(record.benhnhan.ngay_sinh),
+        can_nang: record.benhnhan.can_nang?.toString() || null,
+        chan_doan: record.chan_doan,
+        ngay_hen_tai_kham: record.ngay_hen_tai_kham,
+        ngay_kham: record.ngay_kham,
+        trieu_chung: record.trieu_chung,
+        ten_bacsi: record.ten_bacsi,
+        status: record.status,
+      }));
+    } catch (error) {
+      console.error('Error getting examinations by date:', error);
+      return [];
+    }
+  }
+
+  async getExaminationStats(date?: string): Promise<{
+    totalPatients: number;
+    completedExams: number;
+    followUpAppointments: number;
+  }> {
+    if (this.isUsingMemory) {
+      let examinations = Array.from(this.memoryData.examinations.values());
+      
+      if (date) {
+        examinations = examinations.filter(exam => exam.ngay_kham === date);
+      }
+
+      const totalPatients = examinations.length;
+      const completedExams = examinations.filter(exam => exam.status === 'completed').length;
+      const followUpAppointments = examinations.filter(exam => exam.ngay_hen_tai_kham).length;
+
+      return {
+        totalPatients,
+        completedExams,
+        followUpAppointments,
+      };
+    }
+
+    try {
+      let query = this.supabase.from('khambenh').select('status, ngay_hen_tai_kham');
+      
+      if (date) {
+        query = query.eq('ngay_kham', date);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error getting examination stats:', error);
+        return {
+          totalPatients: 0,
+          completedExams: 0,
+          followUpAppointments: 0,
+        };
+      }
+
+      const totalPatients = data.length;
+      const completedExams = data.filter((exam: any) => exam.status === 'completed').length;
+      const followUpAppointments = data.filter((exam: any) => exam.ngay_hen_tai_kham).length;
+
+      return {
+        totalPatients,
+        completedExams,
+        followUpAppointments,
+      };
+    } catch (error) {
+      console.error('Error getting examination stats:', error);
+      return {
+        totalPatients: 0,
+        completedExams: 0,
+        followUpAppointments: 0,
+      };
+    }
+  }
+
+  async getFollowUpAppointmentsByDate(date: string): Promise<ExaminationRecord[]> {
+    if (this.isUsingMemory) {
+      const examinations = Array.from(this.memoryData.examinations.values()).filter(
+        exam => exam.ngay_hen_tai_kham === date
+      );
+
+      const records: ExaminationRecord[] = [];
+      for (const exam of examinations) {
+        const patient = this.memoryData.patients.get(exam.benhnhan_id!);
+        if (patient) {
+          records.push({
+            id: exam.id,
+            ho_ten: patient.ho_ten,
+            ngay_sinh: patient.ngay_sinh,
+            tuoi: this.calculateAge(patient.ngay_sinh),
+            can_nang: patient.can_nang,
+            chan_doan: exam.chan_doan,
+            ngay_hen_tai_kham: exam.ngay_hen_tai_kham,
+            ngay_kham: exam.ngay_kham!,
+            trieu_chung: exam.trieu_chung,
+            ten_bacsi: exam.ten_bacsi,
+            status: exam.status,
+          });
+        }
+      }
+      return records;
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('khambenh')
+        .select(`
+          id,
+          chan_doan,
+          ngay_hen_tai_kham,
+          ngay_kham,
+          trieu_chung,
+          ten_bacsi,
+          status,
+          benhnhan:benhnhan_id (
+            ho_ten,
+            ngay_sinh,
+            can_nang
+          )
+        `)
+        .eq('ngay_hen_tai_kham', date)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error getting follow-up appointments by date:', error);
+        return [];
+      }
+
+      return data.map((record: any) => ({
+        id: record.id,
+        ho_ten: record.benhnhan.ho_ten,
+        ngay_sinh: record.benhnhan.ngay_sinh,
+        tuoi: this.calculateAge(record.benhnhan.ngay_sinh),
+        can_nang: record.benhnhan.can_nang?.toString() || null,
+        chan_doan: record.chan_doan,
+        ngay_hen_tai_kham: record.ngay_hen_tai_kham,
+        ngay_kham: record.ngay_kham,
+        trieu_chung: record.trieu_chung,
+        ten_bacsi: record.ten_bacsi,
+        status: record.status,
+      }));
+    } catch (error) {
+      console.error('Error getting follow-up appointments by date:', error);
+      return [];
+    }
+  }
+
+  async getFollowUpAppointmentStats(date: string): Promise<{
+    totalAppointments: number;
+    todayAppointments: number;
+    pendingAppointments: number;
+  }> {
+    if (this.isUsingMemory) {
+      const examinations = Array.from(this.memoryData.examinations.values()).filter(
+        exam => exam.ngay_hen_tai_kham === date
+      );
+
+      const totalAppointments = examinations.length;
+      const todayAppointments = examinations.filter(exam => exam.ngay_hen_tai_kham === new Date().toISOString().split('T')[0]).length;
+      const pendingAppointments = examinations.filter(exam => exam.status !== 'completed').length;
+
+      return {
+        totalAppointments,
+        todayAppointments,
+        pendingAppointments,
+      };
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('khambenh')
+        .select('status, ngay_hen_tai_kham')
+        .eq('ngay_hen_tai_kham', date);
+
+      if (error) {
+        console.error('Error getting follow-up appointment stats:', error);
+        return {
+          totalAppointments: 0,
+          todayAppointments: 0,
+          pendingAppointments: 0,
+        };
+      }
+
+      const totalAppointments = data.length;
+      const today = new Date().toISOString().split('T')[0];
+      const todayAppointments = data.filter((appt: any) => appt.ngay_hen_tai_kham === today).length;
+      const pendingAppointments = data.filter((appt: any) => appt.status !== 'completed').length;
+
+      return {
+        totalAppointments,
+        todayAppointments,
+        pendingAppointments,
+      };
+    } catch (error) {
+      console.error('Error getting follow-up appointment stats:', error);
+      return {
+        totalAppointments: 0,
+        todayAppointments: 0,
+        pendingAppointments: 0,
+      };
+    }
+  }
+}
+
+export const storage = new SupabaseStorage();
+
+

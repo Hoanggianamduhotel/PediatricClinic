@@ -1,0 +1,72 @@
+import { sql } from "drizzle-orm";
+import { pgTable, text, varchar, uuid, date, numeric, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+// Patient table
+export const benhnhan = pgTable("benhnhan", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  ho_ten: text("ho_ten").notNull(),
+  ngay_sinh: date("ngay_sinh").notNull(),
+  can_nang: numeric("can_nang"),
+  created_at: timestamp("created_at").default(sql`now()`),
+});
+
+// Medical examination table
+export const khambenh = pgTable("khambenh", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  benhnhan_id: uuid("benhnhan_id").references(() => benhnhan.id, { onDelete: "cascade" }),
+  bacsi_id: uuid("bacsi_id"),
+  ngay_kham: date("ngay_kham").default(sql`now()`),
+  trieu_chung: text("trieu_chung"),
+  chan_doan: text("chan_doan"),
+  so_ngay_toa: numeric("so_ngay_toa"),
+  created_at: timestamp("created_at").default(sql`now()`),
+  ten_bacsi: text("ten_bacsi"),
+  status: text("status"),
+  ngay_hen_tai_kham: date("ngay_hen_tai_kham"),
+});
+
+export const insertBenhNhanSchema = createInsertSchema(benhnhan).omit({
+  id: true,
+  created_at: true,
+});
+
+export const insertKhamBenhSchema = createInsertSchema(khambenh).omit({
+  id: true,
+  created_at: true,
+});
+
+export type InsertBenhNhan = z.infer<typeof insertBenhNhanSchema>;
+export type BenhNhan = typeof benhnhan.$inferSelect;
+export type InsertKhamBenh = z.infer<typeof insertKhamBenhSchema>;
+export type KhamBenh = typeof khambenh.$inferSelect;
+
+// Combined type for examination data with patient info
+export type ExaminationRecord = {
+  id: string;
+  ho_ten: string;
+  ngay_sinh: string;
+  tuoi: number;
+  can_nang: string | null;
+  chan_doan: string | null;
+  ngay_hen_tai_kham: string | null;
+  ngay_kham: string;
+  trieu_chung: string | null;
+  ten_bacsi: string | null;
+  status: string | null;
+};
+
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+});
+
+export const insertUserSchema = createInsertSchema(users).pick({
+  username: true,
+  password: true,
+});
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;

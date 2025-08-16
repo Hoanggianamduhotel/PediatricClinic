@@ -224,127 +224,58 @@ export const waitingListService = {
   }
 }
 
-// Statistics and examination service
+// Statistics and examination service using proper backend API
 export const statisticsService = {
-  // Get examinations by date from Supabase using existing benhnhan table
+  // Get examinations by date using backend API
   async getExaminationsByDate(date) {
     try {
       console.log('Fetching examinations for date:', date)
       
-      // Query patients from benhnhan table with flexible date matching
-      // Try multiple approaches to find patients for the given date
-      let patients = []
+      // Use the proper backend API endpoint
+      const response = await fetch(`http://localhost:10000/api/examinations/${date}`)
       
-      // Approach 1: Try exact date match on created_at
-      let { data: exactMatch, error: exactError } = await supabase
-        .from('benhnhan')
-        .select('*')
-        .eq('created_at', date)
-        .order('id', { ascending: false })
-      
-      if (exactMatch && exactMatch.length > 0) {
-        patients = exactMatch
-        console.log('Found patients with exact date match:', patients.length)
-      } else {
-        // Approach 2: Try date range (entire day)
-        const startDate = `${date}T00:00:00.000Z`
-        const endDate = `${date}T23:59:59.999Z`
-        
-        let { data: rangeMatch, error: rangeError } = await supabase
-          .from('benhnhan')
-          .select('*')
-          .gte('created_at', startDate)
-          .lte('created_at', endDate)
-          .order('id', { ascending: false })
-        
-        if (rangeMatch && rangeMatch.length > 0) {
-          patients = rangeMatch
-          console.log('Found patients with date range match:', patients.length)
-        } else {
-          // Approach 3: Try with just date portion (ignore time)
-          let { data: allPatients, error: allError } = await supabase
-            .from('benhnhan')
-            .select('*')
-            .order('created_at', { ascending: false })
-          
-          if (allPatients) {
-            // Filter manually by date
-            patients = allPatients.filter(patient => {
-              if (!patient.created_at) return false
-              const patientDate = new Date(patient.created_at).toISOString().split('T')[0]
-              return patientDate === date
-            })
-            console.log('Found patients with manual date filter:', patients.length, 'from total:', allPatients.length)
-          }
-        }
+      if (!response.ok) {
+        // If API fails, try direct Supabase query as fallback
+        return await this.getExaminationsFromSupabase(date)
       }
       
-      // If we found patients, create examination records based on them
-      const examinations = patients.map(patient => {
-        // For known patients, create more realistic examination data
-        let diagnosis = 'Khám tổng quát'
-        let symptoms = 'Khám định kỳ'
-        let treatment = 'Theo dõi sức khỏe'
-        let prescription = 'Vitamin tổng hợp'
-        let status = 'completed'
-        
-        // Specific data for the mentioned patients
-        const patientName = patient.ho_ten?.toLowerCase() || ''
-        if (patientName.includes('lưu trung kiên')) {
-          diagnosis = 'Viêm họng nhẹ'
-          symptoms = 'Ho khan, đau họng'
-          treatment = 'Thuốc súc họng, nghỉ ngơi'
-          prescription = 'Betadine súc họng 3 lần/ngày'
-        } else if (patientName.includes('nguyễn chí anh')) {
-          diagnosis = 'Cảm lạnh thông thường'
-          symptoms = 'Sốt nhẹ, mệt mỏi'
-          treatment = 'Thuốc hạ sốt, uống nhiều nước'
-          prescription = 'Paracetamol 500mg khi sốt'
-        } else if (patientName.includes('dương nguyễn như quỳnh')) {
-          diagnosis = 'Kiểm tra sức khỏe định kỳ'
-          symptoms = 'Không có triệu chứng bất thường'
-          treatment = 'Duy trì chế độ ăn uống lành mạnh'
-          prescription = 'Vitamin C 500mg/ngày'
-        }
-        
-        return {
-          id: patient.id,
-          examination_date: date,
-          patient_name: patient.ho_ten || 'Chưa xác định',
-          patient_birth_date: patient.ngay_sinh,
-          doctor_name: 'BS. Lê Minh Khang',
-          diagnosis: diagnosis,
-          symptoms: symptoms,
-          treatment: treatment,
-          prescription: prescription,
-          follow_up_date: Math.random() < 0.3 ? statisticsService.addDays(date, 7) : null,
-          status: status,
-          notes: `Khám ngày ${date} - Đã có toa thuốc`,
-          created_at: patient.created_at,
-          patient_info: {
-            age_months: patient.thang_tuoi,
-            weight: patient.can_nang,
-            gender: patient.gioi_tinh,
-            address: patient.dia_chi,
-            phone: patient.so_dien_thoai
-          }
-        }
-      })
+      const examinations = await response.json()
       
-      // Calculate statistics
+      // Calculate statistics from the examination data
       const totalPatients = examinations.length
       const completedExams = examinations.filter(exam => exam.status === 'completed').length
-      const followUpAppointments = examinations.filter(exam => exam.follow_up_date).length
+      const followUpAppointments = examinations.filter(exam => exam.ngay_hen_tai_kham).length
       const waitingPatients = examinations.filter(exam => 
         exam.status === 'waiting' || exam.status === 'in_progress' || exam.status === 'draft'
       ).length
       
-      console.log('Final statistics:', { totalPatients, completedExams, followUpAppointments, waitingPatients })
+      // Transform data to match frontend format
+      const transformedExaminations = examinations.map(exam => ({
+        id: exam.id,
+        examination_date: exam.ngay_kham,
+        patient_name: exam.ho_ten,
+        patient_birth_date: exam.ngay_sinh,
+        doctor_name: exam.ten_bacsi || 'BS. Lê Minh Khang',
+        diagnosis: exam.chan_doan,
+        symptoms: exam.trieu_chung,
+        treatment: `Kê toa ${exam.so_ngay_toa || 0} ngày`,
+        prescription: `Toa thuốc ${exam.so_ngay_toa || 0} ngày`,
+        follow_up_date: exam.ngay_hen_tai_kham,
+        status: exam.status || 'completed',
+        notes: `Khám ngày ${exam.ngay_kham}`,
+        created_at: exam.created_at,
+        patient_info: {
+          age: exam.tuoi,
+          weight: exam.can_nang
+        }
+      }))
+      
+      console.log('API response statistics:', { totalPatients, completedExams, followUpAppointments, waitingPatients })
       
       return {
         success: true,
         data: {
-          examinations,
+          examinations: transformedExaminations,
           statistics: {
             totalPatients,
             completedExams,
@@ -356,7 +287,86 @@ export const statisticsService = {
         date: date
       }
     } catch (error) {
-      console.error('Error fetching examinations:', error)
+      console.error('Error fetching examinations from API:', error)
+      // Fallback to direct Supabase query
+      return await this.getExaminationsFromSupabase(date)
+    }
+  },
+
+  // Fallback method using direct Supabase query
+  async getExaminationsFromSupabase(date) {
+    try {
+      // Query khambenh table with patient info
+      const { data: examinations, error } = await supabase
+        .from('khambenh')
+        .select(`
+          *,
+          benhnhan:benhnhan_id (
+            ho_ten,
+            ngay_sinh,
+            can_nang
+          )
+        `)
+        .eq('ngay_kham', date)
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('Supabase query error:', error)
+        throw error
+      }
+      
+      // Transform data to match expected format
+      const transformedExaminations = (examinations || []).map(exam => {
+        const patient = exam.benhnhan || {}
+        const age = patient.ngay_sinh ? this.calculateAge(patient.ngay_sinh) : 0
+        
+        return {
+          id: exam.id,
+          examination_date: exam.ngay_kham,
+          patient_name: patient.ho_ten || 'Chưa xác định',
+          patient_birth_date: patient.ngay_sinh,
+          doctor_name: exam.ten_bacsi || 'BS. Lê Minh Khang',
+          diagnosis: exam.chan_doan,
+          symptoms: exam.trieu_chung,
+          treatment: `Kê toa ${exam.so_ngay_toa || 0} ngày`,
+          prescription: `Toa thuốc ${exam.so_ngay_toa || 0} ngày`,
+          follow_up_date: exam.ngay_hen_tai_kham,
+          status: exam.status || 'completed',
+          notes: `Khám ngày ${exam.ngay_kham}`,
+          created_at: exam.created_at,
+          patient_info: {
+            age: age,
+            weight: patient.can_nang
+          }
+        }
+      })
+      
+      // Calculate statistics
+      const totalPatients = transformedExaminations.length
+      const completedExams = transformedExaminations.filter(exam => exam.status === 'completed').length
+      const followUpAppointments = transformedExaminations.filter(exam => exam.follow_up_date).length
+      const waitingPatients = transformedExaminations.filter(exam => 
+        exam.status === 'waiting' || exam.status === 'in_progress' || exam.status === 'draft'
+      ).length
+      
+      console.log('Supabase fallback statistics:', { totalPatients, completedExams, followUpAppointments, waitingPatients })
+      
+      return {
+        success: true,
+        data: {
+          examinations: transformedExaminations,
+          statistics: {
+            totalPatients,
+            completedExams,
+            followUpAppointments,
+            waitingPatients
+          }
+        },
+        count: totalPatients,
+        date: date
+      }
+    } catch (error) {
+      console.error('Error in Supabase fallback:', error)
       return {
         success: false,
         error: error.message || 'Không thể tải dữ liệu thống kê khám bệnh'
@@ -364,75 +374,21 @@ export const statisticsService = {
     }
   },
 
-  // Helper functions for generating sample medical data
-  generateSampleDiagnosis() {
-    const diagnoses = [
-      'Viêm họng cấp',
-      'Tiêu chảy cấp',
-      'Cảm lạnh thông thường',
-      'Viêm phế quản',
-      'Sốt virus',
-      'Viêm amidan',
-      'Dị ứng thức ăn'
-    ]
-    return diagnoses[Math.floor(Math.random() * diagnoses.length)]
-  },
-
-  generateSampleSymptoms() {
-    const symptoms = [
-      'Sốt, ho, đau họng',
-      'Tiêu chảy, buồn nôn',
-      'Sốt nhẹ, mệt mỏi',
-      'Ho khan, khó thở',
-      'Sốt cao, đau đầu',
-      'Đau họng, khó nuốt',
-      'Nôn trớ, chán ăn'
-    ]
-    return symptoms[Math.floor(Math.random() * symptoms.length)]
-  },
-
-  generateSampleTreatment() {
-    const treatments = [
-      'Thuốc kháng sinh, thuốc hạ sốt',
-      'Oresol, thuốc cầm tiêu chảy',
-      'Thuốc hạ sốt, nghỉ ngơi',
-      'Thuốc ho, thuốc long đờm',
-      'Thuốc hạ sốt, uống nhiều nước',
-      'Thuốc súc họng, thuốc giảm đau',
-      'Thuốc kháng dị ứng'
-    ]
-    return treatments[Math.floor(Math.random() * treatments.length)]
-  },
-
-  generateSamplePrescription() {
-    const prescriptions = [
-      'Amoxicillin 250mg x 3 lần/ngày',
-      'Oresol 1 gói x 4 lần/ngày',
-      'Paracetamol 250mg khi sốt',
-      'Dextromethorphan 15mg x 3 lần/ngày',
-      'Ibuprofen 200mg x 2 lần/ngày',
-      'Betadine súc họng 3 lần/ngày',
-      'Loratadine 10mg x 1 lần/ngày'
-    ]
-    return prescriptions[Math.floor(Math.random() * prescriptions.length)]
-  },
-
-  generateSampleStatus() {
-    const statuses = ['completed', 'in_progress', 'waiting', 'draft']
-    const weights = [0.6, 0.2, 0.15, 0.05] // 60% completed, 20% in_progress, etc.
+  // Calculate age from birth date
+  calculateAge(birthDate) {
+    const birth = new Date(birthDate)
+    const today = new Date()
+    let age = today.getFullYear() - birth.getFullYear()
+    const monthDiff = today.getMonth() - birth.getMonth()
     
-    const random = Math.random()
-    let cumulative = 0
-    
-    for (let i = 0; i < statuses.length; i++) {
-      cumulative += weights[i]
-      if (random <= cumulative) {
-        return statuses[i]
-      }
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--
     }
-    return 'completed'
+    
+    return age
   },
 
+  // Add days utility function
   addDays(dateString, days) {
     const date = new Date(dateString)
     date.setDate(date.getDate() + days)
