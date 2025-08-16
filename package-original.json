@@ -1,20 +1,14 @@
 {
-  "name": "clinic-bs-khang",
+  "name": "workspace",
   "version": "1.0.0",
-  "description": "Pediatric clinic management system with Vue.js and Vuetify",
-  "main": "start.js",
+  "main": "drizzle.config.js",
   "scripts": {
-    "start": "node start.js",
-    "build": "npx vite build",
-    "dev": "vite",
-    "preview": "vite preview"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["clinic", "pediatric", "vue", "vuetify", "nodejs", "express"],
-  "author": "Clinic BS Khang",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
