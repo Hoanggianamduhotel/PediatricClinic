@@ -28,5 +28,9 @@ export default defineConfig({
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 5000
   }
 })
