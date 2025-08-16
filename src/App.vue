@@ -110,6 +110,9 @@
         <v-list-item 
           prepend-icon="mdi-chart-line" 
           title="Thống Kê DT"
+          subtitle="Thống kê khám bệnh"
+          :active="currentTab === 'thongke'"
+          @click="currentTab = 'thongke'; drawer = false"
         />
         
         <v-list-item 
@@ -176,6 +179,10 @@
         
         <div v-else-if="currentTab === 'danhsachcho'">
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
+        </div>
+        
+        <div v-else-if="currentTab === 'thongke'">
+          <ThongKe />
         </div>
       </v-container>
     </v-main>
@@ -290,6 +297,7 @@
 import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance } from 'vue'
 import TiepTan from './components/TiepTan.vue'
 import DanhSachCho from './components/DanhSachCho.vue'
+import ThongKe from './components/ThongKe.vue'
 import CharacterWidget from './components/CharacterWidget.vue'
 import { waitingListService } from './lib/supabase.js'
 

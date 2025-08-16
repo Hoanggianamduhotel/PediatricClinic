@@ -1,7 +1,21 @@
 require('dotenv').config()
 const { drizzle } = require('drizzle-orm/postgres-js')
 const postgres = require('postgres')
-const { benhnhan } = require('./schema')
+const { 
+  benhnhan, 
+  patients, 
+  medicalRecords, 
+  staff,
+  appointments,
+  users,
+  invoices,
+  invoiceItems,
+  medications,
+  prescriptions,
+  appointmentSlots,
+  settings,
+  auditLogs
+} = require('./schema')
 
 // Create database connection
 const connectionString = process.env.DATABASE_URL
@@ -16,7 +30,23 @@ const client = postgres(connectionString, {
   connect_timeout: 10,
 })
 
-const db = drizzle(client, { schema: { benhnhan } })
+const db = drizzle(client, { 
+  schema: { 
+    benhnhan, 
+    patients, 
+    medicalRecords, 
+    staff,
+    appointments,
+    users,
+    invoices,
+    invoiceItems,
+    medications,
+    prescriptions,
+    appointmentSlots,
+    settings,
+    auditLogs
+  } 
+})
 
 // Test connection
 async function testConnection() {
@@ -35,5 +65,17 @@ module.exports = {
   db,
   client,
   testConnection,
-  benhnhan
+  benhnhan,
+  patients,
+  medicalRecords,
+  staff,
+  appointments,
+  users,
+  invoices,
+  invoiceItems,
+  medications,
+  prescriptions,
+  appointmentSlots,
+  settings,
+  auditLogs
 }

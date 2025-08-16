@@ -2,8 +2,8 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const path = require('path')
-const { eq, ilike, desc } = require('drizzle-orm')
-const { db, testConnection, benhnhan } = require('./db/connection')
+const { eq, ilike, desc, and, sql } = require('drizzle-orm')
+const { db, testConnection, benhnhan, medicalRecords, patients } = require('./db/connection')
 
 const app = express()
 const PORT = process.env.PORT || 10000
@@ -165,6 +165,142 @@ app.get('/api/benhnhan/:id', async (req, res) => {
       success: false,
       error: 'Failed to fetch patient',
       message: 'Không thể tải thông tin bệnh nhân',
+      details: error.message
+    })
+  }
+})
+
+// API Routes for examination statistics (thống kê khám bệnh)
+
+// Get examination records by date
+app.get('/api/examinations/:date', async (req, res) => {
+  try {
+    const { date } = req.params
+    
+    // Validate date format
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid date format',
+        message: 'Định dạng ngày không hợp lệ. Sử dụng YYYY-MM-DD'
+      })
+    }
+    
+    // Query examinations for the specific date with patient information
+    const examinations = await db
+      .select({
+        id: medicalRecords.id,
+        examination_date: medicalRecords.visitDate,
+        patient_name: patients.name,
+        patient_birth_date: patients.dateOfBirth,
+        doctor_name: medicalRecords.doctorId, // We'll need to join with staff table for actual doctor name
+        diagnosis: medicalRecords.diagnosis,
+        symptoms: medicalRecords.symptoms,
+        treatment: medicalRecords.treatment,
+        prescription: medicalRecords.prescription,
+        follow_up_date: medicalRecords.followUpDate,
+        status: medicalRecords.status,
+        notes: medicalRecords.notes,
+        created_at: medicalRecords.createdAt
+      })
+      .from(medicalRecords)
+      .innerJoin(patients, eq(medicalRecords.patientId, patients.id))
+      .where(eq(medicalRecords.visitDate, date))
+      .orderBy(desc(medicalRecords.createdAt))
+    
+    // If no examinations found, return empty result
+    if (examinations.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          examinations: [],
+          statistics: {
+            totalPatients: 0,
+            completedExams: 0,
+            followUpAppointments: 0,
+            waitingPatients: 0
+          }
+        },
+        message: `Không có dữ liệu khám bệnh cho ngày ${date}`
+      })
+    }
+    
+    // Calculate statistics
+    const totalPatients = examinations.length
+    const completedExams = examinations.filter(exam => exam.status === 'completed').length
+    const followUpAppointments = examinations.filter(exam => exam.follow_up_date).length
+    const waitingPatients = examinations.filter(exam => 
+      exam.status === 'waiting' || exam.status === 'in_progress' || exam.status === 'draft'
+    ).length
+    
+    res.json({
+      success: true,
+      data: {
+        examinations: examinations,
+        statistics: {
+          totalPatients,
+          completedExams,
+          followUpAppointments,
+          waitingPatients
+        }
+      },
+      count: totalPatients,
+      date: date
+    })
+    
+  } catch (error) {
+    console.error('Get examinations error:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch examinations',
+      message: 'Không thể tải dữ liệu thống kê khám bệnh',
+      details: error.message
+    })
+  }
+})
+
+// Get examination statistics summary for a date
+app.get('/api/examinations/stats/:date', async (req, res) => {
+  try {
+    const { date } = req.params
+    
+    // Validate date format
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid date format',
+        message: 'Định dạng ngày không hợp lệ. Sử dụng YYYY-MM-DD'
+      })
+    }
+    
+    // Get statistics using SQL aggregation for better performance
+    const [stats] = await db
+      .select({
+        totalPatients: sql`COUNT(*)`.as('total_patients'),
+        completedExams: sql`COUNT(CASE WHEN status = 'completed' THEN 1 END)`.as('completed_exams'),
+        followUpAppointments: sql`COUNT(CASE WHEN follow_up_date IS NOT NULL THEN 1 END)`.as('follow_up_appointments'),
+        waitingPatients: sql`COUNT(CASE WHEN status IN ('waiting', 'in_progress', 'draft') THEN 1 END)`.as('waiting_patients')
+      })
+      .from(medicalRecords)
+      .where(eq(medicalRecords.visitDate, date))
+    
+    res.json({
+      success: true,
+      data: {
+        totalPatients: Number(stats.totalPatients) || 0,
+        completedExams: Number(stats.completedExams) || 0,
+        followUpAppointments: Number(stats.followUpAppointments) || 0,
+        waitingPatients: Number(stats.waitingPatients) || 0
+      },
+      date: date
+    })
+    
+  } catch (error) {
+    console.error('Get examination stats error:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch examination statistics',
+      message: 'Không thể tải thống kê khám bệnh',
       details: error.message
     })
   }
