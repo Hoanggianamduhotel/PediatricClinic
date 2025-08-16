@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: clinic-bs-khang
+    env: node
+    buildCommand: npm install && node build.js
+    startCommand: node start.js
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000

@@ -17,17 +17,19 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Serve static files from dist directory for production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '..', 'dist')))
-}
+// Serve static files from dist directory
+app.use(express.static(path.join(__dirname, '..', 'dist')))
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() })
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  })
 })
 
-// Get all patients with search
+// API Routes for patients
 app.get('/api/benhnhan', (req, res) => {
   try {
     const { search } = req.query
@@ -58,41 +60,29 @@ app.get('/api/benhnhan', (req, res) => {
   }
 })
 
-// Create new patient
 app.post('/api/benhnhan', (req, res) => {
   try {
-    const {
-      ho_ten,
-      ngay_sinh,
-      gioi_tinh,
-      dia_chi,
-      so_dien_thoai,
-      can_nang
-    } = req.body
+    const { ho_ten, ngay_sinh, gioi_tinh, dia_chi, so_dien_thoai, can_nang } = req.body
     
     // Validation
-    if (!ho_ten) {
-      return res.status(422).json({
+    if (!ho_ten || !ngay_sinh || !gioi_tinh) {
+      return res.status(400).json({
         success: false,
-        error: 'Validation Error',
-        message: 'Họ tên là bắt buộc'
+        error: 'Missing required fields',
+        message: 'Vui lòng điền đầy đủ thông tin bắt buộc'
       })
     }
     
-    // Calculate age in months if birth date is provided
-    let thang_tuoi = null
-    if (ngay_sinh) {
-      const birthDate = new Date(ngay_sinh)
-      const today = new Date()
-      const monthsDiff = (today.getFullYear() - birthDate.getFullYear()) * 12 + (today.getMonth() - birthDate.getMonth())
-      thang_tuoi = monthsDiff
-    }
+    // Calculate months old
+    const birthDate = new Date(ngay_sinh)
+    const today = new Date()
+    const thang_tuoi = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24 * 30.44))
     
     const newPatient = {
       id: `patient_${patientIdCounter++}`,
-      ho_ten: ho_ten.trim(),
-      ngay_sinh: ngay_sinh || null,
-      gioi_tinh: gioi_tinh || null,
+      ho_ten,
+      ngay_sinh,
+      gioi_tinh,
       dia_chi: dia_chi || null,
       so_dien_thoai: so_dien_thoai || null,
       can_nang: can_nang ? parseFloat(can_nang) : null,
@@ -117,7 +107,6 @@ app.post('/api/benhnhan', (req, res) => {
   }
 })
 
-// Get patient by ID
 app.get('/api/benhnhan/:id', (req, res) => {
   try {
     const patient = patients.find(p => p.id === req.params.id)
@@ -144,16 +133,14 @@ app.get('/api/benhnhan/:id', (req, res) => {
   }
 })
 
-// Serve frontend for production (catch-all handler)
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'))
-  })
-}
+// Serve frontend for all other routes (SPA support)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'))
+})
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🏥 Clinic BS Khang Server running on http://0.0.0.0:${PORT}`)
+  console.log(`🏥 Clinic BS Khang Production Server running on http://0.0.0.0:${PORT}`)
   console.log(`📊 Health check: http://0.0.0.0:${PORT}/health`)
   console.log(`🎯 Reception API: http://0.0.0.0:${PORT}/api/benhnhan`)
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'production'}`)
 })
