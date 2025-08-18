@@ -288,9 +288,9 @@
       </div>
     </v-navigation-drawer>
 
-    <!-- Character Widget (Mascot) - Mobile Optimized -->
+    <!-- Character Widget (Mascot) - Available on All Devices -->
     <CharacterWidget 
-      v-if="showMascot && !$vuetify.display.mobile"
+      v-if="showMascot"
       @character-click="handleMascotClick"
       @close="handleMascotClose"
     />

@@ -196,7 +196,7 @@ export default {
   }
   
   .character-widget {
-    top: 8px;
+    top: 70px; /* Adjust for mobile app bar + tabs */
     right: 8px;
     padding: 6px;
   }
