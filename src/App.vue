@@ -2,7 +2,7 @@
   <v-app>
     <!-- Top App Bar - Mobile Optimized -->
     <v-app-bar app color="white" elevation="0" :height="$vuetify.display.mobile ? 56 : 64">
-      <v-app-bar-nav-icon @click="drawer = !drawer" />
+      <v-app-bar-nav-icon v-if="!$vuetify.display.mobile" @click="drawer = !drawer" />
       
       <v-app-bar-title>
         <div class="d-flex align-center">
@@ -62,15 +62,14 @@
     <!-- Purple separator line -->
     <div class="purple-separator"></div>
 
-    <!-- Left Sidebar (Statistics) - Mobile Optimized -->
+    <!-- Left Sidebar (Statistics) - Desktop Only -->
     <v-navigation-drawer
+      v-if="!$vuetify.display.mobile"
       v-model="drawer"
       app
       temporary
-      :width="$vuetify.display.mobile ? '100%' : 280"
+      width="280"
       color="grey-lighten-5"
-      :location="$vuetify.display.mobile ? 'bottom' : 'start'"
-      :height="$vuetify.display.mobile ? '50%' : undefined"
     >
       <!-- Sidebar Header -->
       <div class="pa-4 bg-primary">
@@ -159,38 +158,45 @@
 
     <!-- Main Content - Mobile Optimized -->
     <v-main class="bg-grey-lighten-4">
+      <!-- Mobile Bottom Navigation Tabs -->
+      <v-tabs 
+        v-if="$vuetify.display.mobile"
+        v-model="currentTab"
+        fixed-tabs
+        bg-color="white"
+        color="primary"
+        align-tabs="center"
+        style="position: sticky; top: 59px; z-index: 100;"
+      >
+        <v-tab value="tieptan">
+          <v-icon start>mdi-account-plus</v-icon>
+          Tiếp Tân
+        </v-tab>
+        <v-tab value="danhsachcho">
+          <v-icon start>mdi-format-list-bulleted</v-icon>
+          DS Chờ
+        </v-tab>
+        <v-tab value="thongke">
+          <v-icon start>mdi-chart-line</v-icon>
+          Thống Kê
+        </v-tab>
+      </v-tabs>
+
       <v-container fluid :class="$vuetify.display.mobile ? 'pa-2' : 'pa-6'">
         <!-- Tab Content -->
         <div v-if="currentTab === 'tieptan'">
           <!-- Title and Action Button - Mobile Optimized -->
           <div v-if="!$vuetify.display.mobile" class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h2 class="text-h4 font-weight-bold text-primary mb-2">Danh Sách Chờ Khám</h2>
-              <p class="text-grey-600">Quản lý bệnh nhân đang chờ khám</p>
+              <h2 class="text-h4 font-weight-bold text-primary mb-2">Tiếp Tân Bệnh Nhân</h2>
+              <p class="text-grey-600">Quản lý tiếp nhận và tìm kiếm bệnh nhân</p>
             </div>
-            <v-btn 
-              color="primary" 
-              size="large"
-              prepend-icon="mdi-plus"
-              @click="showAddPatientDialog = true"
-            >
-              Tiếp Nhận Bệnh Nhân
-            </v-btn>
           </div>
           
           <!-- Mobile Title -->
           <div v-else class="mb-4">
-            <h2 class="text-h6 font-weight-bold text-primary mb-1">Danh Sách Chờ Khám</h2>
-            <p class="text-caption text-grey-600 mb-3">Quản lý bệnh nhân đang chờ khám</p>
-            <v-btn 
-              color="primary" 
-              size="small"
-              prepend-icon="mdi-plus"
-              block
-              @click="showAddPatientDialog = true"
-            >
-              Tiếp Nhận Bệnh Nhân
-            </v-btn>
+            <h2 class="text-h6 font-weight-bold text-primary mb-1">Tiếp Tân Bệnh Nhân</h2>
+            <p class="text-caption text-grey-600 mb-3">Thêm mới và tìm bệnh cũ</p>
           </div>
           
           <!-- Reception Interface -->
@@ -199,24 +205,23 @@
             @show-add-dialog="showAddPatientDialog = $event"
             :show-add-dialog="showAddPatientDialog"
           />
-          
-          <!-- Waiting List Below -->
-          <div :class="$vuetify.display.mobile ? 'mt-4' : 'mt-8'">
-            <v-divider :class="$vuetify.display.mobile ? 'mb-4' : 'mb-6'" />
-            <DanhSachCho 
-              @waiting-list-changed="updateWaitingCount" 
-              :show-header="false"
-              :key="waitingListKey"
-              ref="danhSachChoRef"
-            />
-          </div>
         </div>
         
         <div v-else-if="currentTab === 'danhsachcho'">
+          <!-- Mobile Title -->
+          <div v-if="$vuetify.display.mobile" class="mb-4">
+            <h2 class="text-h6 font-weight-bold text-primary mb-1">Danh Sách Chờ Khám</h2>
+            <p class="text-caption text-grey-600 mb-3">{{ waitingCount }} bệnh nhân đang chờ</p>
+          </div>
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
         </div>
         
         <div v-else-if="currentTab === 'thongke'">
+          <!-- Mobile Title -->
+          <div v-if="$vuetify.display.mobile" class="mb-4">
+            <h2 class="text-h6 font-weight-bold text-primary mb-1">Thống Kê Doanh Thu</h2>
+            <p class="text-caption text-grey-600 mb-3">Báo cáo khám bệnh</p>
+          </div>
           <ThongKe />
         </div>
       </v-container>
@@ -277,6 +282,17 @@
       v-if="showMascot && !$vuetify.display.mobile"
       @character-click="handleMascotClick"
       @close="handleMascotClose"
+    />
+
+    <!-- Mobile FAB for Quick Actions -->
+    <v-fab
+      v-if="$vuetify.display.mobile && currentTab === 'tieptan'"
+      icon="mdi-plus"
+      color="primary"
+      size="large"
+      location="bottom end"
+      app
+      @click="showAddPatientDialog = true"
     />
   </v-app>
 </template>
