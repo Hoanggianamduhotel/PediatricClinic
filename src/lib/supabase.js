@@ -80,7 +80,7 @@ export const patientService = {
         gioi_tinh: gioi_tinh ? String(gioi_tinh).trim() : null,
         dia_chi: dia_chi?.trim() || null,
         so_dien_thoai: so_dien_thoai?.trim() || null,
-        can_nang: can_nang ? Number(can_nang) : null,
+        can_nang: can_nang ? parseFloat(can_nang) : null,
         thang_tuoi: thang_tuoi !== null ? Number(thang_tuoi) : null,
         ngay_tao: formattedDate
       }
@@ -170,7 +170,7 @@ export const waitingListService = {
         gioi_tinh: patient.gioi_tinh ? String(patient.gioi_tinh).trim() : null,
         dia_chi: patient.dia_chi,
         thang_tuoi: patient.thang_tuoi ? Number(patient.thang_tuoi) : null,
-        can_nang: patient.can_nang ? Number(patient.can_nang) : null,
+        can_nang: patient.can_nang ? parseFloat(patient.can_nang) : null,
         so_dien_thoai: patient.so_dien_thoai,
         ngay_tao: formattedDate
       }
