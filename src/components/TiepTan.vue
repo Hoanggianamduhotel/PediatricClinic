@@ -166,30 +166,34 @@
           <v-toolbar-title>Tìm Bệnh Nhân Cũ</v-toolbar-title>
         </v-toolbar>
 
-        <v-card-text class="pa-6">
-          <v-text-field
-            v-model="searchQuery"
-            @input="searchPatients"
-            label="Nhập tên bệnh nhân"
-            placeholder="VD: đinh minh"
-            prepend-inner-icon="mdi-magnify"
-            variant="outlined"
-            clearable
-            autofocus
-            hide-details="auto"
-            class="mb-4"
-          />
+        <v-card-text class="pa-0">
+          <div class="px-4 pt-4">
+            <v-text-field
+              v-model="searchQuery"
+              @input="searchPatients"
+              label="Nhập tên bệnh nhân"
+              placeholder="VD: đinh minh"
+              prepend-inner-icon="mdi-magnify"
+              variant="outlined"
+              clearable
+              autofocus
+              hide-details="auto"
+              class="mb-4"
+            />
+          </div>
           
           <!-- Search Results -->
           <div v-if="searchResults.length > 0">
-            <h3 class="text-h6 mb-4">Kết quả tìm kiếm:</h3>
+            <div class="px-4">
+              <h3 class="text-h6 mb-4">Kết quả tìm kiếm:</h3>
+            </div>
             <v-list class="pa-0">
               <v-card
                 v-for="patient in searchResults" 
                 :key="patient.id"
                 @click="selectPatient(patient); showSearchDialog = false"
-                class="mb-3 pa-3"
-                variant="outlined"
+                class="pa-4 border-b"
+                variant="flat"
                 hover
               >
                 <div class="d-flex justify-space-between align-start">
@@ -211,28 +215,30 @@
           </div>
           
           <!-- No Results -->
-          <v-alert 
-            v-else-if="searchQuery && !isSearching" 
-            type="info" 
-            variant="tonal" 
-            class="mt-4"
-          >
-            <v-icon>mdi-information</v-icon>
-            <strong>Không tìm thấy bệnh nhân nào</strong>
-            <br>Hãy thử tìm kiếm với từ khóa khác
-          </v-alert>
-          
-          <!-- Loading -->
-          <div v-if="isSearching" class="text-center mt-8">
-            <v-progress-circular indeterminate color="primary" size="60"></v-progress-circular>
-            <p class="text-body-1 mt-4">Đang tìm kiếm...</p>
-          </div>
+          <div class="px-4">
+            <v-alert 
+              v-if="searchQuery && !isSearching && !searchResults.length" 
+              type="info" 
+              variant="tonal" 
+              class="mt-4"
+            >
+              <v-icon>mdi-information</v-icon>
+              <strong>Không tìm thấy bệnh nhân nào</strong>
+              <br>Hãy thử tìm kiếm với từ khóa khác
+            </v-alert>
+            
+            <!-- Loading -->
+            <div v-if="isSearching" class="text-center mt-8">
+              <v-progress-circular indeterminate color="primary" size="60"></v-progress-circular>
+              <p class="text-body-1 mt-4">Đang tìm kiếm...</p>
+            </div>
 
-          <!-- Empty State -->
-          <div v-if="!searchQuery && !searchResults.length" class="text-center mt-8">
-            <v-icon size="80" color="grey-400">mdi-magnify</v-icon>
-            <h3 class="text-h6 mt-4 text-grey-600">Tìm Kiếm Bệnh Nhân</h3>
-            <p class="text-body-2 text-grey-500">Nhập tên bệnh nhân để bắt đầu tìm kiếm</p>
+            <!-- Empty State -->
+            <div v-if="!searchQuery && !searchResults.length" class="text-center mt-8">
+              <v-icon size="80" color="grey-400">mdi-magnify</v-icon>
+              <h3 class="text-h6 mt-4 text-grey-600">Tìm Kiếm Bệnh Nhân</h3>
+              <p class="text-body-2 text-grey-500">Nhập tên bệnh nhân để bắt đầu tìm kiếm</p>
+            </div>
           </div>
         </v-card-text>
       </v-card>
