@@ -157,6 +157,23 @@ export const waitingListService = {
         }
       }
       
+      // Fetch complete patient data from benhnhan table to ensure all fields are present
+      const { data: completePatientData, error: fetchError } = await supabase
+        .from('benhnhan')
+        .select('*')
+        .eq('id', patient.id)
+        .single()
+      
+      if (fetchError || !completePatientData) {
+        console.error('Error fetching complete patient data:', fetchError)
+        return {
+          success: false,
+          error: 'Không thể lấy thông tin đầy đủ của bệnh nhân'
+        }
+      }
+      
+      console.log('Complete patient data from benhnhan table:', completePatientData)
+      
       // Format date consistently for Supabase
       const today = new Date()
       const formattedDate = today.getFullYear() + '-' + 
@@ -164,14 +181,14 @@ export const waitingListService = {
         String(today.getDate()).padStart(2, '0')
       
       const waitingListEntry = {
-        benhnhan_id: patient.id,
-        ho_ten: patient.ho_ten,
-        ngay_sinh: patient.ngay_sinh,
-        gioi_tinh: patient.gioi_tinh ? String(patient.gioi_tinh).trim() : null,
-        dia_chi: patient.dia_chi,
-        thang_tuoi: patient.thang_tuoi ? Number(patient.thang_tuoi) : null,
-        can_nang: patient.can_nang ? parseFloat(patient.can_nang) : null,
-        so_dien_thoai: patient.so_dien_thoai,
+        benhnhan_id: completePatientData.id,
+        ho_ten: completePatientData.ho_ten,
+        ngay_sinh: completePatientData.ngay_sinh,
+        gioi_tinh: completePatientData.gioi_tinh ? String(completePatientData.gioi_tinh).trim() : null,
+        dia_chi: completePatientData.dia_chi,
+        thang_tuoi: completePatientData.thang_tuoi ? Number(completePatientData.thang_tuoi) : null,
+        can_nang: completePatientData.can_nang ? parseFloat(completePatientData.can_nang) : null,
+        so_dien_thoai: completePatientData.so_dien_thoai,
         ngay_tao: formattedDate
       }
       
