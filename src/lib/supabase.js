@@ -49,28 +49,37 @@ export const patientService = {
       if (!ho_ten?.trim()) {
         throw new Error('Vui lòng nhập họ tên bệnh nhân')
       }
-      if (!ngay_sinh) {
-        throw new Error('Vui lòng nhập ngày sinh')
-      }
-      if (!gioi_tinh) {
-        throw new Error('Vui lòng chọn giới tính')
-      }
       
-      // Calculate age in months
-      const birthDate = new Date(ngay_sinh)
-      const today = new Date()
-      const thang_tuoi = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24 * 30.44))
+      // Calculate age in months (if birth date is provided)
+      let thang_tuoi = null
+      if (ngay_sinh) {
+        const birthDate = new Date(ngay_sinh)
+        const today = new Date()
+        
+        // Calculate months more accurately
+        let totalMonths = (today.getFullYear() - birthDate.getFullYear()) * 12
+        totalMonths += today.getMonth() - birthDate.getMonth()
+        
+        // Adjust if current date hasn't reached birth day of month
+        if (today.getDate() < birthDate.getDate()) {
+          totalMonths--
+        }
+        
+        thang_tuoi = Math.max(0, totalMonths) // Ensure non-negative
+      }
       
       const newPatient = {
         ho_ten: ho_ten.trim(),
-        ngay_sinh,
-        gioi_tinh,
+        ngay_sinh: ngay_sinh || null,
+        gioi_tinh: gioi_tinh?.trim() || null,
         dia_chi: dia_chi?.trim() || null,
         so_dien_thoai: so_dien_thoai?.trim() || null,
         can_nang: can_nang ? parseFloat(can_nang) : null,
         thang_tuoi,
-        created_at: new Date().toISOString().split('T')[0]
+        created_at: new Date().toISOString()
       }
+      
+      console.log('Creating patient with data:', newPatient)
       
       const { data, error } = await supabase
         .from('benhnhan')

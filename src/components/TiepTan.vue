@@ -396,7 +396,9 @@ export default {
     const addPatient = async () => {
       try {
         isSubmitting.value = true
+        console.log('Sending patient data:', newPatient.value)
         const result = await patientService.createPatient(newPatient.value)
+        console.log('Patient creation result:', result)
         
         if (result.success) {
           displayMessage(result.message || 'Thêm bệnh nhân thành công!')
