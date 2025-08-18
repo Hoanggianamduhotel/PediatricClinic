@@ -82,7 +82,7 @@ export const patientService = {
         so_dien_thoai: so_dien_thoai?.trim() || null,
         can_nang: can_nang ? parseFloat(can_nang) : null,
         thang_tuoi: thang_tuoi !== null ? Number(thang_tuoi) : null,
-        ngay_tao: formattedDate
+        created_at: formattedDate
       }
       
       console.log('Creating patient with data:', newPatient)
