@@ -183,36 +183,30 @@
           <!-- Search Results -->
           <div v-if="searchResults.length > 0">
             <h3 class="text-h6 mb-4">Kết quả tìm kiếm:</h3>
-            <v-list>
-              <v-list-item
+            <v-list class="pa-0">
+              <v-card
                 v-for="patient in searchResults" 
                 :key="patient.id"
                 @click="selectPatient(patient); showSearchDialog = false"
-                class="mb-2 rounded-lg"
-                border
+                class="mb-3 pa-3"
+                variant="outlined"
+                hover
               >
-                <template #prepend>
-                  <v-avatar color="primary" size="50">
-                    <v-icon>mdi-account</v-icon>
-                  </v-avatar>
-                </template>
-                
-                <v-list-item-title class="text-h6">{{ patient.ho_ten }}</v-list-item-title>
-                <v-list-item-subtitle>
-                  <div v-if="patient.ngay_sinh" class="mb-1">
-                    <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
-                    {{ formatDate(patient.ngay_sinh) }} • {{ formatAge(patient.ngay_sinh) }}
+                <div class="d-flex justify-space-between align-start">
+                  <div class="flex-grow-1 pr-2">
+                    <div class="text-body-1 font-weight-medium mb-1">{{ patient.ho_ten }}</div>
+                    <div v-if="patient.ngay_sinh" class="text-body-2 text-grey-600 mb-1">
+                      <v-icon size="14" class="mr-1">mdi-calendar</v-icon>
+                      {{ formatDate(patient.ngay_sinh) }} • {{ formatAge(patient.ngay_sinh) }}
+                    </div>
+                    <div v-if="patient.so_dien_thoai" class="text-body-2 text-grey-600">
+                      <v-icon size="14" class="mr-1">mdi-phone</v-icon>
+                      {{ patient.so_dien_thoai }}
+                    </div>
                   </div>
-                  <div v-if="patient.so_dien_thoai">
-                    <v-icon size="small" class="mr-1">mdi-phone</v-icon>
-                    {{ patient.so_dien_thoai }}
-                  </div>
-                </v-list-item-subtitle>
-
-                <template #append>
-                  <v-icon color="grey">mdi-chevron-right</v-icon>
-                </template>
-              </v-list-item>
+                  <v-icon color="grey-400" size="20">mdi-chevron-right</v-icon>
+                </div>
+              </v-card>
             </v-list>
           </div>
           
