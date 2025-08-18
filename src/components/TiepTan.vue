@@ -281,7 +281,7 @@
                   prepend-inner-icon="mdi-account"
                   ref="hoTenField"
                   @input="capitalizePatientName"
-                  @keydown.enter="focusNext('ngaySinhField')"
+                  @keydown.enter.prevent="focusNext('ngaySinhField')"
                 />
               </v-col>
               
@@ -294,7 +294,7 @@
                   prepend-inner-icon="mdi-calendar"
                   ref="ngaySinhField"
                   @input="formatNgaySinhInput"
-                  @keydown.enter="focusNext('diaChiField')"
+                  @keydown.enter.prevent="focusNext('diaChiField')"
                 />
               </v-col>
               
@@ -307,7 +307,7 @@
                   prepend-inner-icon="mdi-map-marker"
                   rows="2"
                   ref="diaChiField"
-                  @keydown.enter="focusNext('soDienThoaiField')"
+                  @keydown.enter.prevent="focusNext('soDienThoaiField')"
                 />
               </v-col>
               
@@ -320,7 +320,7 @@
                   placeholder="0123456789"
                   prepend-inner-icon="mdi-phone"
                   ref="soDienThoaiField"
-                  @keydown.enter="focusNext('canNangField')"
+                  @keydown.enter.prevent="focusNext('canNangField')"
                 />
               </v-col>
               
@@ -334,7 +334,7 @@
                   placeholder="VD: 15.5"
                   prepend-inner-icon="mdi-scale"
                   ref="canNangField"
-                  @keydown.enter="addPatient"
+                  @keydown.enter.prevent="focusNext('submit')"
                 />
               </v-col>
               
@@ -550,18 +550,44 @@ export default {
       displayNgaySinh.value = ''
     }
 
-    const focusNext = (fieldRef) => {
+    // Template refs for fields
+    const hoTenField = ref()
+    const ngaySinhField = ref()  
+    const diaChiField = ref()
+    const soDienThoaiField = ref()
+    const canNangField = ref()
+    
+    const focusNext = (nextFieldName) => {
       nextTick(() => {
-        const instance = getCurrentInstance()
-        if (instance && instance.refs[fieldRef]) {
-          const field = instance.refs[fieldRef]
-          if (field && field.focus) {
-            field.focus()
-          } else if (field && field.$el && field.$el.focus) {
-            field.$el.focus()
-          } else if (field && field.$el && field.$el.querySelector) {
-            const input = field.$el.querySelector('input, textarea, select')
-            if (input) input.focus()
+        let nextField = null
+        
+        switch(nextFieldName) {
+          case 'ngaySinhField':
+            nextField = ngaySinhField.value
+            break
+          case 'diaChiField':
+            nextField = diaChiField.value
+            break
+          case 'soDienThoaiField':
+            nextField = soDienThoaiField.value
+            break
+          case 'canNangField':
+            nextField = canNangField.value
+            break
+          case 'submit':
+            addPatient()
+            return
+        }
+        
+        if (nextField) {
+          // Try multiple ways to focus Vuetify components
+          if (nextField.focus) {
+            nextField.focus()
+          } else if (nextField.$el) {
+            const input = nextField.$el.querySelector('input, textarea')
+            if (input) {
+              input.focus()
+            }
           }
         }
       })
@@ -768,6 +794,11 @@ export default {
       newPatient,
       showMessage,
       displayNgaySinh,
+      hoTenField,
+      ngaySinhField,
+      diaChiField,
+      soDienThoaiField,
+      canNangField,
       displayMessage,
       closeAddPatientDialog,
       addPatient,
