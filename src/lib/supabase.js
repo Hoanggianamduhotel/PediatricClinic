@@ -68,6 +68,12 @@ export const patientService = {
         thang_tuoi = Math.max(0, totalMonths) // Ensure non-negative
       }
       
+      // Format date as YYYY-MM-DD for Supabase date column
+      const today = new Date()
+      const formattedDate = today.getFullYear() + '-' + 
+        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(today.getDate()).padStart(2, '0')
+      
       const newPatient = {
         ho_ten: ho_ten.trim(),
         ngay_sinh: ngay_sinh || null,
@@ -76,7 +82,7 @@ export const patientService = {
         so_dien_thoai: so_dien_thoai?.trim() || null,
         can_nang: can_nang ? Number(can_nang) : null,
         thang_tuoi: thang_tuoi !== null ? Number(thang_tuoi) : null,
-        ngay_tao: new Date().toISOString().split('T')[0]
+        ngay_tao: formattedDate
       }
       
       console.log('Creating patient with data:', newPatient)
@@ -151,6 +157,12 @@ export const waitingListService = {
         }
       }
       
+      // Format date consistently for Supabase
+      const today = new Date()
+      const formattedDate = today.getFullYear() + '-' + 
+        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(today.getDate()).padStart(2, '0')
+      
       const waitingListEntry = {
         benhnhan_id: patient.id,
         ho_ten: patient.ho_ten,
@@ -160,7 +172,7 @@ export const waitingListService = {
         thang_tuoi: patient.thang_tuoi ? Number(patient.thang_tuoi) : null,
         can_nang: patient.can_nang ? Number(patient.can_nang) : null,
         so_dien_thoai: patient.so_dien_thoai,
-        ngay_tao: new Date().toISOString().split('T')[0]
+        ngay_tao: formattedDate
       }
       
       console.log('Adding to waiting list with data:', waitingListEntry)
