@@ -404,6 +404,7 @@ export default {
           displayMessage(result.message || 'Thêm bệnh nhân thành công!')
           closeAddPatientDialog()
           emit('patient-added-to-waiting') // This will trigger handlePatientAdded in App.vue
+          // No need to manually add to waiting list - it's done automatically in createPatient
         } else {
           displayMessage(result.error || 'Có lỗi xảy ra', 'error')
         }

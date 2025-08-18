@@ -100,10 +100,23 @@ export const patientService = {
       
       console.log('Patient created successfully:', data)
       
-      return { 
-        success: true, 
-        data, 
-        message: 'Thêm bệnh nhân thành công' 
+      // Automatically add to waiting list after successful patient creation
+      // Note: We'll call the waitingList logic directly to avoid circular import
+      const waitingListResult = await this.addPatientToWaitingListDirectly(data)
+      
+      if (waitingListResult.success) {
+        return { 
+          success: true, 
+          data, 
+          message: 'Thêm bệnh nhân và vào danh sách chờ thành công!' 
+        }
+      } else {
+        // Patient created but failed to add to waiting list
+        return { 
+          success: true, 
+          data, 
+          message: 'Thêm bệnh nhân thành công nhưng không thể thêm vào danh sách chờ: ' + waitingListResult.error
+        }
       }
     } catch (error) {
       console.error('Lỗi thêm bệnh nhân:', error)
@@ -133,6 +146,57 @@ export const patientService = {
       return { 
         success: false, 
         error: error.message || 'Không tìm thấy bệnh nhân' 
+      }
+    }
+  },
+
+  // Add patient directly to waiting list (used internally after creating patient)
+  async addPatientToWaitingListDirectly(patient) {
+    try {
+      // Format date consistently for Supabase
+      const today = new Date()
+      const formattedDate = today.getFullYear() + '-' + 
+        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(today.getDate()).padStart(2, '0')
+      
+      const waitingListEntry = {
+        benhnhan_id: patient.id,
+        ho_ten: patient.ho_ten,
+        ngay_sinh: patient.ngay_sinh,
+        gioi_tinh: patient.gioi_tinh ? String(patient.gioi_tinh).trim() : null,
+        dia_chi: patient.dia_chi,
+        thang_tuoi: patient.thang_tuoi ? Number(patient.thang_tuoi) : null,
+        can_nang: patient.can_nang ? parseFloat(patient.can_nang) : null,
+        so_dien_thoai: patient.so_dien_thoai,
+        ngay_tao: formattedDate
+      }
+      
+      console.log('Adding newly created patient to waiting list:', waitingListEntry)
+      
+      const { data, error } = await supabase
+        .from('danhsachcho')
+        .insert([waitingListEntry])
+        .select()
+        .single()
+      
+      if (error) {
+        console.error('Error adding to waiting list:', error)
+        return {
+          success: false,
+          error: error.message || 'Không thể thêm vào danh sách chờ'
+        }
+      }
+      
+      return {
+        success: true,
+        data,
+        message: 'Đã thêm vào danh sách chờ thành công'
+      }
+    } catch (error) {
+      console.error('Error in addPatientToWaitingListDirectly:', error)
+      return {
+        success: false,
+        error: error.message || 'Không thể thêm vào danh sách chờ'
       }
     }
   }
