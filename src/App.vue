@@ -205,6 +205,17 @@
             @show-add-dialog="showAddPatientDialog = $event"
             :show-add-dialog="showAddPatientDialog"
           />
+          
+          <!-- Waiting List Below - Desktop Only -->
+          <div v-if="!$vuetify.display.mobile" class="mt-8">
+            <v-divider class="mb-6" />
+            <DanhSachCho 
+              @waiting-list-changed="updateWaitingCount" 
+              :show-header="false"
+              :key="waitingListKey"
+              ref="danhSachChoRef"
+            />
+          </div>
         </div>
         
         <div v-else-if="currentTab === 'danhsachcho'">
