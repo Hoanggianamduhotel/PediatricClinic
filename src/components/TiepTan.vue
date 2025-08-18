@@ -245,7 +245,13 @@
     </v-dialog>
 
     <!-- Add Patient Dialog -->
-    <v-dialog v-model="showAddPatientDialog" max-width="600px" persistent>
+    <v-dialog 
+      v-model="showAddPatientDialog" 
+      :max-width="$vuetify.display.mobile ? '100%' : '600px'"
+      :fullscreen="$vuetify.display.mobile"
+      persistent
+      transition="dialog-bottom-transition"
+    >
       <v-card>
         <v-card-title class="bg-success text-white d-flex align-center justify-space-between">
           <div class="d-flex align-center">
@@ -281,25 +287,39 @@
               
               <v-col cols="12" sm="6">
                 <v-text-field
-                  v-model="newPatient.ngay_sinh"
+                  v-model="displayNgaySinh"
                   label="Ngày Sinh"
-                  type="date"
+                  placeholder="dd/mm/yyyy hoặc 09102003"
                   variant="outlined"
                   prepend-inner-icon="mdi-calendar"
                   ref="ngaySinhField"
-                  @keydown.enter="focusNext('gioiTinhField')"
+                  @input="formatNgaySinhInput"
+                  @keydown.enter="focusNext('diaChiField')"
+                />
+              </v-col>
+              
+              <v-col cols="12">
+                <v-textarea
+                  v-model="newPatient.dia_chi"
+                  label="Địa Chỉ"
+                  variant="outlined"
+                  placeholder="Nhập địa chỉ đầy đủ"
+                  prepend-inner-icon="mdi-map-marker"
+                  rows="2"
+                  ref="diaChiField"
+                  @keydown.enter="focusNext('soDienThoaiField')"
                 />
               </v-col>
               
               <v-col cols="12" sm="6">
-                <v-select
-                  v-model="newPatient.gioi_tinh"
-                  label="Giới Tính"
-                  :items="['Nam', 'Nữ']"
+                <v-text-field
+                  v-model="newPatient.so_dien_thoai"
+                  label="Số Điện Thoại"
+                  type="tel"
                   variant="outlined"
-                  prepend-inner-icon="mdi-gender-male-female"
-                  clearable
-                  ref="gioiTinhField"
+                  placeholder="0123456789"
+                  prepend-inner-icon="mdi-phone"
+                  ref="soDienThoaiField"
                   @keydown.enter="focusNext('canNangField')"
                 />
               </v-col>
@@ -314,33 +334,19 @@
                   placeholder="VD: 15.5"
                   prepend-inner-icon="mdi-scale"
                   ref="canNangField"
-                  @keydown.enter="focusNext('soDienThoaiField')"
-                />
-              </v-col>
-              
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="newPatient.so_dien_thoai"
-                  label="Số Điện Thoại"
-                  type="tel"
-                  variant="outlined"
-                  placeholder="0123456789"
-                  prepend-inner-icon="mdi-phone"
-                  ref="soDienThoaiField"
-                  @keydown.enter="focusNext('diaChiField')"
+                  @keydown.enter="addPatient"
                 />
               </v-col>
               
               <v-col cols="12">
-                <v-textarea
-                  v-model="newPatient.dia_chi"
-                  label="Địa Chỉ"
+                <v-select
+                  v-model="newPatient.gioi_tinh"
+                  label="Giới Tính"
+                  :items="['Nam', 'Nữ']"
                   variant="outlined"
-                  placeholder="Nhập địa chỉ đầy đủ"
-                  prepend-inner-icon="mdi-map-marker"
-                  rows="2"
-                  ref="diaChiField"
-                  @keydown.enter="addPatient"
+                  prepend-inner-icon="mdi-gender-male-female"
+                  clearable
+                  ref="gioiTinhField"
                 />
               </v-col>
             </v-row>
@@ -512,6 +518,7 @@ export default {
     const isAddingToWaitingList = ref(false)
     const message = ref(null)
     const showMessage = ref(false)
+    const displayNgaySinh = ref('')
     
     const newPatient = ref({
       ho_ten: '',
@@ -540,6 +547,7 @@ export default {
         dia_chi: '',
         so_dien_thoai: ''
       }
+      displayNgaySinh.value = ''
     }
 
     const focusNext = (fieldRef) => {
@@ -549,9 +557,64 @@ export default {
           const field = instance.refs[fieldRef]
           if (field && field.focus) {
             field.focus()
+          } else if (field && field.$el && field.$el.focus) {
+            field.$el.focus()
+          } else if (field && field.$el && field.$el.querySelector) {
+            const input = field.$el.querySelector('input, textarea, select')
+            if (input) input.focus()
           }
         }
       })
+    }
+
+    // Format date from DB (YYYY-MM-DD) to display format (DD/MM/YYYY)
+    const formatFromDB = (value) => {
+      if (!value) return value
+      const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+      if (match) {
+        const [, yyyy, mm, dd] = match
+        return `${dd}/${mm}/${yyyy}`
+      }
+      return value
+    }
+
+    // Format date from display format (DD/MM/YYYY) to DB format (YYYY-MM-DD)
+    const formatToDB = (value) => {
+      if (!value) return value
+      const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+      if (match) {
+        const [, dd, mm, yyyy] = match
+        return `${yyyy}-${mm}-${dd}`
+      }
+      return value
+    }
+
+    // Smart date input formatting
+    const formatNgaySinhInput = (event) => {
+      let val = event.target.value.replace(/\D/g, '')
+      
+      // Auto format when user types 8 digits like 09102003
+      if (val.length === 8) {
+        val = `${val.slice(0, 2)}/${val.slice(2, 4)}/${val.slice(4)}`
+      } else if (val.length === 6) {
+        // Format partial input like 091020 -> 09/10/20
+        val = `${val.slice(0, 2)}/${val.slice(2, 4)}/${val.slice(4)}`
+      } else if (val.length === 4) {
+        // Format partial input like 0910 -> 09/10
+        val = `${val.slice(0, 2)}/${val.slice(2)}`
+      } else if (val.length === 2) {
+        // Format partial input like 09 -> 09/
+        val = `${val}/`
+      }
+      
+      displayNgaySinh.value = val
+      
+      // Convert to DB format for storage if complete
+      if (val.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+        newPatient.value.ngay_sinh = formatToDB(val)
+      } else {
+        newPatient.value.ngay_sinh = ''
+      }
     }
 
     const addPatient = async () => {
@@ -630,12 +693,14 @@ export default {
 
     const formatDate = (dateString) => {
       if (!dateString) return ''
-      const date = new Date(dateString)
-      return date.toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
+      
+      // If already in DD/MM/YYYY format, return as-is
+      if (dateString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+        return dateString
+      }
+      
+      // If in YYYY-MM-DD format from database, convert to DD/MM/YYYY
+      return formatFromDB(dateString) || dateString
     }
 
     // Function to capitalize patient name automatically
@@ -702,6 +767,7 @@ export default {
       message,
       newPatient,
       showMessage,
+      displayNgaySinh,
       displayMessage,
       closeAddPatientDialog,
       addPatient,
@@ -712,6 +778,9 @@ export default {
       formatAge,
       capitalizePatientName,
       focusNext,
+      formatNgaySinhInput,
+      formatFromDB,
+      formatToDB,
       openAddPatient,
       openSearchPatient
     }
