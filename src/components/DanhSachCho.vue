@@ -54,8 +54,8 @@
             </td>
             <td>{{ formatDateShort(patient.ngay_sinh) }}</td>
             <td class="text-center">
-              <span v-if="patient.thang_tuoi">{{ patient.thang_tuoi }} tháng</span>
-              <span v-else class="text-grey-500">null tháng</span>
+              <span v-if="patient.ngay_sinh">{{ formatAge(patient.ngay_sinh) }}</span>
+              <span v-else class="text-grey-500">Chưa rõ</span>
             </td>
             <td class="text-center">
               <span v-if="patient.can_nang">{{ patient.can_nang }} kg</span>
@@ -111,7 +111,7 @@
               </v-col>
               <v-col cols="6">
                 <div class="text-grey-600">Tuổi:</div>
-                <div v-if="patient.thang_tuoi">{{ patient.thang_tuoi }} tháng</div>
+                <div v-if="patient.ngay_sinh">{{ formatAge(patient.ngay_sinh) }}</div>
                 <div v-else class="text-grey-500">Chưa rõ</div>
               </v-col>
             </v-row>
@@ -248,6 +248,34 @@ export default {
       return date.toLocaleDateString('vi-VN')
     }
 
+    // Function to format age based on birth date
+    const formatAge = (birthDate) => {
+      if (!birthDate) return ''
+      
+      const birth = new Date(birthDate)
+      const today = new Date()
+      
+      // Calculate total months
+      let totalMonths = (today.getFullYear() - birth.getFullYear()) * 12
+      totalMonths += today.getMonth() - birth.getMonth()
+      
+      // Adjust if current date hasn't reached birth day of month
+      if (today.getDate() < birth.getDate()) {
+        totalMonths--
+      }
+      
+      // For children under 36 months, show months
+      if (totalMonths < 36) {
+        return `${totalMonths} tháng tuổi`
+      }
+      
+      // For children over 36 months, show years with 0.5 precision
+      const years = totalMonths / 12
+      const roundedYears = Math.round(years * 2) / 2 // Round to nearest 0.5
+      
+      return `${roundedYears} tuổi`
+    }
+
     // Expose loadWaitingList method to parent component
     expose({
       loadWaitingList
@@ -267,7 +295,8 @@ export default {
       removeFromList,
       formatDate,
       formatDateShort,
-      formatTime
+      formatTime,
+      formatAge
     }
   }
 }

@@ -62,7 +62,7 @@
                 
                 <v-list-item-title>{{ patient.ho_ten }}</v-list-item-title>
                 <v-list-item-subtitle>
-                  <span v-if="patient.ngay_sinh">{{ formatDate(patient.ngay_sinh) }}</span>
+                  <span v-if="patient.ngay_sinh">{{ formatAge(patient.ngay_sinh) }}</span>
                   <span v-if="patient.so_dien_thoai" class="ml-2">{{ patient.so_dien_thoai }}</span>
                 </v-list-item-subtitle>
               </v-list-item>
@@ -115,6 +115,7 @@
                   :rules="[v => !!v || 'Họ tên là bắt buộc']"
                   prepend-inner-icon="mdi-account"
                   ref="hoTenField"
+                  @input="capitalizePatientName"
                   @keydown.enter="focusNext('ngaySinhField')"
                 />
               </v-col>
@@ -235,9 +236,11 @@
                   <template #prepend>
                     <v-icon color="primary">mdi-calendar</v-icon>
                   </template>
-                  <v-list-item-title class="text-caption text-grey-600">Ngày Sinh</v-list-item-title>
+                  <v-list-item-title class="text-caption text-grey-600">Ngày Sinh / Tuổi</v-list-item-title>
                   <v-list-item-subtitle class="text-body-1">
                     {{ formatDate(selectedPatient.ngay_sinh) }}
+                    <br>
+                    <small class="text-success font-weight-medium">{{ formatAge(selectedPatient.ngay_sinh) }}</small>
                   </v-list-item-subtitle>
                 </v-list-item>
               </v-col>
@@ -471,6 +474,46 @@ export default {
       })
     }
 
+    // Function to capitalize patient name automatically
+    const capitalizePatientName = () => {
+      const name = newPatient.value.ho_ten
+      if (name) {
+        newPatient.value.ho_ten = name
+          .toLowerCase()
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+      }
+    }
+
+    // Function to format age based on birth date
+    const formatAge = (birthDate) => {
+      if (!birthDate) return ''
+      
+      const birth = new Date(birthDate)
+      const today = new Date()
+      
+      // Calculate total months
+      let totalMonths = (today.getFullYear() - birth.getFullYear()) * 12
+      totalMonths += today.getMonth() - birth.getMonth()
+      
+      // Adjust if current date hasn't reached birth day of month
+      if (today.getDate() < birth.getDate()) {
+        totalMonths--
+      }
+      
+      // For children under 36 months, show months
+      if (totalMonths < 36) {
+        return `${totalMonths} tháng tuổi`
+      }
+      
+      // For children over 36 months, show years with 0.5 precision
+      const years = totalMonths / 12
+      const roundedYears = Math.round(years * 2) / 2 // Round to nearest 0.5
+      
+      return `${roundedYears} tuổi`
+    }
+
     return {
       showAddPatientDialog,
       searchQuery,
@@ -489,6 +532,8 @@ export default {
       selectPatient,
       addToWaitingList,
       formatDate,
+      formatAge,
+      capitalizePatientName,
       focusNext
     }
   }
