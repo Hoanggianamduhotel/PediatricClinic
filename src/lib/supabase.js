@@ -71,11 +71,11 @@ export const patientService = {
       const newPatient = {
         ho_ten: ho_ten.trim(),
         ngay_sinh: ngay_sinh || null,
-        gioi_tinh: gioi_tinh?.trim() || null,
+        gioi_tinh: gioi_tinh && gioi_tinh.trim() ? gioi_tinh.trim() : null,
         dia_chi: dia_chi?.trim() || null,
         so_dien_thoai: so_dien_thoai?.trim() || null,
-        can_nang: can_nang ? parseFloat(can_nang) : null,
-        thang_tuoi,
+        can_nang: can_nang && can_nang.toString().trim() ? parseFloat(can_nang) : null,
+        thang_tuoi: thang_tuoi !== null ? parseInt(thang_tuoi) : null,
         created_at: new Date().toISOString()
       }
       
@@ -152,13 +152,15 @@ export const waitingListService = {
         benhnhan_id: patient.id,
         ho_ten: patient.ho_ten,
         ngay_sinh: patient.ngay_sinh,
-        gioi_tinh: patient.gioi_tinh,
+        gioi_tinh: patient.gioi_tinh && patient.gioi_tinh.trim() ? patient.gioi_tinh.trim() : null,
         dia_chi: patient.dia_chi,
-        thang_tuoi: patient.thang_tuoi,
-        can_nang: patient.can_nang,
+        thang_tuoi: patient.thang_tuoi ? parseFloat(patient.thang_tuoi) : null,
+        can_nang: patient.can_nang ? parseFloat(patient.can_nang) : null,
         so_dien_thoai: patient.so_dien_thoai,
         ngay_tao: new Date().toISOString().split('T')[0]
       }
+      
+      console.log('Adding to waiting list with data:', waitingListEntry)
       
       const { data, error } = await supabase
         .from('danhsachcho')
