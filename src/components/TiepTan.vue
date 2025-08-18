@@ -1,19 +1,42 @@
 <template>
   <div class="tiep-tan">
-    <!-- Main Actions - Mobile Optimized -->
-    <v-row class="mb-4">
+    <!-- Mobile Reception Button -->
+    <div v-if="$vuetify.display.mobile" class="text-center mb-6">
+      <v-card elevation="2" class="rounded-xl">
+        <v-card-text class="pa-6">
+          <v-icon size="80" color="primary" class="mb-4">mdi-stethoscope</v-icon>
+          <h2 class="text-h6 mb-2 text-grey-800">Danh Sách Chờ Khám</h2>
+          <p class="text-body-2 text-grey-600 mb-4">Quản lý bệnh nhân đang chờ khám</p>
+          
+          <v-btn 
+            @click="showPatientActionDialog = true" 
+            color="primary" 
+            variant="elevated"
+            size="large"
+            block
+            class="rounded-lg"
+            prepend-icon="mdi-account-plus"
+          >
+            Tiếp Nhận Bệnh Nhân
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </div>
+
+    <!-- Desktop Actions - Keep Original Layout -->
+    <v-row v-if="!$vuetify.display.mobile" class="mb-4">
       <!-- New Patient Card -->
       <v-col cols="12" md="6">
-        <v-card elevation="2" :height="$vuetify.display.mobile ? 'auto' : '100%'" class="rounded-xl">
+        <v-card elevation="2" height="100%" class="rounded-xl">
           <v-card-title class="text-white d-flex align-center" style="background-color: #4caf50;">
             <v-icon start>mdi-account-plus</v-icon>
             Thêm Bệnh Nhân Mới
           </v-card-title>
-          <v-card-text :class="$vuetify.display.mobile ? 'pa-4' : 'pa-6'">
-            <p :class="$vuetify.display.mobile ? 'text-body-2 mb-3' : 'text-body-1 mb-4'">Đăng ký thông tin bệnh nhân mới vào hệ thống</p>
+          <v-card-text class="pa-6">
+            <p class="text-body-1 mb-4">Đăng ký thông tin bệnh nhân mới vào hệ thống</p>
             <v-btn 
               @click="showAddPatientDialog = true" 
-              :size="$vuetify.display.mobile ? 'default' : 'large'"
+              size="large"
               block
               prepend-icon="mdi-account-plus"
               class="rounded-lg"
@@ -27,12 +50,12 @@
 
       <!-- Search Patient Card -->
       <v-col cols="12" md="6">
-        <v-card elevation="2" :height="$vuetify.display.mobile ? 'auto' : '100%'" class="rounded-xl">
+        <v-card elevation="2" height="100%" class="rounded-xl">
           <v-card-title class="text-white d-flex align-center" style="background-color: #2196F3;">
             <v-icon start>mdi-magnify</v-icon>
             Tìm Bệnh Cũ
           </v-card-title>
-          <v-card-text :class="$vuetify.display.mobile ? 'pa-4' : 'pa-6'">
+          <v-card-text class="pa-6">
             <v-text-field
               v-model="searchQuery"
               @input="searchPatients"
@@ -46,7 +69,7 @@
             />
             
             <!-- Search Results -->
-            <v-list v-if="searchResults.length > 0" class="mt-4" :max-height="$vuetify.display.mobile ? '200' : '300'" style="overflow-y: auto;">
+            <v-list v-if="searchResults.length > 0" class="mt-4" max-height="300" style="overflow-y: auto;">
               <v-list-item
                 v-for="patient in searchResults" 
                 :key="patient.id"
@@ -84,6 +107,142 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Patient Action Selection Dialog (Mobile only) -->
+    <v-dialog v-model="showPatientActionDialog" fullscreen transition="dialog-bottom-transition">
+      <v-card>
+        <v-toolbar color="primary" class="text-white">
+          <v-btn icon @click="showPatientActionDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Chọn Hành Động</v-toolbar-title>
+        </v-toolbar>
+
+        <v-card-text class="pa-6">
+          <div class="text-center mb-6">
+            <v-icon size="100" color="primary">mdi-account-heart</v-icon>
+            <h2 class="text-h5 mt-4 mb-2">Tiếp Nhận Bệnh Nhân</h2>
+            <p class="text-body-1 text-grey-600">Chọn một trong hai tùy chọn bên dưới</p>
+          </div>
+
+          <v-row class="mt-8">
+            <v-col cols="6">
+              <v-card 
+                @click="openAddPatient" 
+                class="text-center pa-6 hover-card cursor-pointer"
+                elevation="3"
+                color="success"
+              >
+                <v-icon size="60" color="white" class="mb-3">mdi-account-plus</v-icon>
+                <h3 class="text-h6 text-white mb-2">Thêm Mới</h3>
+                <p class="text-body-2 text-white">Bệnh nhân mới</p>
+              </v-card>
+            </v-col>
+            
+            <v-col cols="6">
+              <v-card 
+                @click="openSearchPatient" 
+                class="text-center pa-6 hover-card cursor-pointer"
+                elevation="3"
+                color="info"
+              >
+                <v-icon size="60" color="white" class="mb-3">mdi-magnify</v-icon>
+                <h3 class="text-h6 text-white mb-2">Tìm Kiếm</h3>
+                <p class="text-body-2 text-white">Bệnh nhân cũ</p>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <!-- Search Patient Dialog (Mobile) -->
+    <v-dialog v-model="showSearchDialog" fullscreen transition="dialog-bottom-transition">
+      <v-card>
+        <v-toolbar color="info" class="text-white">
+          <v-btn icon @click="showSearchDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Tìm Bệnh Nhân Cũ</v-toolbar-title>
+        </v-toolbar>
+
+        <v-card-text class="pa-6">
+          <v-text-field
+            v-model="searchQuery"
+            @input="searchPatients"
+            label="Nhập tên bệnh nhân"
+            placeholder="VD: đinh minh"
+            prepend-inner-icon="mdi-magnify"
+            variant="outlined"
+            clearable
+            autofocus
+            hide-details="auto"
+            class="mb-4"
+          />
+          
+          <!-- Search Results -->
+          <div v-if="searchResults.length > 0">
+            <h3 class="text-h6 mb-4">Kết quả tìm kiếm:</h3>
+            <v-list>
+              <v-list-item
+                v-for="patient in searchResults" 
+                :key="patient.id"
+                @click="selectPatient(patient); showSearchDialog = false"
+                class="mb-2 rounded-lg"
+                border
+              >
+                <template #prepend>
+                  <v-avatar color="primary" size="50">
+                    <v-icon>mdi-account</v-icon>
+                  </v-avatar>
+                </template>
+                
+                <v-list-item-title class="text-h6">{{ patient.ho_ten }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  <div v-if="patient.ngay_sinh" class="mb-1">
+                    <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
+                    {{ formatDate(patient.ngay_sinh) }} • {{ formatAge(patient.ngay_sinh) }}
+                  </div>
+                  <div v-if="patient.so_dien_thoai">
+                    <v-icon size="small" class="mr-1">mdi-phone</v-icon>
+                    {{ patient.so_dien_thoai }}
+                  </div>
+                </v-list-item-subtitle>
+
+                <template #append>
+                  <v-icon color="grey">mdi-chevron-right</v-icon>
+                </template>
+              </v-list-item>
+            </v-list>
+          </div>
+          
+          <!-- No Results -->
+          <v-alert 
+            v-else-if="searchQuery && !isSearching" 
+            type="info" 
+            variant="tonal" 
+            class="mt-4"
+          >
+            <v-icon>mdi-information</v-icon>
+            <strong>Không tìm thấy bệnh nhân nào</strong>
+            <br>Hãy thử tìm kiếm với từ khóa khác
+          </v-alert>
+          
+          <!-- Loading -->
+          <div v-if="isSearching" class="text-center mt-8">
+            <v-progress-circular indeterminate color="primary" size="60"></v-progress-circular>
+            <p class="text-body-1 mt-4">Đang tìm kiếm...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div v-if="!searchQuery && !searchResults.length" class="text-center mt-8">
+            <v-icon size="80" color="grey-400">mdi-magnify</v-icon>
+            <h3 class="text-h6 mt-4 text-grey-600">Tìm Kiếm Bệnh Nhân</h3>
+            <p class="text-body-2 text-grey-500">Nhập tên bệnh nhân để bắt đầu tìm kiếm</p>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
     <!-- Add Patient Dialog -->
     <v-dialog v-model="showAddPatientDialog" max-width="600px" persistent>
@@ -343,6 +502,8 @@ export default {
   emits: ['patient-added-to-waiting', 'show-add-dialog'],
   setup(props, { emit }) {
     const showAddPatientDialog = ref(props.showAddDialog)
+    const showPatientActionDialog = ref(false)
+    const showSearchDialog = ref(false)
     const searchQuery = ref('')
     const searchResults = ref([])
     const selectedPatient = ref(null)
@@ -517,8 +678,21 @@ export default {
       return `${roundedYears} tuổi`
     }
 
+    // Mobile dialog actions
+    const openAddPatient = () => {
+      showPatientActionDialog.value = false
+      showAddPatientDialog.value = true
+    }
+
+    const openSearchPatient = () => {
+      showPatientActionDialog.value = false
+      showSearchDialog.value = true
+    }
+
     return {
       showAddPatientDialog,
+      showPatientActionDialog,
+      showSearchDialog,
       searchQuery,
       searchResults,
       selectedPatient,
@@ -537,7 +711,9 @@ export default {
       formatDate,
       formatAge,
       capitalizePatientName,
-      focusNext
+      focusNext,
+      openAddPatient,
+      openSearchPatient
     }
   }
 }
