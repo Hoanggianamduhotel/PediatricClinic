@@ -70,13 +70,13 @@ export const patientService = {
       
       const newPatient = {
         ho_ten: ho_ten.trim(),
-        ngay_sinh: ngay_sinh ? new Date(ngay_sinh).toISOString() : null,
+        ngay_sinh: ngay_sinh || null,
         gioi_tinh: gioi_tinh ? String(gioi_tinh).trim() : null,
         dia_chi: dia_chi?.trim() || null,
         so_dien_thoai: so_dien_thoai?.trim() || null,
         can_nang: can_nang ? Number(can_nang) : null,
         thang_tuoi: thang_tuoi !== null ? Number(thang_tuoi) : null,
-        created_at: new Date().toISOString()
+        ngay_tao: new Date().toISOString().split('T')[0]
       }
       
       console.log('Creating patient with data:', newPatient)
