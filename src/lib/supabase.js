@@ -70,12 +70,12 @@ export const patientService = {
       
       const newPatient = {
         ho_ten: ho_ten.trim(),
-        ngay_sinh: ngay_sinh || null,
-        gioi_tinh: gioi_tinh && gioi_tinh.trim() ? gioi_tinh.trim() : null,
+        ngay_sinh: ngay_sinh ? new Date(ngay_sinh).toISOString() : null,
+        gioi_tinh: gioi_tinh ? String(gioi_tinh).trim() : null,
         dia_chi: dia_chi?.trim() || null,
         so_dien_thoai: so_dien_thoai?.trim() || null,
-        can_nang: can_nang && can_nang.toString().trim() ? parseFloat(can_nang) : null,
-        thang_tuoi: thang_tuoi !== null ? parseInt(thang_tuoi) : null,
+        can_nang: can_nang ? Number(can_nang) : null,
+        thang_tuoi: thang_tuoi !== null ? Number(thang_tuoi) : null,
         created_at: new Date().toISOString()
       }
       
@@ -83,13 +83,16 @@ export const patientService = {
       
       const { data, error } = await supabase
         .from('benhnhan')
-        .insert(newPatient)
+        .insert([newPatient])
         .select()
         .single()
       
       if (error) {
+        console.error('Supabase insert error:', error)
         throw error
       }
+      
+      console.log('Patient created successfully:', data)
       
       return { 
         success: true, 
@@ -152,10 +155,10 @@ export const waitingListService = {
         benhnhan_id: patient.id,
         ho_ten: patient.ho_ten,
         ngay_sinh: patient.ngay_sinh,
-        gioi_tinh: patient.gioi_tinh && patient.gioi_tinh.trim() ? patient.gioi_tinh.trim() : null,
+        gioi_tinh: patient.gioi_tinh ? String(patient.gioi_tinh).trim() : null,
         dia_chi: patient.dia_chi,
-        thang_tuoi: patient.thang_tuoi ? parseFloat(patient.thang_tuoi) : null,
-        can_nang: patient.can_nang ? parseFloat(patient.can_nang) : null,
+        thang_tuoi: patient.thang_tuoi ? Number(patient.thang_tuoi) : null,
+        can_nang: patient.can_nang ? Number(patient.can_nang) : null,
         so_dien_thoai: patient.so_dien_thoai,
         ngay_tao: new Date().toISOString().split('T')[0]
       }
@@ -164,7 +167,7 @@ export const waitingListService = {
       
       const { data, error } = await supabase
         .from('danhsachcho')
-        .insert(waitingListEntry)
+        .insert([waitingListEntry])
         .select()
         .single()
       

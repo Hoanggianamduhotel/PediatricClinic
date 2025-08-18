@@ -1,0 +1,96 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import { createClient } from "@supabase/supabase-js";
+
+// Kết nối Supabase
+const supabaseUrl = "https://luimiikovmsaeqmocjhu.supabase.co"; // thay bằng URL của bạn
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // thay bằng anon key
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Form state
+const ho_ten = ref("");
+const ngay_sinh = ref("");
+const so_dien_thoai = ref("");
+const can_nang = ref("");
+const thang_tuoi = ref("");
+const gioi_tinh = ref("");
+
+// Trạng thái
+const loading = ref(false);
+const message = ref("");
+
+// Hàm lưu bệnh nhân
+const savePatient = async () => {
+  loading.value = true;
+  message.value = "";
+
+  const payload = {
+    ho_ten: ho_ten.value.trim(),
+    ngay_sinh: ngay_sinh.value ? new Date(ngay_sinh.value).toISOString() : null,
+    so_dien_thoai: so_dien_thoai.value.trim(),
+    can_nang: can_nang.value ? Number(can_nang.value) : null,
+    thang_tuoi: thang_tuoi.value ? Number(thang_tuoi.value) : null,
+    gioi_tinh: gioi_tinh.value ? String(gioi_tinh.value).trim() : null,
+  };
+
+  console.log("Payload gửi Supabase:", payload);
+
+  const { data, error } = await supabase.from("benhnhan").insert([payload]);
+
+  if (error) {
+    console.error("Lỗi insert:", error);
+    message.value = "❌ Lưu thất bại: " + error.message;
+  } else {
+    message.value = "✅ Lưu thành công!";
+    // Reset form
+    ho_ten.value = "";
+    ngay_sinh.value = "";
+    so_dien_thoai.value = "";
+    can_nang.value = "";
+    thang_tuoi.value = "";
+    gioi_tinh.value = "";
+  }
+  loading.value = false;
+};
+</script>
+
+<template>
+  <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md space-y-4">
+    <h2 class="text-xl font-bold text-center">Nhập bệnh nhân</h2>
+
+    <div class="space-y-2">
+      <input v-model="ho_ten" type="text" placeholder="Họ tên"
+        class="w-full border p-2 rounded" />
+
+      <input v-model="ngay_sinh" type="date" placeholder="Ngày sinh"
+        class="w-full border p-2 rounded" />
+
+      <input v-model="so_dien_thoai" type="tel" placeholder="Số điện thoại"
+        class="w-full border p-2 rounded" />
+
+      <input v-model="can_nang" type="number" placeholder="Cân nặng (kg)"
+        class="w-full border p-2 rounded" />
+
+      <input v-model="thang_tuoi" type="number" placeholder="Tháng tuổi"
+        class="w-full border p-2 rounded" />
+
+      <select v-model="gioi_tinh" class="w-full border p-2 rounded">
+        <option value="">-- Giới tính --</option>
+        <option value="Nam">Nam</option>
+        <option value="Nữ">Nữ</option>
+      </select>
+    </div>
+
+    <button
+      @click="savePatient"
+      :disabled="loading"
+      class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+    >
+      {{ loading ? "Đang lưu..." : "Lưu bệnh nhân" }}
+    </button>
+
+    <p class="text-center text-sm mt-2" :class="message.includes('✅') ? 'text-green-600' : 'text-red-600'">
+      {{ message }}
+    </p>
+  </div>
+</template>
