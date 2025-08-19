@@ -21,7 +21,7 @@
       variant="text"
       @click.stop="handleClose"
       aria-label="Đóng linh vật"
-      class="close-button"
+      class="close-button-external"
     >
       <v-icon size="20">mdi-close</v-icon>
     </v-btn>
@@ -178,12 +178,14 @@ export default {
   object-fit: cover;
 }
 
-.close-button {
+.close-button-external {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background-color: rgba(255, 255, 255, 0.9);
+  top: -8px;
+  right: -8px;
+  background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(4px);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 /* Responsive adjustments */
