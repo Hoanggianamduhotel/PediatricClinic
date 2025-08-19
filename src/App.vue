@@ -234,9 +234,9 @@
         
         <div v-else-if="currentTab === 'danhsachcho'">
           <!-- Mobile Title -->
-          <div v-if="$vuetify.display.mobile" class="px-4 pt-4 pb-2">
+          <div v-if="$vuetify.display.mobile" class="px-4 py-1 bg-warning">
             <div class="d-flex justify-space-between align-center">
-              <h2 class="text-h6 font-weight-bold text-warning">Danh Sách Chờ Khám</h2>
+              <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
               <v-chip color="primary" variant="tonal" size="small">
                 Tổng số: {{ waitingCount }}
               </v-chip>
