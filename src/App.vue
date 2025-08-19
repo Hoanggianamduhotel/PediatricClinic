@@ -235,8 +235,12 @@
         <div v-else-if="currentTab === 'danhsachcho'">
           <!-- Mobile Title -->
           <div v-if="$vuetify.display.mobile" class="mb-4 px-4 pt-4">
-            <h2 class="text-h6 font-weight-bold text-warning mb-1">Danh Sách Chờ Khám</h2>
-            <p class="text-caption text-grey-600 mb-3">{{ waitingCount }} bệnh nhân đang chờ</p>
+            <div class="d-flex justify-space-between align-center mb-1">
+              <h2 class="text-h6 font-weight-bold text-warning">Danh Sách Chờ Khám</h2>
+              <v-chip color="primary" variant="tonal" size="small">
+                Tổng số: {{ waitingCount }}
+              </v-chip>
+            </div>
           </div>
           
           <!-- Selected Patient Details moved up before waiting list -->

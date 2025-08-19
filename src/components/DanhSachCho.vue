@@ -4,14 +4,6 @@
 
     <!-- Modern List View -->
     <v-card v-if="waitingList.length > 0" elevation="0" class="border-top">
-      <!-- Table Header -->
-      <v-card-title class="pa-4 d-flex align-center">
-        <v-spacer />
-        <v-chip color="primary" variant="tonal" size="small">
-          Tổng số: {{ waitingList.length }}
-        </v-chip>
-      </v-card-title>
-      
       <v-divider />
 
       <!-- Desktop Table -->
