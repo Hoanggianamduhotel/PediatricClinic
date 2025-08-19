@@ -1,7 +1,7 @@
 <template>
   <div class="tiep-tan">
-    <!-- Mobile Reception Button -->
-    <div v-if="$vuetify.display.mobile" class="text-center mb-6">
+    <!-- Mobile Reception Button - Only show in Tiếp Tân tab -->
+    <div v-if="$vuetify.display.mobile && !patientInfoOnly" class="text-center mb-6">
       <v-card elevation="2" class="rounded-xl">
         <v-card-text class="pa-6">
           <v-icon size="80" color="primary" class="mb-4">mdi-stethoscope</v-icon>
@@ -24,7 +24,7 @@
     </div>
 
     <!-- Desktop Actions - Keep Original Layout -->
-    <v-row v-if="!$vuetify.display.mobile" class="mb-4">
+    <v-row v-if="!$vuetify.display.mobile && !patientInfoOnly" class="mb-4">
       <!-- New Patient Card -->
       <v-col cols="12" md="6">
         <v-card elevation="2" height="100%" class="rounded-xl">
@@ -385,8 +385,8 @@
       </v-card>
     </v-dialog>
 
-    <!-- Selected Patient Details -->
-    <v-row v-if="selectedPatient">
+    <!-- Selected Patient Details - Moved up before waiting list -->
+    <v-row v-if="selectedPatient" class="mb-4">
       <v-col cols="12">
         <v-card elevation="2">
           <v-card-title class="bg-info text-white d-flex align-center">
@@ -460,18 +460,20 @@
               </v-col>
             </v-row>
           </v-card-text>
-          <v-card-actions class="pa-4 pt-0">
+          <v-card-actions class="pa-4 pt-0 d-flex">
             <v-btn 
               @click="addToWaitingList(selectedPatient)"
               :loading="isAddingToWaitingList"
               color="warning"
               variant="elevated"
               prepend-icon="mdi-clock-plus"
+              size="small"
+              class="flex-shrink-0"
+              style="width: 67%;"
             >
               Thêm vào danh sách chờ
             </v-btn>
-            <v-spacer />
-            <v-btn @click="selectedPatient = null" variant="outlined">
+            <v-btn @click="selectedPatient = null" variant="outlined" size="small" class="ml-2">
               Đóng
             </v-btn>
           </v-card-actions>
@@ -502,6 +504,10 @@ export default {
   name: 'TiepTan',
   props: {
     showAddDialog: {
+      type: Boolean,
+      default: false
+    },
+    patientInfoOnly: {
       type: Boolean,
       default: false
     }

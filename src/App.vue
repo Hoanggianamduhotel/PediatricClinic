@@ -224,6 +224,15 @@
             <h2 class="text-h6 font-weight-bold text-primary mb-1">Danh Sách Chờ Khám</h2>
             <p class="text-caption text-grey-600 mb-3">{{ waitingCount }} bệnh nhân đang chờ</p>
           </div>
+          
+          <!-- Selected Patient Details moved up before waiting list -->
+          <TiepTan 
+            :patient-info-only="true"
+            @patient-added-to-waiting="handlePatientAdded" 
+            @show-add-dialog="showAddPatientDialog = $event"
+            :show-add-dialog="showAddPatientDialog"
+          />
+          
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
         </div>
         
@@ -295,16 +304,7 @@
       @close="handleMascotClose"
     />
 
-    <!-- Mobile FAB for Quick Actions -->
-    <v-fab
-      v-if="$vuetify.display.mobile && currentTab === 'tieptan'"
-      icon="mdi-plus"
-      color="primary"
-      size="large"
-      location="bottom end"
-      app
-      @click="showAddPatientDialog = true"
-    />
+
   </v-app>
 </template>
 
