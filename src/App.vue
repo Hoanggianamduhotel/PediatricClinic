@@ -193,10 +193,24 @@
             </div>
           </div>
           
-          <!-- Mobile Title -->
-          <div v-else class="mb-4">
-            <h2 class="text-h6 font-weight-bold text-primary mb-1">Tiếp Tân Bệnh Nhân</h2>
-            <p class="text-caption text-grey-600 mb-3">Thêm mới và tìm bệnh cũ</p>
+          <!-- Mobile Title with Action Button -->
+          <div v-else class="mb-4 px-4 pt-4">
+            <div class="d-flex justify-space-between align-center mb-2">
+              <div>
+                <h2 class="text-h6 font-weight-bold text-primary mb-1">Tiếp Tân Bệnh Nhân</h2>
+                <p class="text-caption text-grey-600">Thêm mới và tìm bệnh cũ</p>
+              </div>
+              <v-btn
+                @click="openTiepTanDialog"
+                color="primary"
+                variant="elevated"
+                size="small"
+                prepend-icon="mdi-account-plus"
+                class="flex-shrink-0"
+              >
+                Tiếp Tân
+              </v-btn>
+            </div>
           </div>
           
           <!-- Reception Interface -->
@@ -448,6 +462,10 @@ export default {
       }
     }
 
+    const openTiepTanDialog = () => {
+      showAddPatientDialog.value = true
+    }
+
     onMounted(() => {
       updateDateTime()
       updateWaitingCount()
@@ -477,7 +495,8 @@ export default {
       toggleTheme,
       handleMascotClick,
       handleMascotClose,
-      handlePatientAdded
+      handlePatientAdded,
+      openTiepTanDialog
     }
   }
 }

@@ -1,27 +1,6 @@
 <template>
   <div class="tiep-tan">
-    <!-- Mobile Reception Button - Only show in Tiếp Tân tab -->
-    <div v-if="$vuetify.display.mobile && !patientInfoOnly" class="text-center mb-6">
-      <v-card elevation="2" class="rounded-xl">
-        <v-card-text class="pa-6">
-          <v-icon size="80" color="primary" class="mb-4">mdi-stethoscope</v-icon>
-          <h2 class="text-h6 mb-2 text-grey-800">Danh Sách Chờ Khám</h2>
-          <p class="text-body-2 text-grey-600 mb-4">Quản lý bệnh nhân đang chờ khám</p>
-          
-          <v-btn 
-            @click="showPatientActionDialog = true" 
-            color="primary" 
-            variant="elevated"
-            size="large"
-            block
-            class="rounded-lg"
-            prepend-icon="mdi-account-plus"
-          >
-            Tiếp Nhận Bệnh Nhân
-          </v-btn>
-        </v-card-text>
-      </v-card>
-    </div>
+
 
     <!-- Desktop Actions - Keep Original Layout -->
     <v-row v-if="!$vuetify.display.mobile && !patientInfoOnly" class="mb-4">
@@ -112,7 +91,7 @@
     <v-dialog v-model="showPatientActionDialog" fullscreen transition="dialog-bottom-transition">
       <v-card>
         <v-toolbar color="primary" class="text-white">
-          <v-btn icon @click="showPatientActionDialog = false">
+          <v-btn icon @click="closeAddPatientDialog">
             <v-icon>mdi-close</v-icon>
           </v-btn>
           <v-toolbar-title>Chọn Hành Động</v-toolbar-title>
@@ -497,7 +476,7 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick, getCurrentInstance } from 'vue'
+import { ref, onMounted, nextTick, getCurrentInstance, watch } from 'vue'
 import { patientService, waitingListService } from '../lib/supabase.js'
 
 export default {
@@ -515,7 +494,7 @@ export default {
   emits: ['patient-added-to-waiting', 'show-add-dialog'],
   setup(props, { emit }) {
     const showAddPatientDialog = ref(props.showAddDialog)
-    const showPatientActionDialog = ref(false)
+    const showPatientActionDialog = ref(props.showAddDialog)
     const showSearchDialog = ref(false)
     const searchQuery = ref('')
     const searchResults = ref([])
@@ -536,7 +515,12 @@ export default {
       so_dien_thoai: ''
     })
 
-    // No need for axios setup - using Supabase client directly
+    // Watch for props changes to show dialog
+    watch(() => props.showAddDialog, (newVal) => {
+      if (newVal) {
+        showPatientActionDialog.value = true
+      }
+    })
 
     const displayMessage = (text, type = 'success') => {
       message.value = { text, type }
@@ -545,6 +529,7 @@ export default {
 
     const closeAddPatientDialog = () => {
       showAddPatientDialog.value = false
+      showPatientActionDialog.value = false
       emit('show-add-dialog', false)
       newPatient.value = {
         ho_ten: '',
