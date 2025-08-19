@@ -425,14 +425,14 @@
 
 /* Waiting List Dynamic Header */
 .waiting-title-header {
-  background: #fb8c00; /* warning color */
+  background: #ffc107; /* yellow color */
   width: 100%;
   left: 0;
   transition: all 0.3s ease-in-out;
 }
 
 .waiting-title-header.scrolled {
-  background: #fb8c00; /* Keep orange background when scrolled */
+  background: #ffc107; /* Keep yellow background when scrolled */
 }
 
 .waiting-title-header .title-content {
