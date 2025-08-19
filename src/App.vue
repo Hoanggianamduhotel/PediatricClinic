@@ -166,7 +166,7 @@
         bg-color="white"
         color="primary"
         align-tabs="center"
-        style="position: sticky; top: 59px; z-index: 1000;"
+        style="position: sticky; top: 59px; z-index: 999;"
       >
         <v-tab value="tieptan">
           <v-icon start>mdi-account-plus</v-icon>
@@ -182,9 +182,9 @@
         </v-tab>
       </v-tabs>
 
-      <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
-        <!-- Tab Content -->
-        <div v-if="currentTab === 'tieptan'">
+      <!-- Tab Content -->
+      <div v-if="currentTab === 'tieptan'">
+        <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
           <!-- Title and Action Button - Mobile Optimized -->
           <div v-if="!$vuetify.display.mobile" class="d-flex justify-space-between align-center mb-6">
             <div>
@@ -230,23 +230,26 @@
               ref="danhSachChoRef"
             />
           </div>
+        </v-container>
+      </div>
+      
+      <div v-else-if="currentTab === 'danhsachcho'" class="waiting-list-tab">
+        <!-- Mobile Title - Sticky Header -->
+        <div 
+          v-if="$vuetify.display.mobile" 
+          class="px-4 py-2 bg-warning position-sticky waiting-list-header"
+          style="top: 107px; z-index: 1000;"
+        >
+          <div class="d-flex justify-space-between align-center">
+            <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
+            <v-chip color="primary" variant="tonal" size="small">
+              Tổng số: {{ waitingCount }}
+            </v-chip>
+          </div>
         </div>
         
-        <div v-else-if="currentTab === 'danhsachcho'" class="position-relative">
-          <!-- Mobile Title - Sticky Header -->
-          <div 
-            v-if="$vuetify.display.mobile" 
-            class="px-4 py-1 bg-warning position-sticky waiting-list-header"
-            style="top: 107px; z-index: 1001;"
-          >
-            <div class="d-flex justify-space-between align-center">
-              <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
-              <v-chip color="primary" variant="tonal" size="small">
-                Tổng số: {{ waitingCount }}
-              </v-chip>
-            </div>
-          </div>
-          
+        <!-- Scrollable Content -->
+        <div class="scrollable-content">
           <!-- Selected Patient Details moved up before waiting list -->
           <TiepTan 
             :patient-info-only="true"
@@ -255,20 +258,22 @@
             :show-add-dialog="showAddPatientDialog"
           />
           
-          <div class="waiting-list-container">
+          <div class="waiting-list-container pa-0">
             <DanhSachCho @waiting-list-changed="updateWaitingCount" />
           </div>
         </div>
-        
-        <div v-else-if="currentTab === 'thongke'">
+      </div>
+      
+      <div v-else-if="currentTab === 'thongke'">
+        <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
           <!-- Mobile Title -->
           <div v-if="$vuetify.display.mobile" class="mb-4">
             <h2 class="text-h6 font-weight-bold text-primary mb-1">Thống Kê Doanh Thu</h2>
             <p class="text-caption text-grey-600 mb-3">Báo cáo khám bệnh</p>
           </div>
           <ThongKe />
-        </div>
-      </v-container>
+        </v-container>
+      </div>
     </v-main>
 
     <!-- Right Sidebar (Purple) - Hidden on mobile -->
@@ -392,10 +397,22 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* Waiting List Tab Layout */
+.waiting-list-tab {
+  height: calc(100vh - 107px);
+  overflow: hidden;
+  position: relative;
+}
+
+.scrollable-content {
+  height: 100%;
+  overflow-y: auto;
+  padding-top: 44px; /* Height of sticky header */
+}
+
 /* Scrollable container for waiting list */
 .waiting-list-container {
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
+  padding: 0;
 }
 </style>
 
