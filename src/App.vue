@@ -234,29 +234,34 @@
       </div>
       
       <div v-else-if="currentTab === 'danhsachcho'">
-        <!-- Mobile Scroll-responsive Title Header -->
+        <!-- Mobile Dynamic Title Header -->
         <div 
           v-if="$vuetify.display.mobile" 
-          class="waiting-title-header position-sticky"
-          :class="{ 'scrolled': isScrolling }"
-          style="top: 59px; z-index: 1001;"
+          class="waiting-title-header position-fixed"
+          :class="{ 'scrolled': isScrolled }"
+          :style="{ 
+            top: isScrolled ? '59px' : '59px',
+            height: isScrolled ? '3px' : '48px',
+            zIndex: 1001
+          }"
         >
-          <div class="title-content">
-            <div class="d-flex justify-space-between align-center">
-              <h2 class="title-text">Danh Sách Chờ Khám</h2>
-              <v-chip color="primary" variant="tonal" size="small" class="count-chip">
-                Tổng số: {{ waitingCount }}
-              </v-chip>
-            </div>
+          <div 
+            class="title-content d-flex justify-space-between align-center pa-4"
+            :class="{ 'opacity-0': isScrolled }"
+          >
+            <h2 class="title-text text-subtitle-1 font-weight-bold text-black ma-0">
+              Danh Sách Chờ Khám
+            </h2>
+            <v-chip color="primary" variant="tonal" size="small">
+              Tổng số: {{ waitingCount }}
+            </v-chip>
           </div>
         </div>
         
         <v-container 
           fluid 
           :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'"
-          @scroll="handleScroll"
-          ref="scrollContainer"
-          style="height: calc(100vh - 119px); overflow-y: auto;"
+          :style="$vuetify.display.mobile ? 'padding-top: 107px;' : ''"
         >
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
         </v-container>
@@ -395,46 +400,20 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Waiting List Title Header Animation */
+/* Waiting List Dynamic Header - Simple approach */
 .waiting-title-header {
   background: #fb8c00; /* warning color */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-bottom: 3px solid #fb8c00;
+  width: 100%;
+  left: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.waiting-title-header.scrolled {
+  background: #fb8c00; /* Keep orange background when scrolled */
 }
 
 .waiting-title-header .title-content {
-  padding: 8px 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.waiting-title-header .title-text {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: black;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin: 0;
-}
-
-.waiting-title-header .count-chip {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Scrolled state - thin orange line */
-.waiting-title-header.scrolled {
-  background: transparent;
-  border-bottom: 3px solid #fb8c00; /* Same thickness as purple line */
-}
-
-.waiting-title-header.scrolled .title-content {
-  padding: 0;
-  height: 3px;
-  overflow: hidden;
-}
-
-.waiting-title-header.scrolled .title-text,
-.waiting-title-header.scrolled .count-chip {
-  opacity: 0;
-  transform: scale(0);
+  transition: opacity 0.3s ease-in-out;
 }
 </style>
 
@@ -466,10 +445,8 @@ export default {
     const currentRole = ref('doctor') // 'doctor' or 'pharmacist'
     const showMascot = ref(true)
     const waitingListKey = ref(0)
-    const isScrolling = ref(false)
-    const scrollContainer = ref(null)
+    const isScrolled = ref(false)
     let timeInterval = null
-    let scrollTimeout = null
 
     const updateDateTime = () => {
       const now = new Date()
@@ -540,25 +517,25 @@ export default {
       }
     })
 
-    // Handle scroll for dynamic header
+    // Handle scroll for dynamic header - simpler approach
     const handleScroll = () => {
-      isScrolling.value = true
-      clearTimeout(scrollTimeout)
-      scrollTimeout = setTimeout(() => {
-        isScrolling.value = false
-      }, 1000) // Return to normal after 1 second of no scrolling
+      isScrolled.value = window.scrollY > 10
     }
 
     onMounted(() => {
       updateDateTime()
       updateWaitingCount()
       timeInterval = setInterval(updateDateTime, 60000) // Update every minute
+      // Add scroll listener for mobile dynamic header
+      window.addEventListener('scroll', handleScroll)
     })
 
     onUnmounted(() => {
       if (timeInterval) {
         clearInterval(timeInterval)
       }
+      // Remove scroll listener
+      window.removeEventListener('scroll', handleScroll)
     })
 
     return {
@@ -574,8 +551,7 @@ export default {
       showMascot,
       waitingListKey,
       danhSachChoRef,
-      isScrolling,
-      scrollContainer,
+      isScrolled,
       updateWaitingCount,
       toggleTheme,
       handleMascotClick,
