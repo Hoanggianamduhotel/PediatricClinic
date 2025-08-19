@@ -87,8 +87,8 @@
       </v-col>
     </v-row>
 
-    <!-- Patient Action Selection Dialog (Mobile only) - v-if for safety -->
-    <v-dialog v-if="showPatientActionDialog" v-model="showPatientActionDialog" fullscreen transition="dialog-bottom-transition">
+    <!-- Patient Action Selection Dialog (Mobile only) -->
+    <v-dialog v-model="showPatientActionDialog" fullscreen transition="dialog-bottom-transition">
       <v-card>
         <v-toolbar color="primary" class="text-white">
           <v-btn icon @click="closeAddPatientDialog">
@@ -135,8 +135,8 @@
       </v-card>
     </v-dialog>
 
-    <!-- Search Patient Dialog (Mobile) - v-if for safety -->
-    <v-dialog v-if="showSearchDialog" v-model="showSearchDialog" fullscreen transition="dialog-bottom-transition">
+    <!-- Search Patient Dialog (Mobile) -->
+    <v-dialog v-model="showSearchDialog" fullscreen transition="dialog-bottom-transition">
       <v-card>
         <v-toolbar color="info" class="text-white">
           <v-btn icon @click="showSearchDialog = false">
@@ -223,9 +223,8 @@
       </v-card>
     </v-dialog>
 
-    <!-- Add Patient Dialog - v-if for safety -->
+    <!-- Add Patient Dialog -->
     <v-dialog 
-      v-if="showAddPatientDialog"
       v-model="showAddPatientDialog" 
       :max-width="$vuetify.display.mobile ? '100%' : '600px'"
       :fullscreen="$vuetify.display.mobile"
@@ -477,7 +476,7 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick, getCurrentInstance, watch, onActivated } from 'vue'
+import { ref, onMounted, nextTick, getCurrentInstance, watch } from 'vue'
 import { patientService, waitingListService } from '../lib/supabase.js'
 
 export default {
@@ -494,10 +493,6 @@ export default {
   },
   emits: ['patient-added-to-waiting', 'show-add-dialog'],
   setup(props, { emit }) {
-    // Safe state management pattern
-    const mode = ref(null) // null | 'search' | 'add'
-    const isOpen = ref(false)
-    
     const showAddPatientDialog = ref(false)
     const showPatientActionDialog = ref(false)
     const showSearchDialog = ref(false)
@@ -520,31 +515,16 @@ export default {
       so_dien_thoai: ''
     })
 
-    // Safe dialog opening - reset before every open
-    const openReceptionist = () => {
-      mode.value = null  // reset trước mỗi lần mở
-      isOpen.value = true
-      showPatientActionDialog.value = true
-      showAddPatientDialog.value = false
-      showSearchDialog.value = false
-    }
 
-    const closeModal = () => {
-      isOpen.value = false
-      mode.value = null  // reset lại khi đóng
-      showPatientActionDialog.value = false
-      showAddPatientDialog.value = false
-      showSearchDialog.value = false
-      emit('show-add-dialog', false)
-    }
 
     // Watch for props changes to show dialog
     watch(() => props.showAddDialog, (newVal, oldVal) => {
       console.log('showAddDialog changed:', oldVal, '->', newVal)
       if (newVal && !oldVal) {
-        openReceptionist()
-      } else if (!newVal) {
-        closeModal()
+        // Only open when changing from false to true
+        showPatientActionDialog.value = true
+        showAddPatientDialog.value = false
+        showSearchDialog.value = false
       }
     })
 
@@ -555,7 +535,9 @@ export default {
 
     const closeAddPatientDialog = () => {
       console.log('Closing dialogs...')
-      closeModal() // Dùng safe close function
+      showAddPatientDialog.value = false
+      showPatientActionDialog.value = false
+      showSearchDialog.value = false
       
       // Reset all data
       newPatient.value = {
@@ -570,6 +552,9 @@ export default {
       searchQuery.value = ''
       searchResults.value = []
       selectedPatient.value = null
+      
+      // Emit to parent to reset state
+      emit('show-add-dialog', false)
     }
 
     // Template refs for fields
@@ -802,18 +787,17 @@ export default {
       showSearchDialog.value = true
     }
 
-    // An toàn tuyệt đối - reset khi tab được activate
-    onActivated(() => {
-      mode.value = null
-      isOpen.value = false
-      showPatientActionDialog.value = false
-      showAddPatientDialog.value = false  
-      showSearchDialog.value = false
+    // Original onMounted functionality
+    onMounted(async () => {
+      // Focus first field when dialog opens
+      await nextTick()
+      const instance = getCurrentInstance()
+      if (instance && hoTenField.value) {
+        hoTenField.value.focus()
+      }
     })
 
     return {
-      mode,
-      isOpen,
       showAddPatientDialog,
       showPatientActionDialog,
       showSearchDialog,
