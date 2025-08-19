@@ -383,9 +383,10 @@
             Thông Tin Bệnh Nhân
           </v-card-title>
           <v-card-text class="pa-4">
-            <v-row class="gy-2">
-              <v-col cols="12" sm="6" md="4">
-                <v-list-item class="pa-0">
+            <v-row class="gy-1">
+              <!-- Họ tên - Full width -->
+              <v-col cols="12">
+                <v-list-item class="pa-0 mb-2">
                   <template #prepend>
                     <v-icon color="primary" size="small">mdi-account</v-icon>
                   </template>
@@ -397,20 +398,20 @@
               </v-col>
               
               <!-- Ngày sinh và Cân nặng cùng dòng -->
-              <v-col cols="12" sm="6">
+              <v-col cols="6">
                 <v-list-item class="pa-0">
                   <template #prepend>
                     <v-icon color="primary" size="small">mdi-calendar</v-icon>
                   </template>
                   <v-list-item-title class="text-caption text-grey-400 font-weight-light">Ngày Sinh / Tuổi</v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
-                    {{ formatDate(selectedPatient.ngay_sinh) }}
-                    <small class="text-success font-weight-medium ml-2">{{ formatAge(selectedPatient.ngay_sinh) }}</small>
+                    {{ formatDate(selectedPatient.ngay_sinh) }}<br>
+                    <small class="text-success font-weight-medium">{{ formatAge(selectedPatient.ngay_sinh) }}</small>
                   </v-list-item-subtitle>
                 </v-list-item>
               </v-col>
               
-              <v-col v-if="selectedPatient.can_nang" cols="12" sm="6">
+              <v-col v-if="selectedPatient.can_nang" cols="6">
                 <v-list-item class="pa-0">
                   <template #prepend>
                     <v-icon color="primary" size="small">mdi-scale</v-icon>
@@ -422,20 +423,8 @@
                 </v-list-item>
               </v-col>
               
-              <v-col v-if="selectedPatient.gioi_tinh" cols="12" sm="6">
-                <v-list-item class="pa-0">
-                  <template #prepend>
-                    <v-icon color="primary" size="small">mdi-gender-male-female</v-icon>
-                  </template>
-                  <v-list-item-title class="text-caption text-grey-400 font-weight-light">Giới Tính</v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    {{ selectedPatient.gioi_tinh }}
-                  </v-list-item-subtitle>
-                </v-list-item>
-              </v-col>
-              
               <!-- Số điện thoại và Địa chỉ cùng dòng -->
-              <v-col v-if="selectedPatient.so_dien_thoai" cols="12" sm="6">
+              <v-col v-if="selectedPatient.so_dien_thoai" cols="6">
                 <v-list-item class="pa-0">
                   <template #prepend>
                     <v-icon color="primary" size="small">mdi-phone</v-icon>
@@ -447,7 +436,7 @@
                 </v-list-item>
               </v-col>
               
-              <v-col v-if="selectedPatient.dia_chi" cols="12" sm="6">
+              <v-col v-if="selectedPatient.dia_chi" cols="6">
                 <v-list-item class="pa-0">
                   <template #prepend>
                     <v-icon color="primary" size="small">mdi-map-marker</v-icon>
