@@ -476,7 +476,7 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue'
+import { ref, onMounted, nextTick, getCurrentInstance, watch } from 'vue'
 import { patientService, waitingListService } from '../lib/supabase.js'
 
 export default {
@@ -485,12 +485,16 @@ export default {
     showAddDialog: {
       type: Boolean,
       default: false
+    },
+    patientInfoOnly: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['patient-added-to-waiting', 'show-add-dialog'],
   setup(props, { emit }) {
-    const showAddPatientDialog = ref(false)
-    const showPatientActionDialog = ref(false)
+    const showAddPatientDialog = ref(props.showAddDialog)
+    const showPatientActionDialog = ref(props.showAddDialog)
     const showSearchDialog = ref(false)
     const searchQuery = ref('')
     const searchResults = ref([])
@@ -511,25 +515,14 @@ export default {
       so_dien_thoai: ''
     })
 
-    // Simple reset function - reset before open
-    const resetDialogs = () => {
-      showPatientActionDialog.value = false
-      showAddPatientDialog.value = false
-      showSearchDialog.value = false
-    }
-
-    // Safe dialog opening
-    const openReceptionDialog = () => {
-      resetDialogs() // reset trước khi mở
-      showPatientActionDialog.value = true
-    }
-
     // Watch for props changes to show dialog
     watch(() => props.showAddDialog, (newVal, oldVal) => {
       console.log('showAddDialog changed:', oldVal, '->', newVal)
       if (newVal && !oldVal) {
-        // Use safe dialog opening
-        openReceptionDialog()
+        // Only open when changing from false to true
+        showPatientActionDialog.value = true
+        showAddPatientDialog.value = false
+        showSearchDialog.value = false
       }
     })
 
@@ -540,7 +533,9 @@ export default {
 
     const closeAddPatientDialog = () => {
       console.log('Closing dialogs...')
-      resetDialogs() // Use reset function
+      showAddPatientDialog.value = false
+      showPatientActionDialog.value = false
+      showSearchDialog.value = false
       
       // Reset all data
       newPatient.value = {
@@ -790,16 +785,6 @@ export default {
       showSearchDialog.value = true
     }
 
-    // Original onMounted functionality
-    onMounted(async () => {
-      // Focus first field when dialog opens
-      await nextTick()
-      const instance = getCurrentInstance()
-      if (instance && hoTenField.value) {
-        hoTenField.value.focus()
-      }
-    })
-
     return {
       showAddPatientDialog,
       showPatientActionDialog,
@@ -833,9 +818,7 @@ export default {
       formatFromDB,
       formatToDB,
       openAddPatient,
-      openSearchPatient,
-      resetDialogs,
-      openReceptionDialog
+      openSearchPatient
     }
   }
 }
