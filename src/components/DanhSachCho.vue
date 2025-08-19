@@ -13,7 +13,7 @@
     </v-card>
 
     <!-- Modern List View -->
-    <v-card v-if="waitingList.length > 0" elevation="2" class="rounded-lg">
+    <v-card v-if="waitingList.length > 0" elevation="0" class="border-top">
       <!-- Table Header -->
       <v-card-title class="pa-4 d-flex align-center">
         <h3 class="text-h6">Danh Sách Chờ Khám</h3>
@@ -82,15 +82,15 @@
       </v-table>
 
       <!-- Mobile Cards List -->
-      <div v-else class="mobile-waiting-list pa-3">
+      <div v-else class="mobile-waiting-list pa-0">
         <v-card
           v-for="(patient, index) in waitingList"
           :key="patient.id"
-          class="mb-3"
-          elevation="1"
-          variant="outlined"
+          class="border-b"
+          elevation="0"
+          variant="flat"
         >
-          <v-card-text class="pa-3">
+          <v-card-text class="px-4 py-3">
             <div class="d-flex align-center mb-2">
               <v-chip color="primary" size="small" class="mr-2">{{ index + 1 }}</v-chip>
               <div class="text-subtitle-1 font-weight-medium flex-grow-1">{{ patient.ho_ten }}</div>

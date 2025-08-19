@@ -182,7 +182,7 @@
         </v-tab>
       </v-tabs>
 
-      <v-container fluid :class="$vuetify.display.mobile ? 'pa-2' : 'pa-6'">
+      <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
         <!-- Tab Content -->
         <div v-if="currentTab === 'tieptan'">
           <!-- Title and Action Button - Mobile Optimized -->
@@ -220,7 +220,7 @@
         
         <div v-else-if="currentTab === 'danhsachcho'">
           <!-- Mobile Title -->
-          <div v-if="$vuetify.display.mobile" class="mb-4">
+          <div v-if="$vuetify.display.mobile" class="mb-4 px-4 pt-4">
             <h2 class="text-h6 font-weight-bold text-primary mb-1">Danh Sách Chờ Khám</h2>
             <p class="text-caption text-grey-600 mb-3">{{ waitingCount }} bệnh nhân đang chờ</p>
           </div>
