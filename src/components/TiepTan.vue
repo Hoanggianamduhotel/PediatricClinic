@@ -516,12 +516,11 @@ export default {
     })
 
     // Watch for props changes to show dialog
-    watch(() => props.showAddDialog, (newVal) => {
-      if (newVal) {
+    watch(() => props.showAddDialog, (newVal, oldVal) => {
+      console.log('showAddDialog changed:', oldVal, '->', newVal)
+      if (newVal && !oldVal) {
+        // Only open when changing from false to true
         showPatientActionDialog.value = true
-      } else {
-        // Close all dialogs when prop is false
-        showPatientActionDialog.value = false
         showAddPatientDialog.value = false
         showSearchDialog.value = false
       }
@@ -533,10 +532,10 @@ export default {
     }
 
     const closeAddPatientDialog = () => {
+      console.log('Closing dialogs...')
       showAddPatientDialog.value = false
       showPatientActionDialog.value = false
       showSearchDialog.value = false
-      emit('show-add-dialog', false)
       
       // Reset all data
       newPatient.value = {
@@ -551,6 +550,9 @@ export default {
       searchQuery.value = ''
       searchResults.value = []
       selectedPatient.value = null
+      
+      // Emit to parent to reset state
+      emit('show-add-dialog', false)
     }
 
     // Template refs for fields

@@ -493,12 +493,17 @@ export default {
     }
 
     const openTiepTanDialog = () => {
+      console.log('Opening dialog, current state:', showAddPatientDialog.value)
       showAddPatientDialog.value = true
+      console.log('Dialog state after opening:', showAddPatientDialog.value)
     }
 
     // Watch for tab changes to reset dialog state
-    watch(currentTab, () => {
-      showAddPatientDialog.value = false
+    watch(currentTab, (newTab, oldTab) => {
+      console.log('Tab changed:', oldTab, '->', newTab)
+      if (oldTab && newTab !== oldTab) {
+        showAddPatientDialog.value = false
+      }
     })
 
     onMounted(() => {
