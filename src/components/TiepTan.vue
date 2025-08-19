@@ -519,6 +519,11 @@ export default {
     watch(() => props.showAddDialog, (newVal) => {
       if (newVal) {
         showPatientActionDialog.value = true
+      } else {
+        // Close all dialogs when prop is false
+        showPatientActionDialog.value = false
+        showAddPatientDialog.value = false
+        showSearchDialog.value = false
       }
     })
 
@@ -530,7 +535,10 @@ export default {
     const closeAddPatientDialog = () => {
       showAddPatientDialog.value = false
       showPatientActionDialog.value = false
+      showSearchDialog.value = false
       emit('show-add-dialog', false)
+      
+      // Reset all data
       newPatient.value = {
         ho_ten: '',
         ngay_sinh: '',
@@ -540,6 +548,9 @@ export default {
         so_dien_thoai: ''
       }
       displayNgaySinh.value = ''
+      searchQuery.value = ''
+      searchResults.value = []
+      selectedPatient.value = null
     }
 
     // Template refs for fields

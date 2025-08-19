@@ -408,7 +408,7 @@
 </style>
 
 <script>
-import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance, watch } from 'vue'
 import TiepTan from './components/TiepTan.vue'
 import DanhSachCho from './components/DanhSachCho.vue'
 import ThongKe from './components/ThongKe.vue'
@@ -495,6 +495,11 @@ export default {
     const openTiepTanDialog = () => {
       showAddPatientDialog.value = true
     }
+
+    // Watch for tab changes to reset dialog state
+    watch(currentTab, () => {
+      showAddPatientDialog.value = false
+    })
 
     onMounted(() => {
       updateDateTime()
