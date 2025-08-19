@@ -515,24 +515,14 @@ export default {
       so_dien_thoai: ''
     })
 
-    // Simple reset pattern for dialogs
-    const resetAllDialogs = () => {
-      showPatientActionDialog.value = false
-      showAddPatientDialog.value = false
-      showSearchDialog.value = false
-      selectedPatient.value = null
-      searchQuery.value = ''
-      searchResults.value = []
-    }
-
     // Watch for props changes to show dialog
     watch(() => props.showAddDialog, (newVal, oldVal) => {
+      console.log('showAddDialog changed:', oldVal, '->', newVal)
       if (newVal && !oldVal) {
-        // Reset all dialogs first, then open main dialog
-        resetAllDialogs()
+        // Only open when changing from false to true
         showPatientActionDialog.value = true
-      } else if (!newVal) {
-        resetAllDialogs()
+        showAddPatientDialog.value = false
+        showSearchDialog.value = false
       }
     })
 
@@ -542,10 +532,12 @@ export default {
     }
 
     const closeAddPatientDialog = () => {
-      // Use reset pattern
-      resetAllDialogs()
+      console.log('Closing dialogs...')
+      showAddPatientDialog.value = false
+      showPatientActionDialog.value = false
+      showSearchDialog.value = false
       
-      // Reset form data
+      // Reset all data
       newPatient.value = {
         ho_ten: '',
         ngay_sinh: '',
@@ -555,6 +547,9 @@ export default {
         so_dien_thoai: ''
       }
       displayNgaySinh.value = ''
+      searchQuery.value = ''
+      searchResults.value = []
+      selectedPatient.value = null
       
       // Emit to parent to reset state
       emit('show-add-dialog', false)
@@ -811,7 +806,6 @@ export default {
       canNangField,
       displayMessage,
       closeAddPatientDialog,
-      resetAllDialogs,
       addPatient,
       searchPatients,
       selectPatient,
