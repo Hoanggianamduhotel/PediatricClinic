@@ -268,9 +268,9 @@
         </v-card-title>
         
         <v-form @submit.prevent="addPatient" ref="patientForm">
-          <v-card-text class="pa-6">
-            <v-row>
-              <v-col cols="12">
+          <v-card-text class="pa-3">
+            <v-row class="gy-1">
+              <v-col cols="12" class="pb-1">
                 <v-text-field
                   v-model="newPatient.ho_ten"
                   label="Họ Tên *"
@@ -282,10 +282,12 @@
                   ref="hoTenField"
                   @input="capitalizePatientName"
                   @keydown.enter.prevent="focusNext('ngaySinhField')"
+                  density="compact"
+                  hide-details="auto"
                 />
               </v-col>
               
-              <v-col cols="12" sm="6">
+              <v-col cols="12" class="pb-1">
                 <v-text-field
                   v-model="displayNgaySinh"
                   label="Ngày Sinh"
@@ -295,23 +297,26 @@
                   ref="ngaySinhField"
                   @input="formatNgaySinhInput"
                   @keydown.enter.prevent="focusNext('diaChiField')"
+                  density="compact"
+                  hide-details="auto"
                 />
               </v-col>
               
-              <v-col cols="12">
-                <v-textarea
+              <v-col cols="12" class="pb-1">
+                <v-text-field
                   v-model="newPatient.dia_chi"
                   label="Địa Chỉ"
                   variant="outlined"
                   placeholder="Nhập địa chỉ đầy đủ"
                   prepend-inner-icon="mdi-map-marker"
-                  rows="2"
                   ref="diaChiField"
                   @keydown.enter.prevent="focusNext('soDienThoaiField')"
+                  density="compact"
+                  hide-details="auto"
                 />
               </v-col>
               
-              <v-col cols="12" sm="6">
+              <v-col cols="12" class="pb-1">
                 <v-text-field
                   v-model="newPatient.so_dien_thoai"
                   label="Số Điện Thoại"
@@ -321,10 +326,12 @@
                   prepend-inner-icon="mdi-phone"
                   ref="soDienThoaiField"
                   @keydown.enter.prevent="focusNext('canNangField')"
+                  density="compact"
+                  hide-details="auto"
                 />
               </v-col>
               
-              <v-col cols="12" sm="6">
+              <v-col cols="6" class="pb-1">
                 <v-text-field
                   v-model="newPatient.can_nang"
                   label="Cân Nặng (kg)"
@@ -335,10 +342,12 @@
                   prepend-inner-icon="mdi-scale"
                   ref="canNangField"
                   @keydown.enter.prevent="focusNext('submit')"
+                  density="compact"
+                  hide-details="auto"
                 />
               </v-col>
               
-              <v-col cols="12">
+              <v-col cols="6" class="pb-1">
                 <v-select
                   v-model="newPatient.gioi_tinh"
                   label="Giới Tính"
@@ -347,12 +356,14 @@
                   prepend-inner-icon="mdi-gender-male-female"
                   clearable
                   ref="gioiTinhField"
+                  density="compact"
+                  hide-details="auto"
                 />
               </v-col>
             </v-row>
           </v-card-text>
           
-          <v-card-actions class="pa-6 pt-0">
+          <v-card-actions class="pa-3 pt-0">
             <v-spacer />
             <v-btn 
               @click="closeAddPatientDialog" 
