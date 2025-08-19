@@ -166,7 +166,7 @@
         bg-color="white"
         color="primary"
         align-tabs="center"
-        style="position: sticky; top: 59px; z-index: 100;"
+        style="position: sticky; top: 59px; z-index: 1000;"
       >
         <v-tab value="tieptan">
           <v-icon start>mdi-account-plus</v-icon>
@@ -232,9 +232,13 @@
           </div>
         </div>
         
-        <div v-else-if="currentTab === 'danhsachcho'">
-          <!-- Mobile Title -->
-          <div v-if="$vuetify.display.mobile" class="px-4 py-1 bg-warning">
+        <div v-else-if="currentTab === 'danhsachcho'" class="position-relative">
+          <!-- Mobile Title - Sticky Header -->
+          <div 
+            v-if="$vuetify.display.mobile" 
+            class="px-4 py-1 bg-warning position-sticky waiting-list-header"
+            style="top: 107px; z-index: 1001;"
+          >
             <div class="d-flex justify-space-between align-center">
               <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
               <v-chip color="primary" variant="tonal" size="small">
@@ -251,7 +255,9 @@
             :show-add-dialog="showAddPatientDialog"
           />
           
-          <DanhSachCho @waiting-list-changed="updateWaitingCount" />
+          <div class="waiting-list-container">
+            <DanhSachCho @waiting-list-changed="updateWaitingCount" />
+          </div>
         </div>
         
         <div v-else-if="currentTab === 'thongke'">
@@ -378,6 +384,18 @@
 .v-navigation-drawer__content::-webkit-scrollbar-thumb {
   background: rgba(0,0,0,0.2);
   border-radius: 2px;
+}
+
+/* Sticky Waiting List Header */
+.waiting-list-header {
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Scrollable container for waiting list */
+.waiting-list-container {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
 }
 </style>
 
