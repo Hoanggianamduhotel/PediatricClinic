@@ -1,10 +1,7 @@
 <template>
   <div class="danh-sach-cho">
-
-
     <!-- Modern List View -->
-    <v-card v-if="waitingList.length > 0" elevation="0" class="border-top">
-      <v-divider />
+    <v-card v-if="waitingList.length > 0" elevation="0" class="mt-0">
 
       <!-- Desktop Table -->
       <v-table v-if="!$vuetify.display.mobile" class="clean-table">
@@ -63,7 +60,7 @@
       </v-table>
 
       <!-- Mobile Cards List -->
-      <div v-else class="mobile-waiting-list pa-0">
+      <div v-else class="mobile-waiting-list pa-0 mt-0">
         <v-card
           v-for="(patient, index) in waitingList"
           :key="patient.id"
@@ -71,7 +68,7 @@
           elevation="0"
           variant="flat"
         >
-          <v-card-text class="px-4 py-2">
+          <v-card-text class="px-4 py-1">
             <div class="d-flex align-center mb-1">
               <v-chip color="primary" size="small" class="mr-2 text-caption">{{ index + 1 }}</v-chip>
               <div class="text-body-1 font-weight-medium flex-grow-1">{{ patient.ho_ten }}</div>
