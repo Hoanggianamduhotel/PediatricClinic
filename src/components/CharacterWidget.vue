@@ -189,10 +189,10 @@ export default {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .mascot-image {
-    width: 12vw;
-    height: 12vw;
-    min-width: 60px;
-    min-height: 50px;
+    width: 30vw;
+    height: 30vw;
+    min-width: 150px;
+    min-height: 125px;
   }
   
   .character-widget {
@@ -204,10 +204,10 @@ export default {
 
 @media (max-width: 480px) {
   .mascot-image {
-    width: 15vw;
-    height: 15vw;
-    min-width: 50px;
-    min-height: 40px;
+    width: 37.5vw;
+    height: 37.5vw;
+    min-width: 125px;
+    min-height: 100px;
   }
 }
 </style>
