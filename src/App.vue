@@ -234,15 +234,15 @@
       </div>
       
       <div v-else-if="currentTab === 'danhsachcho'">
-        <!-- Mobile Dynamic Title Header -->
+        <!-- Mobile Dynamic Title Header - Fixed position under tabs -->
         <div 
           v-if="$vuetify.display.mobile" 
           class="waiting-title-header position-fixed"
           :class="{ 'scrolled': isScrolled }"
           :style="{ 
-            top: isScrolled ? '59px' : '59px',
+            top: '59px', 
             height: isScrolled ? '3px' : '48px',
-            zIndex: 1001
+            zIndex: 999
           }"
         >
           <div 
@@ -258,10 +258,22 @@
           </div>
         </div>
         
+        <!-- Scrollable content with proper padding -->
+        <div 
+          v-if="$vuetify.display.mobile"
+          class="mobile-scroll-container"
+          @scroll="handleScrollMobile"
+          ref="mobileScrollContainer"
+        >
+          <div class="scroll-content" style="padding-top: 107px;">
+            <DanhSachCho @waiting-list-changed="updateWaitingCount" />
+          </div>
+        </div>
+        
         <v-container 
+          v-else
           fluid 
-          :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'"
-          :style="$vuetify.display.mobile ? 'padding-top: 107px;' : ''"
+          class="pa-6"
         >
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
         </v-container>
@@ -400,7 +412,18 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Waiting List Dynamic Header - Simple approach */
+/* Mobile scroll container */
+.mobile-scroll-container {
+  position: fixed;
+  top: 107px; /* Under header + tabs */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Waiting List Dynamic Header */
 .waiting-title-header {
   background: #fb8c00; /* warning color */
   width: 100%;
@@ -446,6 +469,7 @@ export default {
     const showMascot = ref(true)
     const waitingListKey = ref(0)
     const isScrolled = ref(false)
+    const mobileScrollContainer = ref(null)
     let timeInterval = null
 
     const updateDateTime = () => {
@@ -517,7 +541,13 @@ export default {
       }
     })
 
-    // Handle scroll for dynamic header - simpler approach
+    // Handle scroll for dynamic header - mobile container scroll
+    const handleScrollMobile = (event) => {
+      const scrollTop = event.target.scrollTop
+      isScrolled.value = scrollTop > 10
+    }
+    
+    // Keep window scroll handler as fallback
     const handleScroll = () => {
       isScrolled.value = window.scrollY > 10
     }
@@ -552,6 +582,8 @@ export default {
       waitingListKey,
       danhSachChoRef,
       isScrolled,
+      mobileScrollContainer,
+      handleScrollMobile,
       updateWaitingCount,
       toggleTheme,
       handleMascotClick,
