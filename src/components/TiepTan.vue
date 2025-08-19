@@ -476,17 +476,13 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick, getCurrentInstance, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { patientService, waitingListService } from '../lib/supabase.js'
 
 export default {
   name: 'TiepTan',
   props: {
     showAddDialog: {
-      type: Boolean,
-      default: false
-    },
-    patientInfoOnly: {
       type: Boolean,
       default: false
     }
@@ -515,16 +511,25 @@ export default {
       so_dien_thoai: ''
     })
 
+    // Simple reset function - reset before open
+    const resetDialogs = () => {
+      showPatientActionDialog.value = false
+      showAddPatientDialog.value = false
+      showSearchDialog.value = false
+    }
 
+    // Safe dialog opening
+    const openReceptionDialog = () => {
+      resetDialogs() // reset trước khi mở
+      showPatientActionDialog.value = true
+    }
 
     // Watch for props changes to show dialog
     watch(() => props.showAddDialog, (newVal, oldVal) => {
       console.log('showAddDialog changed:', oldVal, '->', newVal)
       if (newVal && !oldVal) {
-        // Only open when changing from false to true
-        showPatientActionDialog.value = true
-        showAddPatientDialog.value = false
-        showSearchDialog.value = false
+        // Use safe dialog opening
+        openReceptionDialog()
       }
     })
 
@@ -535,9 +540,7 @@ export default {
 
     const closeAddPatientDialog = () => {
       console.log('Closing dialogs...')
-      showAddPatientDialog.value = false
-      showPatientActionDialog.value = false
-      showSearchDialog.value = false
+      resetDialogs() // Use reset function
       
       // Reset all data
       newPatient.value = {
@@ -830,7 +833,9 @@ export default {
       formatFromDB,
       formatToDB,
       openAddPatient,
-      openSearchPatient
+      openSearchPatient,
+      resetDialogs,
+      openReceptionDialog
     }
   }
 }
