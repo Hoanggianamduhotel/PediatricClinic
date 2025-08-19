@@ -105,22 +105,27 @@
             </div>
             
             <div class="compact-info text-body-2">
+              <!-- Tuổi và Cân nặng cùng dòng trên -->
               <div class="d-flex justify-space-between mb-1">
-                <span><span class="text-grey-600">Ngày sinh:</span> {{ formatDateShort(patient.ngay_sinh) }}</span>
                 <span><span class="text-grey-600">Tuổi:</span> 
                   <span v-if="patient.ngay_sinh">{{ formatAge(patient.ngay_sinh) }}</span>
                   <span v-else class="text-grey-500">Chưa rõ</span>
                 </span>
-              </div>
-              <div class="d-flex justify-space-between">
                 <span><span class="text-grey-600">Cân nặng:</span> 
                   <span v-if="patient.can_nang">{{ patient.can_nang }} kg</span>
                   <span v-else class="text-grey-500">-</span>
                 </span>
-                <span><span class="text-grey-600">Điện thoại:</span> 
+              </div>
+              <!-- SDT một dòng -->
+              <div class="mb-1">
+                <span><span class="text-grey-600">SDT:</span> 
                   <span v-if="patient.so_dien_thoai">{{ patient.so_dien_thoai }}</span>
                   <span v-else class="text-grey-500">-</span>
                 </span>
+              </div>
+              <!-- Ngày sinh một dòng -->
+              <div>
+                <span><span class="text-grey-600">Sinh:</span> {{ formatDateShort(patient.ngay_sinh) }}</span>
               </div>
             </div>
           </v-card-text>
@@ -259,9 +264,9 @@ export default {
         totalMonths--
       }
       
-      // For children under 36 months, show months
+      // For children under 36 months (3 years), show months only
       if (totalMonths < 36) {
-        return `${totalMonths} tháng tuổi`
+        return `${totalMonths} tháng`
       }
       
       // For children over 36 months, show years with 0.5 precision
