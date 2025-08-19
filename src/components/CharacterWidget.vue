@@ -66,24 +66,37 @@ export default {
       }
     }
 
-    // Drag functionality
+    // Drag functionality with touch support
     const startDrag = (e) => {
       isDragging = false
       const rect = draggableElement.value.getBoundingClientRect()
-      dragOffset.x = e.clientX - rect.left
-      dragOffset.y = e.clientY - rect.top
+      
+      // Handle both mouse and touch events
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX)
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY)
+      
+      dragOffset.x = clientX - rect.left
+      dragOffset.y = clientY - rect.top
       
       document.addEventListener('mousemove', drag)
       document.addEventListener('mouseup', stopDrag)
+      document.addEventListener('touchmove', drag, { passive: false })
+      document.addEventListener('touchend', stopDrag)
     }
 
     const drag = (e) => {
+      e.preventDefault() // Prevent scrolling on touch
+      
       if (!isDragging) {
         isDragging = true
       }
       
-      const x = e.clientX - dragOffset.x
-      const y = e.clientY - dragOffset.y
+      // Handle both mouse and touch events
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX)
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY)
+      
+      const x = clientX - dragOffset.x
+      const y = clientY - dragOffset.y
       
       // Keep widget within viewport bounds
       const maxX = window.innerWidth - draggableElement.value.offsetWidth
@@ -99,6 +112,8 @@ export default {
     const stopDrag = () => {
       document.removeEventListener('mousemove', drag)
       document.removeEventListener('mouseup', stopDrag)
+      document.removeEventListener('touchmove', drag)
+      document.removeEventListener('touchend', stopDrag)
       
       // Reset dragging flag after a short delay to prevent click event
       setTimeout(() => {
@@ -112,9 +127,10 @@ export default {
         currentIndex.value = (currentIndex.value + 1) % images.length
       }, 10000)
 
-      // Add drag event listeners
+      // Add drag event listeners for both mouse and touch
       if (draggableElement.value) {
         draggableElement.value.addEventListener('mousedown', startDrag)
+        draggableElement.value.addEventListener('touchstart', startDrag, { passive: false })
       }
     })
 
@@ -126,6 +142,8 @@ export default {
       // Clean up drag event listeners
       document.removeEventListener('mousemove', drag)
       document.removeEventListener('mouseup', stopDrag)
+      document.removeEventListener('touchmove', drag)
+      document.removeEventListener('touchend', stopDrag)
     })
 
     return {
