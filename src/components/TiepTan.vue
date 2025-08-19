@@ -382,15 +382,15 @@
             <v-icon start>mdi-account-details</v-icon>
             Thông Tin Bệnh Nhân
           </v-card-title>
-          <v-card-text class="pa-6">
+          <v-card-text class="pa-4">
             <v-row>
               <v-col cols="12" sm="6" md="4">
                 <v-list-item class="pa-0">
                   <template #prepend>
-                    <v-icon color="primary">mdi-account</v-icon>
+                    <v-icon color="primary" size="small">mdi-account</v-icon>
                   </template>
-                  <v-list-item-title class="text-caption text-grey-600">Họ Tên</v-list-item-title>
-                  <v-list-item-subtitle class="text-h6 font-weight-medium">
+                  <v-list-item-title class="text-caption text-grey-400 font-weight-light">Họ Tên</v-list-item-title>
+                  <v-list-item-subtitle class="text-body-1 font-weight-medium">
                     {{ selectedPatient.ho_ten }}
                   </v-list-item-subtitle>
                 </v-list-item>
@@ -399,10 +399,10 @@
               <v-col v-if="selectedPatient.ngay_sinh" cols="12" sm="6" md="4">
                 <v-list-item class="pa-0">
                   <template #prepend>
-                    <v-icon color="primary">mdi-calendar</v-icon>
+                    <v-icon color="primary" size="small">mdi-calendar</v-icon>
                   </template>
-                  <v-list-item-title class="text-caption text-grey-600">Ngày Sinh / Tuổi</v-list-item-title>
-                  <v-list-item-subtitle class="text-body-1">
+                  <v-list-item-title class="text-caption text-grey-400 font-weight-light">Ngày Sinh / Tuổi</v-list-item-title>
+                  <v-list-item-subtitle class="text-caption">
                     {{ formatDate(selectedPatient.ngay_sinh) }}
                     <br>
                     <small class="text-success font-weight-medium">{{ formatAge(selectedPatient.ngay_sinh) }}</small>
@@ -413,10 +413,10 @@
               <v-col v-if="selectedPatient.gioi_tinh" cols="12" sm="6" md="4">
                 <v-list-item class="pa-0">
                   <template #prepend>
-                    <v-icon color="primary">mdi-gender-male-female</v-icon>
+                    <v-icon color="primary" size="small">mdi-gender-male-female</v-icon>
                   </template>
-                  <v-list-item-title class="text-caption text-grey-600">Giới Tính</v-list-item-title>
-                  <v-list-item-subtitle class="text-body-1">
+                  <v-list-item-title class="text-caption text-grey-400 font-weight-light">Giới Tính</v-list-item-title>
+                  <v-list-item-subtitle class="text-caption">
                     {{ selectedPatient.gioi_tinh }}
                   </v-list-item-subtitle>
                 </v-list-item>
@@ -425,10 +425,10 @@
               <v-col v-if="selectedPatient.can_nang" cols="12" sm="6" md="4">
                 <v-list-item class="pa-0">
                   <template #prepend>
-                    <v-icon color="primary">mdi-scale</v-icon>
+                    <v-icon color="primary" size="small">mdi-scale</v-icon>
                   </template>
-                  <v-list-item-title class="text-caption text-grey-600">Cân Nặng</v-list-item-title>
-                  <v-list-item-subtitle class="text-body-1">
+                  <v-list-item-title class="text-caption text-grey-400 font-weight-light">Cân Nặng</v-list-item-title>
+                  <v-list-item-subtitle class="text-caption">
                     {{ selectedPatient.can_nang }} kg
                   </v-list-item-subtitle>
                 </v-list-item>
@@ -437,10 +437,10 @@
               <v-col v-if="selectedPatient.so_dien_thoai" cols="12" sm="6" md="4">
                 <v-list-item class="pa-0">
                   <template #prepend>
-                    <v-icon color="primary">mdi-phone</v-icon>
+                    <v-icon color="primary" size="small">mdi-phone</v-icon>
                   </template>
-                  <v-list-item-title class="text-caption text-grey-600">Số Điện Thoại</v-list-item-title>
-                  <v-list-item-subtitle class="text-body-1">
+                  <v-list-item-title class="text-caption text-grey-400 font-weight-light">Số Điện Thoại</v-list-item-title>
+                  <v-list-item-subtitle class="text-caption">
                     {{ selectedPatient.so_dien_thoai }}
                   </v-list-item-subtitle>
                 </v-list-item>
@@ -449,17 +449,17 @@
               <v-col v-if="selectedPatient.dia_chi" cols="12">
                 <v-list-item class="pa-0">
                   <template #prepend>
-                    <v-icon color="primary">mdi-map-marker</v-icon>
+                    <v-icon color="primary" size="small">mdi-map-marker</v-icon>
                   </template>
-                  <v-list-item-title class="text-caption text-grey-600">Địa Chỉ</v-list-item-title>
-                  <v-list-item-subtitle class="text-body-1">
+                  <v-list-item-title class="text-caption text-grey-400 font-weight-light">Địa Chỉ</v-list-item-title>
+                  <v-list-item-subtitle class="text-caption">
                     {{ selectedPatient.dia_chi }}
                   </v-list-item-subtitle>
                 </v-list-item>
               </v-col>
             </v-row>
           </v-card-text>
-          <v-card-actions class="pa-6 pt-0">
+          <v-card-actions class="pa-4 pt-0">
             <v-btn 
               @click="addToWaitingList(selectedPatient)"
               :loading="isAddingToWaitingList"

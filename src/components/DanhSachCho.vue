@@ -90,10 +90,10 @@
           elevation="0"
           variant="flat"
         >
-          <v-card-text class="px-4 py-3">
-            <div class="d-flex align-center mb-2">
-              <v-chip color="primary" size="small" class="mr-2">{{ index + 1 }}</v-chip>
-              <div class="text-subtitle-1 font-weight-medium flex-grow-1">{{ patient.ho_ten }}</div>
+          <v-card-text class="px-4 py-2">
+            <div class="d-flex align-center mb-1">
+              <v-chip color="primary" size="small" class="mr-2 text-caption">{{ index + 1 }}</v-chip>
+              <div class="text-body-1 font-weight-medium flex-grow-1">{{ patient.ho_ten }}</div>
               <v-btn
                 @click="removeFromList(patient)"
                 :loading="removing === patient.id"
@@ -104,28 +104,28 @@
               />
             </div>
             
-            <div class="compact-info text-body-2">
+            <div class="compact-info text-caption">
               <!-- Tuổi và Cân nặng cùng dòng trên -->
               <div class="d-flex justify-space-between mb-1">
-                <span><span class="text-grey-600">Tuổi:</span> 
+                <span><span class="text-grey-400 font-weight-light">Tuổi:</span> 
                   <span v-if="patient.ngay_sinh">{{ formatAge(patient.ngay_sinh) }}</span>
                   <span v-else class="text-grey-500">Chưa rõ</span>
                 </span>
-                <span><span class="text-grey-600">Cân nặng:</span> 
+                <span><span class="text-grey-400 font-weight-light">Cân nặng:</span> 
                   <span v-if="patient.can_nang">{{ patient.can_nang }} kg</span>
                   <span v-else class="text-grey-500">-</span>
                 </span>
               </div>
               <!-- SDT một dòng -->
               <div class="mb-1">
-                <span><span class="text-grey-600">SDT:</span> 
+                <span><span class="text-grey-400 font-weight-light">SDT:</span> 
                   <span v-if="patient.so_dien_thoai">{{ patient.so_dien_thoai }}</span>
                   <span v-else class="text-grey-500">-</span>
                 </span>
               </div>
               <!-- Ngày sinh một dòng -->
               <div>
-                <span><span class="text-grey-600">Sinh:</span> {{ formatDateShort(patient.ngay_sinh) }}</span>
+                <span><span class="text-grey-400 font-weight-light">Sinh:</span> {{ formatDateShort(patient.ngay_sinh) }}</span>
               </div>
             </div>
           </v-card-text>
