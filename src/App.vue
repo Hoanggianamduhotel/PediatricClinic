@@ -166,7 +166,7 @@
         bg-color="white"
         color="primary"
         align-tabs="center"
-        style="position: sticky; top: 59px; z-index: 999;"
+        style="position: sticky; top: 59px; z-index: 1000;"
       >
         <v-tab value="tieptan">
           <v-icon start>mdi-account-plus</v-icon>
@@ -238,7 +238,7 @@
         <div 
           v-if="$vuetify.display.mobile" 
           class="px-4 py-2 bg-warning position-sticky waiting-list-header"
-          style="top: 107px; z-index: 1000;"
+          style="top: 59px; z-index: 1001;"
         >
           <div class="d-flex justify-space-between align-center">
             <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
@@ -248,19 +248,16 @@
           </div>
         </div>
         
-        <!-- Scrollable Content -->
-        <div class="scrollable-content">
-          <!-- Selected Patient Details moved up before waiting list -->
-          <TiepTan 
-            :patient-info-only="true"
-            @patient-added-to-waiting="handlePatientAdded" 
-            @show-add-dialog="showAddPatientDialog = $event"
-            :show-add-dialog="showAddPatientDialog"
-          />
-          
-          <div class="waiting-list-container pa-0">
-            <DanhSachCho @waiting-list-changed="updateWaitingCount" />
-          </div>
+        <!-- Selected Patient Details moved up before waiting list -->
+        <TiepTan 
+          :patient-info-only="true"
+          @patient-added-to-waiting="handlePatientAdded" 
+          @show-add-dialog="showAddPatientDialog = $event"
+          :show-add-dialog="showAddPatientDialog"
+        />
+        
+        <div class="waiting-list-container pa-0">
+          <DanhSachCho @waiting-list-changed="updateWaitingCount" />
         </div>
       </div>
       
@@ -400,14 +397,8 @@
 /* Waiting List Tab Layout */
 .waiting-list-tab {
   height: calc(100vh - 107px);
-  overflow: hidden;
-  position: relative;
-}
-
-.scrollable-content {
-  height: 100%;
   overflow-y: auto;
-  padding-top: 44px; /* Height of sticky header */
+  position: relative;
 }
 
 /* Scrollable container for waiting list */
