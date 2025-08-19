@@ -234,22 +234,10 @@
       </div>
       
       <div v-else-if="currentTab === 'danhsachcho'">
-        <!-- Mobile Dynamic Title Header - Fixed position under tabs -->
-        <div 
-          v-if="$vuetify.display.mobile" 
-          class="waiting-title-header position-fixed"
-          :class="{ 'scrolled': isScrolled }"
-          :style="{ 
-            top: '59px', 
-            height: isScrolled ? '3px' : '48px',
-            zIndex: 999
-          }"
-        >
-          <div 
-            class="title-content d-flex justify-space-between align-center pa-4"
-            :class="{ 'opacity-0': isScrolled }"
-          >
-            <h2 class="title-text text-subtitle-1 font-weight-bold text-black ma-0">
+        <!-- Simple Fixed Title Header -->
+        <div v-if="$vuetify.display.mobile" class="waiting-list-simple-header">
+          <div class="d-flex justify-space-between align-center px-4 py-2">
+            <h2 class="text-body-1 font-weight-bold text-black ma-0">
               Danh Sách Chờ Khám
             </h2>
             <v-chip color="primary" variant="tonal" size="small">
@@ -258,22 +246,9 @@
           </div>
         </div>
         
-        <!-- Scrollable content with proper padding -->
-        <div 
-          v-if="$vuetify.display.mobile"
-          class="mobile-scroll-container"
-          @scroll="handleScrollMobile"
-          ref="mobileScrollContainer"
-        >
-          <div class="scroll-content" style="padding-top: 107px;">
-            <DanhSachCho @waiting-list-changed="updateWaitingCount" />
-          </div>
-        </div>
-        
         <v-container 
-          v-else
           fluid 
-          class="pa-6"
+          :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'"
         >
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
         </v-container>
@@ -412,31 +387,12 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Mobile scroll container */
-.mobile-scroll-container {
-  position: fixed;
-  top: 107px; /* Under header + tabs */
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Waiting List Dynamic Header */
-.waiting-title-header {
-  background: #ffc107; /* yellow color */
-  width: 100%;
-  left: 0;
-  transition: all 0.3s ease-in-out;
-}
-
-.waiting-title-header.scrolled {
-  background: #ffc107; /* Keep yellow background when scrolled */
-}
-
-.waiting-title-header .title-content {
-  transition: opacity 0.3s ease-in-out;
+/* Simple Fixed Title Header */
+.waiting-list-simple-header {
+  background: #ffc107; /* yellow background */
+  height: 35px; /* 60% of tab navigation height (~59px) */
+  display: flex;
+  align-items: center;
 }
 </style>
 
@@ -468,8 +424,6 @@ export default {
     const currentRole = ref('doctor') // 'doctor' or 'pharmacist'
     const showMascot = ref(true)
     const waitingListKey = ref(0)
-    const isScrolled = ref(false)
-    const mobileScrollContainer = ref(null)
     let timeInterval = null
 
     const updateDateTime = () => {
@@ -541,31 +495,18 @@ export default {
       }
     })
 
-    // Handle scroll for dynamic header - mobile container scroll
-    const handleScrollMobile = (event) => {
-      const scrollTop = event.target.scrollTop
-      isScrolled.value = scrollTop > 10
-    }
-    
-    // Keep window scroll handler as fallback
-    const handleScroll = () => {
-      isScrolled.value = window.scrollY > 10
-    }
+    // Removed scroll handlers - using simple static header
 
     onMounted(() => {
       updateDateTime()
       updateWaitingCount()
       timeInterval = setInterval(updateDateTime, 60000) // Update every minute
-      // Add scroll listener for mobile dynamic header
-      window.addEventListener('scroll', handleScroll)
     })
 
     onUnmounted(() => {
       if (timeInterval) {
         clearInterval(timeInterval)
       }
-      // Remove scroll listener
-      window.removeEventListener('scroll', handleScroll)
     })
 
     return {
@@ -581,9 +522,7 @@ export default {
       showMascot,
       waitingListKey,
       danhSachChoRef,
-      isScrolled,
-      mobileScrollContainer,
-      handleScrollMobile,
+
       updateWaitingCount,
       toggleTheme,
       handleMascotClick,
