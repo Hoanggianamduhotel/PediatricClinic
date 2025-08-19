@@ -104,30 +104,25 @@
               />
             </div>
             
-            <v-row dense class="text-caption">
-              <v-col cols="6">
-                <div class="text-grey-600">Ngày sinh:</div>
-                <div>{{ formatDateShort(patient.ngay_sinh) }}</div>
-              </v-col>
-              <v-col cols="6">
-                <div class="text-grey-600">Tuổi:</div>
-                <div v-if="patient.ngay_sinh">{{ formatAge(patient.ngay_sinh) }}</div>
-                <div v-else class="text-grey-500">Chưa rõ</div>
-              </v-col>
-            </v-row>
-            
-            <v-row dense class="text-caption mt-1">
-              <v-col cols="6">
-                <div class="text-grey-600">Cân nặng:</div>
-                <div v-if="patient.can_nang">{{ patient.can_nang }} kg</div>
-                <div v-else class="text-grey-500">-</div>
-              </v-col>
-              <v-col cols="6">
-                <div class="text-grey-600">Điện thoại:</div>
-                <div v-if="patient.so_dien_thoai">{{ patient.so_dien_thoai }}</div>
-                <div v-else class="text-grey-500">-</div>
-              </v-col>
-            </v-row>
+            <div class="compact-info text-body-2">
+              <div class="d-flex justify-space-between mb-1">
+                <span><span class="text-grey-600">Ngày sinh:</span> {{ formatDateShort(patient.ngay_sinh) }}</span>
+                <span><span class="text-grey-600">Tuổi:</span> 
+                  <span v-if="patient.ngay_sinh">{{ formatAge(patient.ngay_sinh) }}</span>
+                  <span v-else class="text-grey-500">Chưa rõ</span>
+                </span>
+              </div>
+              <div class="d-flex justify-space-between">
+                <span><span class="text-grey-600">Cân nặng:</span> 
+                  <span v-if="patient.can_nang">{{ patient.can_nang }} kg</span>
+                  <span v-else class="text-grey-500">-</span>
+                </span>
+                <span><span class="text-grey-600">Điện thoại:</span> 
+                  <span v-if="patient.so_dien_thoai">{{ patient.so_dien_thoai }}</span>
+                  <span v-else class="text-grey-500">-</span>
+                </span>
+              </div>
+            </div>
           </v-card-text>
         </v-card>
       </div>
