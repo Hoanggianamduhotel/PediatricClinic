@@ -1,22 +1,11 @@
 <template>
   <div class="danh-sach-cho">
-    <!-- Header -->
-    <v-card v-if="showHeader" elevation="2" class="mb-6">
-      <v-card-title class="bg-warning text-white d-flex align-center">
-        <v-icon start>mdi-clock-outline</v-icon>
-        Danh Sách Chờ Khám
-        <v-spacer />
-        <v-chip color="white" text-color="warning" size="small">
-          {{ waitingList.length }} bệnh nhân
-        </v-chip>
-      </v-card-title>
-    </v-card>
+
 
     <!-- Modern List View -->
     <v-card v-if="waitingList.length > 0" elevation="0" class="border-top">
       <!-- Table Header -->
       <v-card-title class="pa-4 d-flex align-center">
-        <h3 class="text-h6">Danh Sách Chờ Khám</h3>
         <v-spacer />
         <v-chip color="primary" variant="tonal" size="small">
           Tổng số: {{ waitingList.length }}
