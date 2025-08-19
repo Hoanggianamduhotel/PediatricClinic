@@ -233,32 +233,22 @@
         </v-container>
       </div>
       
-      <div v-else-if="currentTab === 'danhsachcho'" class="waiting-list-tab">
-        <!-- Mobile Title - Sticky Header -->
-        <div 
-          v-if="$vuetify.display.mobile" 
-          class="px-4 py-2 bg-warning position-sticky waiting-list-header"
-          style="top: 59px; z-index: 1001;"
-        >
-          <div class="d-flex justify-space-between align-center">
-            <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
-            <v-chip color="primary" variant="tonal" size="small">
-              Tổng số: {{ waitingCount }}
-            </v-chip>
+      <div v-else-if="currentTab === 'danhsachcho'">
+        <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
+          <!-- Mobile Title - Static, right under tabs -->
+          <div v-if="$vuetify.display.mobile" class="px-4 py-2 bg-warning">
+            <div class="d-flex justify-space-between align-center">
+              <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
+              <v-chip color="primary" variant="tonal" size="small">
+                Tổng số: {{ waitingCount }}
+              </v-chip>
+            </div>
           </div>
-        </div>
-        
-        <!-- Selected Patient Details moved up before waiting list -->
-        <TiepTan 
-          :patient-info-only="true"
-          @patient-added-to-waiting="handlePatientAdded" 
-          @show-add-dialog="showAddPatientDialog = $event"
-          :show-add-dialog="showAddPatientDialog"
-        />
-        
-        <div class="waiting-list-container pa-0">
+          
+          <!-- Remove TiepTan component from DS Chờ tab to eliminate white space -->
+          
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
-        </div>
+        </v-container>
       </div>
       
       <div v-else-if="currentTab === 'thongke'">
@@ -394,17 +384,7 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Waiting List Tab Layout */
-.waiting-list-tab {
-  height: calc(100vh - 107px);
-  overflow-y: auto;
-  position: relative;
-}
-
-/* Scrollable container for waiting list */
-.waiting-list-container {
-  padding: 0;
-}
+/* Remove extra spacing and optimize mobile layout */
 </style>
 
 <script>
