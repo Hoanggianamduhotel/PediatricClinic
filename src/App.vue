@@ -528,8 +528,7 @@ export default {
       handleMascotClick,
       handleMascotClose,
       handlePatientAdded,
-      openTiepTanDialog,
-      handleScroll
+      openTiepTanDialog
     }
   }
 }
