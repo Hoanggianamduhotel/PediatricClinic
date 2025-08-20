@@ -234,29 +234,21 @@
       </div>
       
       <div v-else-if="currentTab === 'danhsachcho'">
-        <!-- Mobile Scroll-responsive Title Header -->
-        <div 
-          v-if="$vuetify.display.mobile" 
-          class="waiting-title-header position-sticky"
-          :class="{ 'scrolled': isScrolling }"
-          style="top: 59px; z-index: 1001;"
-        >
-          <div class="title-content">
-            <div class="d-flex justify-space-between align-center">
-              <h2 class="title-text">Danh Sách Chờ Khám</h2>
-              <v-chip color="primary" variant="tonal" size="small" class="count-chip">
-                Tổng số: {{ waitingCount }}
-              </v-chip>
-            </div>
+        <!-- Simple Fixed Title Header -->
+        <div v-if="$vuetify.display.mobile" class="waiting-list-simple-header">
+          <div class="d-flex justify-space-between align-center px-4 py-2">
+            <h2 class="text-body-1 font-weight-bold text-black ma-0">
+              Danh Sách Chờ Khám
+            </h2>
+            <v-chip color="primary" variant="tonal" size="small">
+              Tổng số: {{ waitingCount }}
+            </v-chip>
           </div>
         </div>
         
         <v-container 
           fluid 
           :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'"
-          @scroll="handleScroll"
-          ref="scrollContainer"
-          style="height: calc(100vh - 119px); overflow-y: auto;"
         >
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
         </v-container>
@@ -395,46 +387,12 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Waiting List Title Header Animation */
-.waiting-title-header {
-  background: #fb8c00; /* warning color */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-bottom: 3px solid #fb8c00;
-}
-
-.waiting-title-header .title-content {
-  padding: 8px 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.waiting-title-header .title-text {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: black;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin: 0;
-}
-
-.waiting-title-header .count-chip {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Scrolled state - thin orange line */
-.waiting-title-header.scrolled {
-  background: transparent;
-  border-bottom: 3px solid #fb8c00; /* Same thickness as purple line */
-}
-
-.waiting-title-header.scrolled .title-content {
-  padding: 0;
-  height: 3px;
-  overflow: hidden;
-}
-
-.waiting-title-header.scrolled .title-text,
-.waiting-title-header.scrolled .count-chip {
-  opacity: 0;
-  transform: scale(0);
+/* Simple Fixed Title Header */
+.waiting-list-simple-header {
+  background: #ffc107; /* yellow background */
+  height: 35px; /* 60% of tab navigation height (~59px) */
+  display: flex;
+  align-items: center;
 }
 </style>
 
@@ -466,10 +424,7 @@ export default {
     const currentRole = ref('doctor') // 'doctor' or 'pharmacist'
     const showMascot = ref(true)
     const waitingListKey = ref(0)
-    const isScrolling = ref(false)
-    const scrollContainer = ref(null)
     let timeInterval = null
-    let scrollTimeout = null
 
     const updateDateTime = () => {
       const now = new Date()
@@ -540,14 +495,7 @@ export default {
       }
     })
 
-    // Handle scroll for dynamic header
-    const handleScroll = () => {
-      isScrolling.value = true
-      clearTimeout(scrollTimeout)
-      scrollTimeout = setTimeout(() => {
-        isScrolling.value = false
-      }, 1000) // Return to normal after 1 second of no scrolling
-    }
+    // Removed scroll handlers - using simple static header
 
     onMounted(() => {
       updateDateTime()
@@ -574,8 +522,7 @@ export default {
       showMascot,
       waitingListKey,
       danhSachChoRef,
-      isScrolling,
-      scrollContainer,
+
       updateWaitingCount,
       toggleTheme,
       handleMascotClick,
