@@ -216,6 +216,8 @@
           <!-- Reception Interface -->
           <TiepTan 
             @patient-added-to-waiting="handlePatientAdded" 
+            @show-add-dialog="showAddPatientDialog = $event"
+            :show-add-dialog="showAddPatientDialog"
           />
           
           <!-- Waiting List Below - Desktop Only -->
@@ -232,19 +234,22 @@
       </div>
       
       <div v-else-if="currentTab === 'danhsachcho'">
-        <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
-          <!-- Mobile Title - Static, right under tabs -->
-          <div v-if="$vuetify.display.mobile" class="px-4 py-2 bg-warning">
-            <div class="d-flex justify-space-between align-center">
-              <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
-              <v-chip color="primary" variant="tonal" size="small">
-                Tổng số: {{ waitingCount }}
-              </v-chip>
-            </div>
+        <!-- Simple Fixed Title Header -->
+        <div v-if="$vuetify.display.mobile" class="waiting-list-simple-header">
+          <div class="d-flex justify-space-between align-center px-4 py-2">
+            <h2 class="text-body-1 font-weight-bold text-black ma-0">
+              Danh Sách Chờ Khám
+            </h2>
+            <v-chip color="primary" variant="tonal" size="small">
+              Tổng số: {{ waitingCount }}
+            </v-chip>
           </div>
-          
-          <!-- Remove TiepTan component from DS Chờ tab to eliminate white space -->
-          
+        </div>
+        
+        <v-container 
+          fluid 
+          :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'"
+        >
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
         </v-container>
       </div>
@@ -382,7 +387,13 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Remove extra spacing and optimize mobile layout */
+/* Simple Fixed Title Header */
+.waiting-list-simple-header {
+  background: #ffc107; /* yellow background */
+  height: 35px; /* 60% of tab navigation height (~59px) */
+  display: flex;
+  align-items: center;
+}
 </style>
 
 <script>
@@ -409,6 +420,7 @@ export default {
     const drawer = ref(false)
     const rightSidebarExpanded = ref(true)
     const isDark = ref(false)
+    const showAddPatientDialog = ref(false)
     const currentRole = ref('doctor') // 'doctor' or 'pharmacist'
     const showMascot = ref(true)
     const waitingListKey = ref(0)
@@ -470,14 +482,20 @@ export default {
     }
 
     const openTiepTanDialog = () => {
-      console.log('Opening dialog - trigger TiepTan component')
-      // This will be handled by the TiepTan component itself when mounted
+      console.log('Opening dialog, current state:', showAddPatientDialog.value)
+      showAddPatientDialog.value = true
+      console.log('Dialog state after opening:', showAddPatientDialog.value)
     }
 
-    // Simple tab change watcher
+    // Watch for tab changes to reset dialog state
     watch(currentTab, (newTab, oldTab) => {
       console.log('Tab changed:', oldTab, '->', newTab)
+      if (oldTab && newTab !== oldTab) {
+        showAddPatientDialog.value = false
+      }
     })
+
+    // Removed scroll handlers - using simple static header
 
     onMounted(() => {
       updateDateTime()
@@ -504,12 +522,14 @@ export default {
       showMascot,
       waitingListKey,
       danhSachChoRef,
+
       updateWaitingCount,
       toggleTheme,
       handleMascotClick,
       handleMascotClose,
       handlePatientAdded,
-      openTiepTanDialog
+      openTiepTanDialog,
+      handleScroll
     }
   }
 }

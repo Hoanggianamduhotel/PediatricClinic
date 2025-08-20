@@ -493,12 +493,19 @@ export default {
   },
   emits: ['patient-added-to-waiting', 'show-add-dialog'],
   setup(props, { emit }) {
-    // Dialog states - simple local refs
-    const showPatientActionDialog = ref(false)
-    const showAddPatientDialog = ref(false)
+    const showAddPatientDialog = ref(props.showAddDialog)
+    const showPatientActionDialog = ref(props.showAddDialog)
     const showSearchDialog = ref(false)
+    const searchQuery = ref('')
+    const searchResults = ref([])
+    const selectedPatient = ref(null)
+    const isSearching = ref(false)
+    const isSubmitting = ref(false)
+    const isAddingToWaitingList = ref(false)
+    const message = ref(null)
+    const showMessage = ref(false)
+    const displayNgaySinh = ref('')
     
-    // Form data
     const newPatient = ref({
       ho_ten: '',
       ngay_sinh: '',
@@ -507,31 +514,38 @@ export default {
       dia_chi: '',
       so_dien_thoai: ''
     })
-    
-    const displayNgaySinh = ref('')
-    const searchQuery = ref('')
-    const searchResults = ref([])
-    const selectedPatient = ref(null)
-    
-    // Loading states
-    const isSearching = ref(false)
-    const isSubmitting = ref(false)
-    const isAddingToWaitingList = ref(false)
-    const message = ref(null)
-    const showMessage = ref(false)
 
-    // Display message function
+    // Simple reset pattern for dialogs
+    const resetAllDialogs = () => {
+      showPatientActionDialog.value = false
+      showAddPatientDialog.value = false
+      showSearchDialog.value = false
+      selectedPatient.value = null
+      searchQuery.value = ''
+      searchResults.value = []
+    }
+
+    // Watch for props changes to show dialog
+    watch(() => props.showAddDialog, (newVal, oldVal) => {
+      if (newVal && !oldVal) {
+        // Reset all dialogs first, then open main dialog
+        resetAllDialogs()
+        showPatientActionDialog.value = true
+      } else if (!newVal) {
+        resetAllDialogs()
+      }
+    })
+
     const displayMessage = (text, type = 'success') => {
       message.value = { text, type }
       showMessage.value = true
     }
 
     const closeAddPatientDialog = () => {
-      showPatientActionDialog.value = false
-      showAddPatientDialog.value = false
-      showSearchDialog.value = false
+      // Use reset pattern
+      resetAllDialogs()
       
-      // Reset all data
+      // Reset form data
       newPatient.value = {
         ho_ten: '',
         ngay_sinh: '',
@@ -541,9 +555,9 @@ export default {
         so_dien_thoai: ''
       }
       displayNgaySinh.value = ''
-      searchQuery.value = ''
-      searchResults.value = []
-      selectedPatient.value = null
+      
+      // Emit to parent to reset state
+      emit('show-add-dialog', false)
     }
 
     // Template refs for fields
@@ -777,37 +791,27 @@ export default {
     }
 
     return {
-      // Dialog states
-      showPatientActionDialog,
       showAddPatientDialog,
+      showPatientActionDialog,
       showSearchDialog,
-      
-      // Form data
-      newPatient,
-      displayNgaySinh,
       searchQuery,
       searchResults,
       selectedPatient,
-      
-      // Loading states
+      isSearching,
       isSubmitting,
       isAddingToWaitingList,
-      
-      // Local component state
-      isSearching,
       message,
+      newPatient,
       showMessage,
-      
-      // Template refs
+      displayNgaySinh,
       hoTenField,
       ngaySinhField,
       diaChiField,
       soDienThoaiField,
       canNangField,
-      
-      // Methods
       displayMessage,
       closeAddPatientDialog,
+      resetAllDialogs,
       addPatient,
       searchPatients,
       selectPatient,
