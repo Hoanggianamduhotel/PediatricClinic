@@ -1,36 +1,30 @@
 <template>
   <v-app>
-    <!-- Top App Bar -->
+    <!-- Topbar + Navigation Tabs as one unit -->
     <transition name="slide-down">
-      <v-app-bar 
-        v-show="showNavigation" 
-        app 
-        color="white" 
-        elevation="0" 
-        height="56"
-      >
-        <v-app-bar-title>
-          <div class="d-flex align-center">
-            <v-icon color="primary" size="24" class="mr-2">mdi-hospital-building</v-icon>
-            <div class="text-subtitle-1 font-weight-bold text-primary">Clinic BS Khang</div>
-          </div>
-        </v-app-bar-title>
-        <v-spacer />
-        <v-btn icon="mdi-logout" color="primary" variant="text" size="small" />
-      </v-app-bar>
-    </transition>
-    
-    <!-- Purple separator line -->
-    <transition name="slide-down">
-      <div v-show="showNavigation" class="purple-separator"></div>
-    </transition>
+      <div v-if="showNavigation" class="nav-wrapper">
+        <!-- Top App Bar -->
+        <v-app-bar 
+          app 
+          color="white" 
+          elevation="0" 
+          height="56"
+        >
+          <v-app-bar-title>
+            <div class="d-flex align-center">
+              <v-icon color="primary" size="24" class="mr-2">mdi-hospital-building</v-icon>
+              <div class="text-subtitle-1 font-weight-bold text-primary">Clinic BS Khang</div>
+            </div>
+          </v-app-bar-title>
+          <v-spacer />
+          <v-btn icon="mdi-logout" color="primary" variant="text" size="small" />
+        </v-app-bar>
+        
+        <!-- Purple separator line -->
+        <div class="purple-separator"></div>
 
-    <!-- Main Content -->
-    <v-main class="bg-grey-lighten-4">
-      <!-- Mobile Navigation Tabs -->
-      <transition name="slide-down">
+        <!-- Mobile Navigation Tabs -->
         <v-tabs 
-          v-show="showNavigation"
           v-model="currentTab"
           fixed-tabs
           bg-color="white"
@@ -51,7 +45,11 @@
             Thống Kê
           </v-tab>
         </v-tabs>
-      </transition>
+      </div>
+    </transition>
+
+    <!-- Main Content -->
+    <v-main class="bg-grey-lighten-4">
 
       <!-- Tab Content with scroll detection -->
       <div 
@@ -136,6 +134,16 @@ export default {
 </script>
 
 <style scoped>
+.nav-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .purple-separator {
   height: 4px;
   background: linear-gradient(90deg, #9c27b0, #673ab7);
@@ -144,11 +152,12 @@ export default {
 /* Swipe-to-hide navigation transition */
 .slide-down-enter-active,
 .slide-down-leave-active {
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .slide-down-enter-from,
 .slide-down-leave-to {
   transform: translateY(-100%);
+  opacity: 0;
 }
 </style>

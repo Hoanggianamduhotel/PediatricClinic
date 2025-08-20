@@ -1,0 +1,105 @@
+<template>
+  <div class="app-container">
+    <!-- Topbar + Nav -->
+    <transition name="slide-fade">
+      <div v-if="showNav" class="nav-wrapper">
+        <header class="topbar">
+          <h1>Clinic BS Khang</h1>
+        </header>
+
+        <nav class="tabs">
+          <button>TIẾP TÂN</button>
+          <button>DS CHỜ</button>
+          <button>THỐNG KÊ</button>
+        </nav>
+      </div>
+    </transition>
+
+    <!-- Content -->
+    <div class="content" ref="scrollArea" @scroll="onScroll">
+      <div v-for="i in 50" :key="i" class="item">
+        Bệnh nhân số {{ i }}
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue";
+
+const showNav = ref(true);
+const lastScrollTop = ref(0);
+const scrollArea = ref(null);
+
+const onScroll = () => {
+  const scrollTop = scrollArea.value.scrollTop;
+  if (scrollTop > lastScrollTop.value + 10) {
+    // Vuốt lên => ẩn
+    showNav.value = false;
+  } else if (scrollTop < lastScrollTop.value - 10) {
+    // Vuốt xuống => hiện
+    showNav.value = true;
+  }
+  lastScrollTop.value = scrollTop;
+};
+</script>
+
+<style scoped>
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.nav-wrapper {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.topbar {
+  padding: 10px;
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 1px solid #eee;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: none;
+  font-weight: 600;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  background: #f7f7f7;
+  padding: 8px;
+}
+
+.item {
+  padding: 12px;
+  background: white;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Transition */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+</style>
