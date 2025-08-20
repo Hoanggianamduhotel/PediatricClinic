@@ -166,7 +166,7 @@
         bg-color="white"
         color="primary"
         align-tabs="center"
-        style="position: sticky; top: 59px; z-index: 1000;"
+        style="position: sticky; top: 59px; z-index: 100;"
       >
         <v-tab value="tieptan">
           <v-icon start>mdi-account-plus</v-icon>
@@ -182,9 +182,9 @@
         </v-tab>
       </v-tabs>
 
-      <!-- Tab Content -->
-      <div v-if="currentTab === 'tieptan'">
-        <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
+      <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
+        <!-- Tab Content -->
+        <div v-if="currentTab === 'tieptan'">
           <!-- Title and Action Button - Mobile Optimized -->
           <div v-if="!$vuetify.display.mobile" class="d-flex justify-space-between align-center mb-6">
             <div>
@@ -230,40 +230,39 @@
               ref="danhSachChoRef"
             />
           </div>
-        </v-container>
-      </div>
-      
-      <div v-else-if="currentTab === 'danhsachcho'">
-        <!-- Simple Fixed Title Header -->
-        <div v-if="$vuetify.display.mobile" class="waiting-list-simple-header">
-          <div class="d-flex justify-space-between align-center px-4 py-2">
-            <h2 class="text-body-1 font-weight-bold text-black ma-0">
-              Danh Sách Chờ Khám
-            </h2>
-            <v-chip color="primary" variant="tonal" size="small">
-              Tổng số: {{ waitingCount }}
-            </v-chip>
-          </div>
         </div>
         
-        <v-container 
-          fluid 
-          :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'"
-        >
+        <div v-else-if="currentTab === 'danhsachcho'">
+          <!-- Mobile Title -->
+          <div v-if="$vuetify.display.mobile" class="px-4 py-1 bg-warning">
+            <div class="d-flex justify-space-between align-center">
+              <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
+              <v-chip color="primary" variant="tonal" size="small">
+                Tổng số: {{ waitingCount }}
+              </v-chip>
+            </div>
+          </div>
+          
+          <!-- Selected Patient Details moved up before waiting list -->
+          <TiepTan 
+            :patient-info-only="true"
+            @patient-added-to-waiting="handlePatientAdded" 
+            @show-add-dialog="showAddPatientDialog = $event"
+            :show-add-dialog="showAddPatientDialog"
+          />
+          
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
-        </v-container>
-      </div>
-      
-      <div v-else-if="currentTab === 'thongke'">
-        <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
+        </div>
+        
+        <div v-else-if="currentTab === 'thongke'">
           <!-- Mobile Title -->
           <div v-if="$vuetify.display.mobile" class="mb-4">
             <h2 class="text-h6 font-weight-bold text-primary mb-1">Thống Kê Doanh Thu</h2>
             <p class="text-caption text-grey-600 mb-3">Báo cáo khám bệnh</p>
           </div>
           <ThongKe />
-        </v-container>
-      </div>
+        </div>
+      </v-container>
     </v-main>
 
     <!-- Right Sidebar (Purple) - Hidden on mobile -->
@@ -380,24 +379,10 @@
   background: rgba(0,0,0,0.2);
   border-radius: 2px;
 }
-
-/* Sticky Waiting List Header */
-.waiting-list-header {
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Simple Fixed Title Header */
-.waiting-list-simple-header {
-  background: #ffc107; /* yellow background */
-  height: 35px; /* 60% of tab navigation height (~59px) */
-  display: flex;
-  align-items: center;
-}
 </style>
 
 <script>
-import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance, watch } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance } from 'vue'
 import TiepTan from './components/TiepTan.vue'
 import DanhSachCho from './components/DanhSachCho.vue'
 import ThongKe from './components/ThongKe.vue'
@@ -482,20 +467,8 @@ export default {
     }
 
     const openTiepTanDialog = () => {
-      console.log('Opening dialog, current state:', showAddPatientDialog.value)
       showAddPatientDialog.value = true
-      console.log('Dialog state after opening:', showAddPatientDialog.value)
     }
-
-    // Watch for tab changes to reset dialog state
-    watch(currentTab, (newTab, oldTab) => {
-      console.log('Tab changed:', oldTab, '->', newTab)
-      if (oldTab && newTab !== oldTab) {
-        showAddPatientDialog.value = false
-      }
-    })
-
-    // Removed scroll handlers - using simple static header
 
     onMounted(() => {
       updateDateTime()
@@ -522,14 +495,12 @@ export default {
       showMascot,
       waitingListKey,
       danhSachChoRef,
-
       updateWaitingCount,
       toggleTheme,
       handleMascotClick,
       handleMascotClose,
       handlePatientAdded,
-      openTiepTanDialog,
-      handleScroll
+      openTiepTanDialog
     }
   }
 }

@@ -516,13 +516,9 @@ export default {
     })
 
     // Watch for props changes to show dialog
-    watch(() => props.showAddDialog, (newVal, oldVal) => {
-      console.log('showAddDialog changed:', oldVal, '->', newVal)
-      if (newVal && !oldVal) {
-        // Only open when changing from false to true
+    watch(() => props.showAddDialog, (newVal) => {
+      if (newVal) {
         showPatientActionDialog.value = true
-        showAddPatientDialog.value = false
-        showSearchDialog.value = false
       }
     })
 
@@ -532,12 +528,9 @@ export default {
     }
 
     const closeAddPatientDialog = () => {
-      console.log('Closing dialogs...')
       showAddPatientDialog.value = false
       showPatientActionDialog.value = false
-      showSearchDialog.value = false
-      
-      // Reset all data
+      emit('show-add-dialog', false)
       newPatient.value = {
         ho_ten: '',
         ngay_sinh: '',
@@ -547,12 +540,6 @@ export default {
         so_dien_thoai: ''
       }
       displayNgaySinh.value = ''
-      searchQuery.value = ''
-      searchResults.value = []
-      selectedPatient.value = null
-      
-      // Emit to parent to reset state
-      emit('show-add-dialog', false)
     }
 
     // Template refs for fields
