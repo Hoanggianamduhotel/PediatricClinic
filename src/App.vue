@@ -216,8 +216,6 @@
           <!-- Reception Interface -->
           <TiepTan 
             @patient-added-to-waiting="handlePatientAdded" 
-            @show-add-dialog="showAddPatientDialog = $event"
-            :show-add-dialog="showAddPatientDialog"
           />
           
           <!-- Waiting List Below - Desktop Only -->
@@ -411,7 +409,6 @@ export default {
     const drawer = ref(false)
     const rightSidebarExpanded = ref(true)
     const isDark = ref(false)
-    const showAddPatientDialog = ref(false)
     const currentRole = ref('doctor') // 'doctor' or 'pharmacist'
     const showMascot = ref(true)
     const waitingListKey = ref(0)
@@ -473,17 +470,13 @@ export default {
     }
 
     const openTiepTanDialog = () => {
-      console.log('Opening dialog, current state:', showAddPatientDialog.value)
-      showAddPatientDialog.value = true
-      console.log('Dialog state after opening:', showAddPatientDialog.value)
+      console.log('Opening dialog - trigger TiepTan component')
+      // This will be handled by the TiepTan component itself when mounted
     }
 
-    // Watch for tab changes to reset dialog state
+    // Simple tab change watcher
     watch(currentTab, (newTab, oldTab) => {
       console.log('Tab changed:', oldTab, '->', newTab)
-      if (oldTab && newTab !== oldTab) {
-        showAddPatientDialog.value = false
-      }
     })
 
     onMounted(() => {

@@ -4,21 +4,15 @@
 
 Clinic BS Khang is a comprehensive pediatric clinic management system built for Vietnamese healthcare providers. The application provides a complete solution for managing patients, appointments, medical records, staff, and billing operations specifically tailored for pediatric care. The system includes multilingual support (Vietnamese) and is designed to streamline clinic operations while maintaining detailed patient records and ensuring efficient appointment scheduling.
 
-## Recent Changes (August 18, 2025)
+## Recent Changes (August 20, 2025)
 
-- ✅ **Mobile UI Fix**: Replaced fullscreen sidebar with navigation tabs (Tiếp Tân | DS Chờ | Thống Kê) for mobile
-- ✅ **Auto-Capitalize Names**: Patient names automatically capitalize on input (lê minh khang → Lê Minh Khang)
-- ✅ **Smart Age Display**: Show months for children <36 months, rounded years for >36 months
-- ✅ **Data Validation Fix**: Improved Supabase validation to properly save giới tính, cân nặng, tháng tuổi
-- ✅ **Mobile FAB**: Added floating action button for quick patient addition on mobile
-- ✅ **Navigation Tabs**: Mobile-friendly tab system replaces problematic sidebar drawer
-- ✅ **Database Schema**: Enhanced patient data handling with accurate age calculation
-  - Mobile-optimized app bar with conditional elements
-  - Touch-friendly navigation drawer (bottom sheet on mobile)
-  - Responsive statistics cards with smaller sizes on mobile
-  - Mobile card list view replacing table on small screens
-  - Touch interactions and smooth scrolling
-  - iOS-friendly input styling to prevent zoom
+- ✅ **Layout Optimization**: Removed sticky header, moved title directly under navigation tabs
+- ✅ **Space Efficiency**: Eliminated TiepTan component from "DS Chờ" tab to reduce vertical whitespace
+- ✅ **Dialog State Management**: Simplified dialog state logic with improved local state management
+- ✅ **Console Debugging**: Added comprehensive console logs for dialog state debugging
+- ✅ **Mobile UI Improvements**: Title "Danh Sách Chờ Khám" positioned immediately under tabs
+- ✅ **Code Cleanup**: Removed problematic Pinia integration, reverted to stable local state
+- ✅ **Responsive Design**: Optimized mobile layout for maximum screen utilization
 
 ## User Preferences
 
