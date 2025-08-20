@@ -520,8 +520,7 @@ export default {
     const message = ref(null)
     const showMessage = ref(false)
 
-    // No need for watchers - store handles all state
-
+    // Display message function
     const displayMessage = (text, type = 'success') => {
       message.value = { text, type }
       showMessage.value = true
