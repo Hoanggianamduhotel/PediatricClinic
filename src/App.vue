@@ -1,14 +1,7 @@
 <template>
   <v-app>
-    <!-- Top App Bar - Mobile Optimized with swipe-to-hide -->
-    <transition name="slide-down">
-      <v-app-bar 
-        v-show="showNavigation" 
-        app 
-        color="white" 
-        elevation="0" 
-        :height="$vuetify.display.mobile ? 56 : 64"
-      >
+    <!-- Top App Bar - Mobile Optimized -->
+    <v-app-bar app color="white" elevation="0" :height="$vuetify.display.mobile ? 56 : 64">
       <v-app-bar-nav-icon v-if="!$vuetify.display.mobile" @click="drawer = !drawer" />
       
       <v-app-bar-title>
@@ -64,13 +57,10 @@
         variant="text"
         size="small"
       />
-      </v-app-bar>
-    </transition>
+    </v-app-bar>
     
-    <!-- Purple separator line with swipe-to-hide -->
-    <transition name="slide-down">
-      <div v-show="showNavigation" class="purple-separator"></div>
-    </transition>
+    <!-- Purple separator line -->
+    <div class="purple-separator"></div>
 
     <!-- Left Sidebar (Statistics) - Desktop Only -->
     <v-navigation-drawer
@@ -168,18 +158,16 @@
 
     <!-- Main Content - Mobile Optimized -->
     <v-main class="bg-grey-lighten-4">
-      <!-- Mobile Bottom Navigation Tabs with swipe-to-hide -->
-      <transition name="slide-down">
-        <v-tabs 
-          v-if="$vuetify.display.mobile"
-          v-show="showNavigation"
-          v-model="currentTab"
-          fixed-tabs
-          bg-color="white"
-          color="primary"
-          align-tabs="center"
-          style="position: sticky; top: 59px; z-index: 1000;"
-        >
+      <!-- Mobile Bottom Navigation Tabs -->
+      <v-tabs 
+        v-if="$vuetify.display.mobile"
+        v-model="currentTab"
+        fixed-tabs
+        bg-color="white"
+        color="primary"
+        align-tabs="center"
+        style="position: sticky; top: 59px; z-index: 1000;"
+      >
         <v-tab value="tieptan">
           <v-icon start>mdi-account-plus</v-icon>
           Tiếp Tân
@@ -192,16 +180,10 @@
           <v-icon start>mdi-chart-line</v-icon>
           Thống Kê
         </v-tab>
-        </v-tabs>
-      </transition>
+      </v-tabs>
 
-      <!-- Tab Content with scroll detection -->
-      <div 
-        v-if="currentTab === 'tieptan'"
-        @scroll.passive="onScroll"
-        ref="scrollArea"
-        style="height: calc(100vh - 107px); overflow-y: auto;"
-      >
+      <!-- Tab Content -->
+      <div v-if="currentTab === 'tieptan'">
         <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
           <!-- Title and Action Button - Mobile Optimized -->
           <div v-if="!$vuetify.display.mobile" class="d-flex justify-space-between align-center mb-6">
@@ -251,35 +233,28 @@
         </v-container>
       </div>
       
-      <div 
-        v-else-if="currentTab === 'danhsachcho'"
-        @scroll.passive="onScroll"
-        ref="scrollArea"
-        style="height: calc(100vh - 107px); overflow-y: auto;"
-      >
-        <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
-          <!-- Mobile Title - Static, right under tabs -->
-          <div v-if="$vuetify.display.mobile" class="px-4 py-2 bg-warning">
-            <div class="d-flex justify-space-between align-center">
-              <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
-              <v-chip color="primary" variant="tonal" size="small">
-                Tổng số: {{ waitingCount }}
-              </v-chip>
-            </div>
+      <div v-else-if="currentTab === 'danhsachcho'">
+        <!-- Simple Fixed Title Header -->
+        <div v-if="$vuetify.display.mobile" class="waiting-list-simple-header">
+          <div class="d-flex justify-space-between align-center px-4 py-2">
+            <h2 class="text-body-1 font-weight-bold text-black ma-0">
+              Danh Sách Chờ Khám
+            </h2>
+            <v-chip color="primary" variant="tonal" size="small">
+              Tổng số: {{ waitingCount }}
+            </v-chip>
           </div>
-          
-          <!-- Remove TiepTan component from DS Chờ tab to eliminate white space -->
-          
+        </div>
+        
+        <v-container 
+          fluid 
+          :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'"
+        >
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
         </v-container>
       </div>
       
-      <div 
-        v-else-if="currentTab === 'thongke'"
-        @scroll.passive="onScroll"
-        ref="scrollArea"
-        style="height: calc(100vh - 107px); overflow-y: auto;"
-      >
+      <div v-else-if="currentTab === 'thongke'">
         <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
           <!-- Mobile Title -->
           <div v-if="$vuetify.display.mobile" class="mb-4">
@@ -412,17 +387,12 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Remove extra spacing and optimize mobile layout */
-
-/* Swipe-to-hide navigation transition */
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: transform 0.3s ease;
-}
-
-.slide-down-enter-from,
-.slide-down-leave-to {
-  transform: translateY(-100%);
+/* Simple Fixed Title Header */
+.waiting-list-simple-header {
+  background: #ffc107; /* yellow background */
+  height: 35px; /* 60% of tab navigation height (~59px) */
+  display: flex;
+  align-items: center;
 }
 </style>
 
@@ -454,10 +424,7 @@ export default {
     const currentRole = ref('doctor') // 'doctor' or 'pharmacist'
     const showMascot = ref(true)
     const waitingListKey = ref(0)
-    const showNavigation = ref(true)
-    const scrollArea = ref(null)
     let timeInterval = null
-    let lastScrollTop = 0
 
     const updateDateTime = () => {
       const now = new Date()
@@ -520,23 +487,6 @@ export default {
       console.log('Dialog state after opening:', showAddPatientDialog.value)
     }
 
-    // Scroll handler for swipe-to-hide navigation
-    const onScroll = (event) => {
-      if (!scrollArea.value) return
-      
-      const currentScrollTop = event.target.scrollTop
-      
-      if (currentScrollTop > lastScrollTop && currentScrollTop > 50) {
-        // Scrolling down and past threshold => hide navigation
-        showNavigation.value = false
-      } else if (currentScrollTop < lastScrollTop) {
-        // Scrolling up => show navigation
-        showNavigation.value = true
-      }
-      
-      lastScrollTop = currentScrollTop
-    }
-
     // Watch for tab changes to reset dialog state
     watch(currentTab, (newTab, oldTab) => {
       console.log('Tab changed:', oldTab, '->', newTab)
@@ -544,6 +494,8 @@ export default {
         showAddPatientDialog.value = false
       }
     })
+
+    // Removed scroll handlers - using simple static header
 
     onMounted(() => {
       updateDateTime()
@@ -570,15 +522,14 @@ export default {
       showMascot,
       waitingListKey,
       danhSachChoRef,
-      scrollArea,
-      showNavigation,
+
       updateWaitingCount,
       toggleTheme,
       handleMascotClick,
       handleMascotClose,
       handlePatientAdded,
       openTiepTanDialog,
-      onScroll
+      handleScroll
     }
   }
 }
