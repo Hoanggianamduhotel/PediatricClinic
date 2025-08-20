@@ -234,22 +234,19 @@
       </div>
       
       <div v-else-if="currentTab === 'danhsachcho'">
-        <!-- Simple Fixed Title Header -->
-        <div v-if="$vuetify.display.mobile" class="waiting-list-simple-header">
-          <div class="d-flex justify-space-between align-center px-4 py-2">
-            <h2 class="text-body-1 font-weight-bold text-black ma-0">
-              Danh Sách Chờ Khám
-            </h2>
-            <v-chip color="primary" variant="tonal" size="small">
-              Tổng số: {{ waitingCount }}
-            </v-chip>
+        <v-container fluid :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'">
+          <!-- Mobile Title - Static, right under tabs -->
+          <div v-if="$vuetify.display.mobile" class="px-4 py-2 bg-warning">
+            <div class="d-flex justify-space-between align-center">
+              <h2 class="text-subtitle-1 font-weight-bold text-black">Danh Sách Chờ Khám</h2>
+              <v-chip color="primary" variant="tonal" size="small">
+                Tổng số: {{ waitingCount }}
+              </v-chip>
+            </div>
           </div>
-        </div>
-        
-        <v-container 
-          fluid 
-          :class="$vuetify.display.mobile ? 'pa-0' : 'pa-6'"
-        >
+          
+          <!-- Remove TiepTan component from DS Chờ tab to eliminate white space -->
+          
           <DanhSachCho @waiting-list-changed="updateWaitingCount" />
         </v-container>
       </div>
@@ -387,13 +384,7 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Simple Fixed Title Header */
-.waiting-list-simple-header {
-  background: #ffc107; /* yellow background */
-  height: 35px; /* 60% of tab navigation height (~59px) */
-  display: flex;
-  align-items: center;
-}
+/* Remove extra spacing and optimize mobile layout */
 </style>
 
 <script>
@@ -495,8 +486,6 @@ export default {
       }
     })
 
-    // Removed scroll handlers - using simple static header
-
     onMounted(() => {
       updateDateTime()
       updateWaitingCount()
@@ -522,7 +511,6 @@ export default {
       showMascot,
       waitingListKey,
       danhSachChoRef,
-
       updateWaitingCount,
       toggleTheme,
       handleMascotClick,
